@@ -1,119 +1,95 @@
 <template>
   <div class="results-display">
     <!-- Loading State -->
-    <div v-if="isRunning" class="result-loading">
-      <base-card padding="lg">
-        <div class="loading-content">
-          <base-spinner size="lg" />
-          <div class="loading-text">
-            <h3>{{ $t("promptEditor.generatingResponse") }}</h3>
-            <p>{{ $t("promptEditor.pleaseWait") }}</p>
-          </div>
+    <div v-if="isRunning" class="result-state">
+      <div class="result-header">
+        <div class="header-left">
+          <span class="response-label">{{ $t("promptEditor.generatingResponse") }}</span>
+          <base-spinner size="sm" class="header-spinner" />
+        </div>
+        <div class="header-right">
           <base-button variant="outline" size="sm" @click="$emit('cancel')">
             {{ $t("common.cancel") }}
           </base-button>
         </div>
-      </base-card>
+      </div>
+
+      <div class="result-content">
+        <div class="loading-placeholder">
+          <p>{{ $t("promptEditor.pleaseWait") }}</p>
+        </div>
+      </div>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="result-error">
-      <base-notice
-        type="error"
-        :title="$t('promptEditor.executionError')"
-        dismissible
-        @dismiss="$emit('clearResults')"
-      >
-        <p>{{ error }}</p>
-        <template #actions>
+    <div v-else-if="error" class="result-state">
+      <div class="result-header">
+        <div class="header-left">
+          <span class="response-label error">{{ $t('promptEditor.executionError') }}</span>
+        </div>
+        <div class="header-right">
           <base-button variant="outline" size="sm" @click="$emit('retry')">
             {{ $t("common.retry") }}
           </base-button>
-        </template>
-      </base-notice>
+        </div>
+      </div>
+
+      <div class="result-content">
+        <div class="error-content">
+          <p>{{ error }}</p>
+        </div>
+      </div>
     </div>
 
     <!-- Success Result -->
-    <div v-else-if="result" class="result-success">
-      <base-card padding="lg">
-        <div class="result-header">
-          <h3>{{ $t("promptEditor.response") }}</h3>
-          <div class="result-meta">
-            <span class="meta-item">
-              <span class="meta-label">{{ $t("promptEditor.model") }}</span>
-              <span class="meta-value">{{ result.model }}</span>
-            </span>
-            <span class="meta-item">
-              <span class="meta-label">{{ $t("promptEditor.latency") }}</span>
-              <span class="meta-value">{{
-                formatLatency(result.metadata.latency)
-              }}</span>
-            </span>
-          </div>
+    <div v-else-if="result" class="result-state">
+      <!-- First line: response and latency -->
+      <div class="result-header">
+        <div class="header-left">
+          <span class="response-label">{{ $t("promptEditor.response") }}</span>
+          <span class="latency">{{ formatLatency(result.metadata.latency) }}</span>
         </div>
-
-        <div class="result-content">
-          <div class="response-text">
-            <pre>{{ result.content }}</pre>
-          </div>
-        </div>
-
-        <div class="result-metrics">
-          <div class="metrics-grid">
-            <div class="metric-card">
-              <span class="metric-label">{{
-                $t("promptEditor.inputTokens")
-              }}</span>
-              <span class="metric-value">{{
-                result.usage.inputTokens.toLocaleString()
-              }}</span>
-            </div>
-
-            <div class="metric-card">
-              <span class="metric-label">{{
-                $t("promptEditor.outputTokens")
-              }}</span>
-              <span class="metric-value">{{
-                result.usage.outputTokens.toLocaleString()
-              }}</span>
-            </div>
-
-            <div class="metric-card">
-              <span class="metric-label">{{
-                $t("promptEditor.totalTokens")
-              }}</span>
-              <span class="metric-value">{{
-                result.usage.totalTokens.toLocaleString()
-              }}</span>
-            </div>
-
-            <div class="metric-card metric-cost">
-              <span class="metric-label">{{ $t("promptEditor.cost") }}</span>
-              <span class="metric-value"
-                >${{ result.cost.totalCost.toFixed(4) }}</span
-              >
-            </div>
-          </div>
-        </div>
-
-        <div class="result-actions">
+        <div class="header-right">
           <base-button variant="primary" size="sm" @click="$emit('saveAsTest')">
             {{ $t("promptEditor.saveAsTestCase") }}
           </base-button>
-
           <base-button variant="outline" size="sm" @click="copyToClipboard">
             {{ $t("common.copy") }}
           </base-button>
-
-          <base-button
-            variant="outline"
-            size="sm"
-            @click="$emit('clearResults')"
-          >
+          <base-button variant="outline" size="sm" @click="$emit('clearResults')">
             {{ $t("common.clear") }}
           </base-button>
         </div>
-      </base-card>
+      </div>
+
+      <!-- Second line: result of the prompt -->
+      <div class="result-content">
+        <div class="response-text">
+          <pre>{{ result.content }}</pre>
+        </div>
+      </div>
+
+      <!-- Third line: tokens and cost -->
+      <div class="result-footer">
+        <div class="metrics">
+          <span class="metric">
+            <span class="metric-label">{{ $t("promptEditor.inputTokens") }}:</span>
+            <span class="metric-value">{{ result.usage.inputTokens.toLocaleString() }}</span>
+          </span>
+          <span class="metric">
+            <span class="metric-label">{{ $t("promptEditor.outputTokens") }}:</span>
+            <span class="metric-value">{{ result.usage.outputTokens.toLocaleString() }}</span>
+          </span>
+          <span class="metric">
+            <span class="metric-label">{{ $t("promptEditor.totalTokens") }}:</span>
+            <span class="metric-value">{{ result.usage.totalTokens.toLocaleString() }}</span>
+          </span>
+          <span class="metric cost">
+            <span class="metric-label">{{ $t("promptEditor.cost") }}:</span>
+            <span class="metric-value">${{ result.cost.totalCost.toFixed(4) }}</span>
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- Empty State -->
@@ -130,10 +106,8 @@
 <script setup lang="ts">
 import type { ProviderResponse } from "../../../types/providers";
 import {
-  BaseCard,
   BaseSpinner,
   BaseButton,
-  BaseNotice,
   BaseEmptyState,
 } from "../../../components/ui";
 
@@ -173,81 +147,73 @@ const copyToClipboard = async (): Promise<void> => {
 
 <style scoped>
 .results-display {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.result-state {
+  flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 200px;
 }
 
-.result-loading,
-.result-error,
-.result-success,
 .result-empty {
   flex: 1;
-}
-
-.loading-content {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  text-align: center;
-  padding: 2rem;
+  justify-content: center;
 }
 
-.loading-text h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #374151;
-}
-
-.loading-text p {
-  margin: 0;
-  color: #6b7280;
-}
-
+/* First line: response and latency with action buttons */
 .result-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 1rem;
 }
 
-.result-header h3 {
-  margin: 0;
-  font-size: 1.25rem;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.response-label {
+  font-size: 1.1rem;
   font-weight: 600;
   color: #111827;
 }
 
-.result-meta {
-  display: flex;
-  gap: 1.5rem;
+.response-label.error {
+  color: #dc2626;
 }
 
-.meta-item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.25rem;
+.header-spinner {
+  margin-left: 0.5rem;
 }
 
-.meta-label {
-  font-size: 0.75rem;
+.latency {
+  font-size: 0.875rem;
   color: #6b7280;
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
   font-weight: 500;
 }
 
-.meta-value {
-  font-size: 0.875rem;
-  color: #111827;
-  font-weight: 600;
+.header-right {
+  display: flex;
+  gap: 0.5rem;
 }
 
+/* Second line: result content */
 .result-content {
-  margin-bottom: 1.5rem;
+  flex: 1;
+  margin-bottom: 1rem;
 }
 
 .response-text {
@@ -269,84 +235,78 @@ const copyToClipboard = async (): Promise<void> => {
   word-wrap: break-word;
 }
 
-.result-metrics {
-  margin-bottom: 1.5rem;
-}
-
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 1rem;
-}
-
-.metric-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+.loading-placeholder {
+  padding: 2rem;
   text-align: center;
+  color: #6b7280;
+  font-style: italic;
 }
 
-.metric-cost {
-  background: #fef3e8;
-  border-color: #fed7aa;
+.error-content {
+  padding: 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #dc2626;
+}
+
+/* Third line: tokens and cost */
+.result-footer {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1rem;
+}
+
+.metrics {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .metric-label {
-  font-size: 0.75rem;
-  color: #64748b;
+  font-size: 0.875rem;
+  color: #6b7280;
   font-weight: 500;
-  margin-bottom: 0.5rem;
 }
 
 .metric-value {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #1e293b;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
 }
 
-.metric-cost .metric-value {
+.metric.cost .metric-value {
   color: #ea580c;
-}
-
-.result-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-start;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  font-weight: 700;
 }
 
 @media (max-width: 768px) {
   .result-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 1rem;
   }
 
-  .result-meta {
-    flex-direction: column;
-    gap: 0.5rem;
-    width: 100%;
-  }
-
-  .meta-item {
-    flex-direction: row;
+  .header-left {
     justify-content: space-between;
-    align-items: center;
   }
 
-  .metrics-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+  .header-right {
+    justify-content: center;
   }
 
-  .result-actions {
+  .metrics {
     flex-direction: column;
     gap: 0.5rem;
+  }
+
+  .metric {
+    justify-content: space-between;
   }
 }
 </style>

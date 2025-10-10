@@ -116,6 +116,7 @@
     "systemPromptHint": "System prompts set the behavior and personality of the AI assistant",
     "userPrompt": "User Prompt",
     "userPromptPlaceholder": "Enter your prompt here",
+    "enterPrompt": "Enter your prompt here",
     "parameters": "Parameters",
     "temperature": "Temperature",
     "temperatureHint": "Controls randomness (0 = deterministic, 2 = very creative)",
