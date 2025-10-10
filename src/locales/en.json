@@ -84,6 +84,8 @@
     "error": "Error",
     "unknownError": "An unknown error occurred",
     "confirmDelete": "Are you sure you want to delete {name}?",
+    "confirmDeleteTitle": "Delete Provider",
+    "confirmDeleteDescription": "This action cannot be undone. All configuration data for this provider will be permanently removed.",
     "providerType": "Provider Type",
     "selectType": "Select a provider type",
     "name": "Name",

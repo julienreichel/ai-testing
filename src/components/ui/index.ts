@@ -9,6 +9,7 @@ import BaseToast from "./BaseToast.vue";
 import BaseForm from "./BaseForm.vue";
 import BaseInputField from "./BaseInputField.vue";
 import BaseEmptyState from "./BaseEmptyState.vue";
+import DeleteConfirmationDialog from "./DeleteConfirmationDialog.vue";
 
 export {
   BaseButton,
@@ -21,6 +22,7 @@ export {
   BaseForm,
   BaseInputField,
   BaseEmptyState,
+  DeleteConfirmationDialog,
 };
 
 // Type exports
@@ -37,3 +39,4 @@ export type {
   BaseInputFieldOption,
 } from "./BaseInputField.vue";
 export type { BaseEmptyStateProps } from "./BaseEmptyState.vue";
+export type { DeleteConfirmationDialogProps } from "./DeleteConfirmationDialog.vue";

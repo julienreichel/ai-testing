@@ -30,7 +30,6 @@
         <div class="run-controls">
           <base-button
             variant="primary"
-            size="lg"
             :disabled="!canRunPrompt"
             :loading="promptRunner.state.value.isRunning"
             @click="runPrompt"
@@ -166,7 +165,7 @@ onMounted(() => {
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
-  min-height: 100vh;
+
 }
 
 .editor-header {

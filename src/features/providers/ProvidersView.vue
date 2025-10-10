@@ -65,20 +65,17 @@
     </base-dialog>
 
     <!-- Delete Confirmation Dialog -->
-    <base-dialog v-model="showDeleteDialog" title="Confirm Deletion" size="sm">
-      <p>
-        {{ $t("providers.confirmDelete", { name: providerToDelete?.name }) }}
-      </p>
-
-      <template #actions>
-        <base-button variant="outline" @click="showDeleteDialog = false">
-          {{ $t("common.cancel") }}
-        </base-button>
-        <base-button variant="danger" @click="deleteProvider">
-          {{ $t("common.delete") }}
-        </base-button>
-      </template>
-    </base-dialog>
+    <delete-confirmation-dialog
+      v-model="showDeleteDialog"
+      :title="$t('providers.confirmDeleteTitle')"
+      :message="$t('providers.confirmDelete', { name: providerToDelete?.name })"
+      :description="$t('providers.confirmDeleteDescription')"
+      :confirm-label="$t('common.delete')"
+      :cancel-label="$t('common.cancel')"
+      :is-deleting="isDeletingProvider"
+      @confirm="deleteProvider"
+      @cancel="showDeleteDialog = false"
+    />
 
     <!-- Toast Notifications -->
     <base-toast
@@ -100,6 +97,7 @@ import {
   BaseEmptyState,
   BaseDialog,
   BaseToast,
+  DeleteConfirmationDialog,
 } from "../../components/ui";
 import ProviderCard from "./components/ProviderCard.vue";
 import ProviderForm from "./components/ProviderForm.vue";
@@ -124,6 +122,7 @@ const showDeleteDialog = ref(false);
 const showToast = ref(false);
 const hasShownNotice = ref(providersStore.hasShownEncryptionNotice());
 const providerToDelete = ref<ProviderConfig | null>(null);
+const isDeletingProvider = ref(false);
 
 // Toast state
 const toastType = ref<"success" | "error" | "warning" | "info">("info");
@@ -215,8 +214,16 @@ const confirmDelete = (provider: ProviderDisplayData): void => {
   showDeleteDialog.value = true;
 };
 
-const deleteProvider = (): void => {
-  if (providerToDelete.value) {
+const deleteProvider = async (): Promise<void> => {
+  if (!providerToDelete.value) return;
+
+  isDeletingProvider.value = true;
+
+  try {
+    // Add a small delay to show the loading state
+    const LOADING_DELAY_MS = 500;
+    await new Promise(resolve => setTimeout(resolve, LOADING_DELAY_MS));
+
     providersStore.removeKey(providerToDelete.value.id);
     showNotification(
       "success",
@@ -225,6 +232,14 @@ const deleteProvider = (): void => {
     );
     showDeleteDialog.value = false;
     providerToDelete.value = null;
+  } catch (error) {
+    showNotification(
+      "error",
+      t("providers.error"),
+      error instanceof Error ? error.message : t("providers.unknownError"),
+    );
+  } finally {
+    isDeletingProvider.value = false;
   }
 };
 
@@ -301,6 +316,10 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .providers-header {
@@ -308,6 +327,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  flex-shrink: 0;
 }
 
 .providers-header h1 {
@@ -321,7 +341,14 @@ onMounted(() => {
   display: grid;
   gap: 1.5rem;
   grid-template-columns: repeat(auto-fill, minmax(800px, 1fr));
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.5rem;
+  margin-right: -0.5rem;
 }
+
+
 
 /* Responsive */
 @media (max-width: 768px) {

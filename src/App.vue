@@ -13,7 +13,7 @@ import AppNav from "./components/AppNav.vue";
 
 <style>
 #app {
-  min-height: 100vh;
+
   display: flex;
   flex-direction: column;
 }
