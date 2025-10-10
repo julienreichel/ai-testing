@@ -30,7 +30,6 @@ export class OpenAIProviderAdapter extends BaseProviderAdapter {
 
   // Default values
 
-
   private static readonly MODELS: ProviderModel[] = [
     {
       id: "gpt-4o-mini",
@@ -115,8 +114,7 @@ export class OpenAIProviderAdapter extends BaseProviderAdapter {
     const body = {
       model: request.model,
       messages,
-      temperature:
-        request.temperature ?? DEFAULT_TEMPERATURE,
+      temperature: request.temperature ?? DEFAULT_TEMPERATURE,
       max_tokens: request.maxTokens ?? DEFAULT_MAX_TOKENS,
     };
 
