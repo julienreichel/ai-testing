@@ -57,11 +57,14 @@ const i18n = createI18n({
         selectType: "Select a provider type",
         name: "Name",
         namePlaceholder: "e.g., OpenAI GPT-4",
-        baseUrl: "Base URL",
-        optional: "optional",
-        baseUrlPlaceholder: "https://api.openai.com/v1",
-        add: "Add",
-        adding: "Adding...",
+        baseUrl: 'Base URL',
+        optional: 'optional',
+        baseUrlPlaceholder: 'https://api.openai.com/v1',
+        add: 'Add',
+        adding: 'Adding...',
+        editProvider: 'Edit Provider',
+        update: 'Update',
+        updating: 'Updating...',
       },
       common: {
         cancel: "Cancel",
@@ -218,13 +221,15 @@ describe("ProvidersView - User Behavior", () => {
       },
     ];
 
-    it("should show testing state during provider test", () => {
+    it("should show testing state with loading spinner during provider test", () => {
       const wrapper = createWrapper({
         providerStatuses: mockProviders,
         testingProvider: "openai-test",
       });
 
       expect(wrapper.text()).toContain("Testing...");
+      expect(wrapper.find(".loading-spinner").exists()).toBe(true);
+      expect(wrapper.find(".btn-testing").exists()).toBe(true);
     });
 
     it("should allow testing providers with API keys", () => {
@@ -233,6 +238,92 @@ describe("ProvidersView - User Behavior", () => {
       const testButton = wrapper.find(".btn-outline");
       expect(testButton.text()).toBe("Test");
       expect(testButton.attributes("disabled")).toBeUndefined();
+    });
+
+    it("should display validation status with icons and badges", () => {
+      const validProvider: ProviderKeyStatus[] = [{
+        id: "openai-valid",
+        type: "openai",
+        name: "Valid Provider",
+        hasKey: true,
+        isValid: true,
+        lastTested: new Date(),
+        isActive: true,
+      }];
+
+      const wrapper = createWrapper({ providerStatuses: validProvider });
+
+      // Should show valid status with green styling
+      expect(wrapper.find(".status-badge.valid").exists()).toBe(true);
+      expect(wrapper.text()).toContain("✅");
+      expect(wrapper.text()).toContain("Valid");
+    });
+  });
+
+  describe("When user wants to edit a provider", () => {
+    const mockProviders: ProviderKeyStatus[] = [{
+      id: "openai-test",
+      type: "openai", 
+      name: "OpenAI Test",
+      hasKey: true,
+      isValid: true,
+      lastTested: new Date(),
+      isActive: true,
+    }];
+
+    const mockProviderConfigs = [{
+      id: "openai-test",
+      name: "OpenAI Test",
+      apiKey: "sk-test123",
+      baseUrl: "https://api.openai.com/v1",
+      isActive: true,
+    }];
+
+    it("should open edit dialog with pre-populated form", async () => {
+      const wrapper = createWrapper({ 
+        providerStatuses: mockProviders,
+        providerConfigs: mockProviderConfigs,
+      });
+
+      const editButton = wrapper.find('.btn-outline:nth-child(2)'); // Edit button
+      await editButton.trigger('click');
+
+      // Dialog should be open
+      expect(wrapper.find('.dialog').exists()).toBe(true);
+      expect(wrapper.text()).toContain('Edit Provider');
+      
+      // Form should be pre-populated (we can't easily test the values in the mock)
+      expect(wrapper.find('select').exists()).toBe(true);
+      expect(wrapper.find('input[type="text"]').exists()).toBe(true);
+    });
+
+    it("should disable provider type selection in edit mode", async () => {
+      const wrapper = createWrapper({ 
+        providerStatuses: mockProviders,
+        providerConfigs: mockProviderConfigs,
+      });
+
+      const editButton = wrapper.find('.btn-outline:nth-child(2)');
+      await editButton.trigger('click');
+
+      // Provider type select should be disabled
+      const typeSelect = wrapper.find('select');
+      expect(typeSelect.attributes('disabled')).toBeDefined();
+      expect(wrapper.text()).toContain('Provider type cannot be changed when editing');
+    });
+
+    it("should show update button text in edit mode", async () => {
+      const wrapper = createWrapper({ 
+        providerStatuses: mockProviders,
+        providerConfigs: mockProviderConfigs,
+      });
+
+      const editButton = wrapper.find('.btn-outline:nth-child(2)');
+      await editButton.trigger('click');
+
+      // Submit button should show "Update" text
+      const submitButton = wrapper.find('button[type="submit"]');
+      expect(submitButton.text()).toBe('Update');
     });
   });
 

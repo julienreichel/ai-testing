@@ -64,7 +64,8 @@
               <span class="status-label"
                 >{{ $t("providers.validation") }}:</span
               >
-              <span :class="['status-value', getValidationClass(provider)]">
+              <span :class="['status-value', 'status-badge', getValidationClass(provider)]">
+                <span class="status-icon">{{ getValidationIcon(provider) }}</span>
                 {{ getValidationText(provider) }}
               </span>
             </div>
@@ -83,10 +84,14 @@
         <div class="provider-actions">
           <button
             v-if="provider.hasKey"
-            class="btn btn-outline"
+            :class="[
+              'btn',
+              testingProvider === provider.id ? 'btn-testing' : 'btn-outline'
+            ]"
             :disabled="testingProvider === provider.id"
             @click="testProvider(provider.id)"
           >
+            <span v-if="testingProvider === provider.id" class="loading-spinner"></span>
             {{
               testingProvider === provider.id
                 ? $t("providers.testing")
@@ -105,15 +110,15 @@
       </div>
     </div>
 
-    <!-- Add Provider Dialog -->
+    <!-- Add/Edit Provider Dialog -->
     <div v-if="showAddDialog" class="dialog-overlay" @click="closeAddDialog">
       <div class="dialog" @click.stop>
-        <h2>{{ $t("providers.addProvider") }}</h2>
+        <h2>{{ dialogTitle }}</h2>
 
         <form @submit.prevent="addProvider">
           <div class="form-group">
             <label>{{ $t("providers.providerType") }}</label>
-            <select v-model="newProvider.type" required>
+            <select v-model="newProvider.type" required :disabled="isEditMode">
               <option value="">{{ $t("providers.selectType") }}</option>
               <option
                 v-for="type in supportedProviderTypes"
@@ -123,6 +128,9 @@
                 {{ type.toUpperCase() }}
               </option>
             </select>
+            <small v-if="isEditMode" class="form-help">
+              Provider type cannot be changed when editing
+            </small>
           </div>
 
           <div class="form-group">
@@ -167,7 +175,7 @@
               {{ $t("common.cancel") }}
             </button>
             <button type="submit" class="btn btn-primary" :disabled="isLoading">
-              {{ isLoading ? $t("providers.adding") : $t("providers.add") }}
+              {{ submitButtonText }}
             </button>
           </div>
         </form>
@@ -179,22 +187,41 @@
       {{ error }}
       <button @click="clearError">&times;</button>
     </div>
+
+    <!-- Toast Notifications -->
+    <div
+      v-if="showToastNotification"
+      :class="['toast-notification', `toast-${toastType}`]"
+      @click="hideToast"
+    >
+      {{ toastMessage }}
+      <button class="toast-close" @click="hideToast">&times;</button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import { useProvidersStore } from "../../store/providers";
 import type { ProviderKeyStatus } from "../../store/providers";
 import type { ProviderType } from "../../providers";
 
 const providersStore = useProvidersStore();
+const { t } = useI18n();
 
 // State
 const showAddDialog = ref(false);
+const isEditMode = ref(false);
+const editingProviderId = ref<string | null>(null);
 const hasShownNotice = computed(() =>
   providersStore.hasShownEncryptionNotice(),
 );
+
+// Toast notifications
+const toastMessage = ref("");
+const toastType = ref<"success" | "error" | "">("");
+const showToastNotification = ref(false);
 
 const newProvider = ref({
   type: "" as ProviderType | "",
@@ -214,6 +241,18 @@ const testingProvider = computed(() => providersStore.testingProvider);
 
 const showBaseUrl = computed(() => newProvider.value.type === "openai");
 
+// Dialog computed properties
+const dialogTitle = computed(() => 
+  isEditMode.value ? t("providers.editProvider") : t("providers.addProvider")
+);
+
+const submitButtonText = computed(() => {
+  if (isLoading.value) {
+    return isEditMode.value ? t("providers.updating") : t("providers.adding");
+  }
+  return isEditMode.value ? t("providers.update") : t("providers.add");
+});
+
 // Methods
 const acknowledgeNotice = (): void => {
   providersStore.markEncryptionNoticeShown();
@@ -221,6 +260,8 @@ const acknowledgeNotice = (): void => {
 
 const closeAddDialog = (): void => {
   showAddDialog.value = false;
+  isEditMode.value = false;
+  editingProviderId.value = null;
   newProvider.value = { type: "", name: "", apiKey: "", baseUrl: "" };
 };
 
@@ -229,25 +270,68 @@ const addProvider = (): void => {
 
   try {
     const type = newProvider.value.type;
-    providersStore.addKey(
-      type,
-      newProvider.value.name,
-      newProvider.value.apiKey,
-      newProvider.value.baseUrl || undefined,
-    );
+    
+    if (isEditMode.value && editingProviderId.value) {
+      // Update existing provider
+      providersStore.removeKey(editingProviderId.value);
+      providersStore.addKey(
+        type,
+        newProvider.value.name,
+        newProvider.value.apiKey,
+        newProvider.value.baseUrl || undefined,
+      );
+      showToast(`✏️ ${newProvider.value.name} updated successfully!`, 'success');
+    } else {
+      // Add new provider
+      providersStore.addKey(
+        type,
+        newProvider.value.name,
+        newProvider.value.apiKey,
+        newProvider.value.baseUrl || undefined,
+      );
+      showToast(`➕ ${newProvider.value.name} added successfully!`, 'success');
+    }
+    
     closeAddDialog();
   } catch (err) {
-    console.error("Failed to add provider:", err);
+    console.error("Failed to save provider:", err);
+    const action = isEditMode.value ? 'update' : 'add';
+    showToast(`❌ Failed to ${action} provider. Please try again.`, 'error');
   }
 };
 
 const testProvider = async (id: string): Promise<void> => {
-  await providersStore.testKey(id);
+  const success = await providersStore.testKey(id);
+
+  // Show temporary success/failure message
+  const provider = providerStatuses.value.find(p => p.id === id);
+  const providerName = provider?.name || 'Provider';
+
+  if (success) {
+    showToast(`✅ ${providerName} test successful!`, 'success');
+  } else {
+    showToast(`❌ ${providerName} test failed. Check your API key.`, 'error');
+  }
 };
 
 const editProvider = (provider: ProviderKeyStatus): void => {
-  // TODO: Implement edit functionality
-  console.log("Edit provider:", provider);
+  // Find the full provider config to get all details
+  const config = providersStore.providerConfigs.find(c => c.id === provider.id);
+  if (!config) return;
+  
+  // Set edit mode and populate form
+  isEditMode.value = true;
+  editingProviderId.value = provider.id;
+  
+  newProvider.value = {
+    type: provider.type,
+    name: provider.name,
+    apiKey: config.apiKey || "",
+    baseUrl: config.baseUrl || "",
+  };
+  
+  // Show the dialog
+  showAddDialog.value = true;
 };
 
 const confirmDelete = (provider: ProviderKeyStatus): void => {
@@ -264,6 +348,11 @@ const getValidationClass = (provider: ProviderKeyStatus): string => {
 const getValidationText = (provider: ProviderKeyStatus): string => {
   if (provider.isValid === null) return "Not tested";
   return provider.isValid ? "Valid" : "Invalid";
+};
+
+const getValidationIcon = (provider: ProviderKeyStatus): string => {
+  if (provider.isValid === null) return "❓";
+  return provider.isValid ? "✅" : "❌";
 };
 
 const formatDate = (date: Date): string => {
@@ -288,6 +377,23 @@ const getApiKeyPlaceholder = (type: ProviderType | ""): string => {
 
 const clearError = (): void => {
   providersStore.clearError();
+};
+
+const TOAST_AUTO_HIDE_DURATION = 4000; // 4 seconds
+
+const showToast = (message: string, type: "success" | "error"): void => {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToastNotification.value = true;
+
+  // Auto-hide after 4 seconds
+  setTimeout(() => {
+    showToastNotification.value = false;
+  }, TOAST_AUTO_HIDE_DURATION);
+};
+
+const hideToast = (): void => {
+  showToastNotification.value = false;
 };
 
 // Lifecycle
@@ -402,14 +508,38 @@ onMounted(() => {
 .status-value.no-key {
   color: #dc3545;
 }
-.status-value.valid {
-  color: #054213;
+
+/* Status badges with better visual feedback */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
-.status-value.invalid {
-  color: #dc3545;
+
+.status-badge.valid {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
 }
-.status-value.not-tested {
-  color: #6c757d;
+
+.status-badge.invalid {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.status-badge.not-tested {
+  background: #e9ecef;
+  color: #495057;
+  border: 1px solid #ced4da;
+}
+
+.status-icon {
+  font-size: 1rem;
 }
 
 .provider-actions {
@@ -462,6 +592,21 @@ onMounted(() => {
   font-size: 1rem;
 }
 
+.form-group input:disabled,
+.form-group select:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.form-help {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
 .dialog-actions {
   display: flex;
   gap: 1rem;
@@ -496,8 +641,8 @@ onMounted(() => {
 
 .btn-outline {
   background: transparent;
-  color: #007acc;
-  border: 1px solid #007acc;
+  color: #141515;
+  border: 1px solid #141515;
 }
 
 .btn-outline:hover:not(:disabled) {
@@ -512,6 +657,28 @@ onMounted(() => {
 
 .btn-danger:hover:not(:disabled) {
   background: #c82333;
+}
+
+.btn-testing {
+  background: #007acc;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .error-message {
@@ -535,5 +702,60 @@ onMounted(() => {
   font-size: 1.2rem;
   cursor: pointer;
   color: #721c24;
+}
+
+/* Toast Notifications */
+.toast-notification {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+  min-width: 300px;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.toast-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.toast-error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 </style>
