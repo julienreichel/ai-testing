@@ -20,7 +20,7 @@ import AppNav from './components/AppNav.vue'
 
 main {
   flex: 1;
-  background: #f8f9fa;
+  background: #13375b;
 }
 
 body {

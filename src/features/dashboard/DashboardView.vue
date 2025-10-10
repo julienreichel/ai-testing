@@ -39,7 +39,7 @@ const { activeProviders, testCases, recentTestRuns } = storeToRefs(appStore)
 }
 
 .stats-card {
-  background: white;
+  background: #3498db;
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -48,7 +48,7 @@ const { activeProviders, testCases, recentTestRuns } = storeToRefs(appStore)
 .stat-number {
   font-size: 2rem;
   font-weight: bold;
-  color: #007acc;
+  color: #063351;
   margin: 0.5rem 0;
 }
 </style>

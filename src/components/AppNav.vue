@@ -49,6 +49,7 @@ export default defineComponent({
 
 .nav-brand h2 {
   margin: 0;
+  padding-right: 64px;
   color: white;
 }
 

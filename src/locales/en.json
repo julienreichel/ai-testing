@@ -7,7 +7,35 @@
   },
   "providers": {
     "title": "AI Providers",
-    "description": "Manage your AI provider configurations"
+    "description": "Manage your AI provider configurations",
+    "addProvider": "Add Provider",
+    "securityNotice": {
+      "title": "Security Notice",
+      "message": "Your API keys are stored securely in your browser's local storage:",
+      "point1": "Keys never leave your browser or device",
+      "point2": "No data is transmitted to our servers",
+      "point3": "Clear browser data will remove all stored keys",
+      "acknowledge": "I Understand"
+    },
+    "noProviders": "No providers configured. Add one to get started.",
+    "apiKey": "API Key",
+    "configured": "Configured",
+    "notConfigured": "Not Configured",
+    "validation": "Validation",
+    "lastTested": "Last Tested",
+    "testing": "Testing...",
+    "test": "Test",
+    "edit": "Edit",
+    "remove": "Remove",
+    "providerType": "Provider Type",
+    "selectType": "Select a provider type",
+    "name": "Name",
+    "namePlaceholder": "e.g., OpenAI GPT-4",
+    "baseUrl": "Base URL",
+    "optional": "optional",
+    "baseUrlPlaceholder": "https://api.openai.com/v1",
+    "add": "Add",
+    "adding": "Adding..."
   },
   "editor": {
     "title": "Test Editor",
@@ -20,5 +48,18 @@
   "runs": {
     "title": "Test Runs",
     "description": "View test run results and history"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "remove": "Remove",
+    "test": "Test",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
   }
 }
