@@ -1,7 +1,7 @@
 <template>
   <div class="runs">
-    <h1>{{ $t('runs.title') }}</h1>
-    <p>{{ $t('runs.description') }}</p>
+    <h1>{{ $t("runs.title") }}</h1>
+    <p>{{ $t("runs.description") }}</p>
   </div>
 </template>
 

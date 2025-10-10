@@ -24,64 +24,77 @@ The provider system follows a **plug-and-play architecture** where every provide
 ## 🔧 Core Components
 
 ### 1. **BaseProviderAdapter** (Abstract Class)
+
 The foundation interface that all providers must implement:
 
 ```typescript
 abstract class BaseProviderAdapter {
   // Required implementations
-  abstract getModels(): ProviderModel[]
-  abstract getPricing(model: string): ProviderPricing | null
-  abstract call(request: ProviderRequest): Promise<ProviderResponse>
-  abstract validateConfig(): boolean
+  abstract getModels(): ProviderModel[];
+  abstract getPricing(model: string): ProviderPricing | null;
+  abstract call(request: ProviderRequest): Promise<ProviderResponse>;
+  abstract validateConfig(): boolean;
 
   // Shared utilities
-  estimateTokens(text: string): number
-  estimateCost(inputTokens: number, outputTokens: number, model: string): number
+  estimateTokens(text: string): number;
+  estimateCost(
+    inputTokens: number,
+    outputTokens: number,
+    model: string,
+  ): number;
 }
 ```
 
 ### 2. **Provider Types**
+
 Comprehensive TypeScript interfaces for type safety:
 
 ```typescript
 interface ProviderRequest {
-  model: string
-  messages: Array<{ role: 'system' | 'user' | 'assistant', content: string }>
-  temperature?: number
-  maxTokens?: number
-  systemPrompt?: string
+  model: string;
+  messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
+  temperature?: number;
+  maxTokens?: number;
+  systemPrompt?: string;
 }
 
 interface ProviderResponse {
-  content: string
-  model: string
-  usage: { inputTokens: number, outputTokens: number, totalTokens: number }
-  cost: { inputCost: number, outputCost: number, totalCost: number }
-  metadata: { latency: number, requestId: string, provider: string, timestamp: Date }
+  content: string;
+  model: string;
+  usage: { inputTokens: number; outputTokens: number; totalTokens: number };
+  cost: { inputCost: number; outputCost: number; totalCost: number };
+  metadata: {
+    latency: number;
+    requestId: string;
+    provider: string;
+    timestamp: Date;
+  };
 }
 ```
 
 ### 3. **Provider Factory**
+
 Creates provider instances with type safety:
 
 ```typescript
-const provider = ProviderFactory.createProvider('openai', {
-  id: 'my-openai',
-  name: 'My OpenAI Provider',
-  apiKey: 'sk-...',
-  isActive: true
-})
+const provider = ProviderFactory.createProvider("openai", {
+  id: "my-openai",
+  name: "My OpenAI Provider",
+  apiKey: "sk-...",
+  isActive: true,
+});
 ```
 
 ### 4. **Provider Registry**
+
 Manages multiple provider instances:
 
 ```typescript
-const registry = new ProviderRegistry()
-registry.addProvider('openai', openAIConfig)
-registry.addProvider('mock', mockConfig)
+const registry = new ProviderRegistry();
+registry.addProvider("openai", openAIConfig);
+registry.addProvider("mock", mockConfig);
 
-const activeProviders = registry.getActiveProviders()
+const activeProviders = registry.getActiveProviders();
 ```
 
 ## 🚀 Quick Start
@@ -89,82 +102,83 @@ const activeProviders = registry.getActiveProviders()
 ### Basic Usage
 
 ```typescript
-import { ProviderFactory } from './providers'
+import { ProviderFactory } from "./providers";
 
 // Create a provider
-const provider = ProviderFactory.createProvider('openai', {
-  id: 'my-openai',
-  name: 'My OpenAI Provider',
-  apiKey: 'your-api-key-here',
-  isActive: true
-})
+const provider = ProviderFactory.createProvider("openai", {
+  id: "my-openai",
+  name: "My OpenAI Provider",
+  apiKey: "your-api-key-here",
+  isActive: true,
+});
 
 // Make a request
 const response = await provider.call({
-  model: 'gpt-4o-mini',
-  messages: [
-    { role: 'user', content: 'Hello, how are you?' }
-  ],
+  model: "gpt-4o-mini",
+  messages: [{ role: "user", content: "Hello, how are you?" }],
   temperature: 0.7,
-  maxTokens: 100
-})
+  maxTokens: 100,
+});
 
-console.log('Response:', response.content)
-console.log('Cost:', `$${response.cost.totalCost}`)
-console.log('Tokens:', response.usage.totalTokens)
+console.log("Response:", response.content);
+console.log("Cost:", `$${response.cost.totalCost}`);
+console.log("Tokens:", response.usage.totalTokens);
 ```
 
 ### Using with Vue Store
 
 ```typescript
 // In your component
-import { useProvidersStore } from '@/store/providers'
+import { useProvidersStore } from "@/store/providers";
 
-const providersStore = useProvidersStore()
+const providersStore = useProvidersStore();
 
 // Add a provider
-providersStore.addProvider('openai', {
-  name: 'My OpenAI',
-  apiKey: 'sk-...',
-  isActive: true
-})
+providersStore.addProvider("openai", {
+  name: "My OpenAI",
+  apiKey: "sk-...",
+  isActive: true,
+});
 
 // Get active providers
-const activeProviders = providersStore.activeProviders
+const activeProviders = providersStore.activeProviders;
 ```
 
 ## 🔌 Supported Providers
 
 ### ✅ **OpenAI** (Fully Implemented)
+
 - **Models**: `gpt-4o-mini`, `gpt-4-turbo`
 - **Features**: Full API integration, rate limiting, error handling
 - **Pricing**: Current 2024 pricing included
 - **Auth**: Bearer token authentication
 
 ```typescript
-const openAI = ProviderFactory.createProvider('openai', {
-  id: 'openai-main',
-  name: 'OpenAI GPT',
-  apiKey: 'sk-your-api-key',
-  isActive: true
-})
+const openAI = ProviderFactory.createProvider("openai", {
+  id: "openai-main",
+  name: "OpenAI GPT",
+  apiKey: "sk-your-api-key",
+  isActive: true,
+});
 ```
 
 ### 🔧 **Mock Provider** (For Testing)
+
 - **Models**: `mock-fast`, `mock-smart`
 - **Features**: Simulated responses, latency, token counting
 - **Cost**: Test pricing for development
 - **Auth**: No authentication required
 
 ```typescript
-const mock = ProviderFactory.createProvider('mock', {
-  id: 'mock-test',
-  name: 'Test Provider',
-  isActive: true
-})
+const mock = ProviderFactory.createProvider("mock", {
+  id: "mock-test",
+  name: "Test Provider",
+  isActive: true,
+});
 ```
 
 ### 🚧 **Coming Soon**
+
 - **Claude** (Anthropic)
 - **Mistral AI**
 - **LeChat**
@@ -175,15 +189,15 @@ The system includes built-in cost calculation and estimation:
 
 ```typescript
 // Get pricing for a model
-const pricing = provider.getPricing('gpt-4o-mini')
+const pricing = provider.getPricing("gpt-4o-mini");
 // Returns: { inputTokensPer1K: 0.00015, outputTokensPer1K: 0.0006 }
 
 // Estimate tokens in text
-const tokens = provider.estimateTokens('Your text here')
+const tokens = provider.estimateTokens("Your text here");
 
 // Estimate cost before making request
-const estimatedCost = provider.estimateCost(1000, 500, 'gpt-4o-mini')
-console.log(`Estimated cost: $${estimatedCost}`)
+const estimatedCost = provider.estimateCost(1000, 500, "gpt-4o-mini");
+console.log(`Estimated cost: $${estimatedCost}`);
 ```
 
 ## 🛡️ Error Handling
@@ -192,26 +206,26 @@ Comprehensive error handling with typed error responses:
 
 ```typescript
 try {
-  const response = await provider.call(request)
+  const response = await provider.call(request);
 } catch (error) {
-  const providerError = JSON.parse(error.message)
-  
+  const providerError = JSON.parse(error.message);
+
   switch (providerError.type) {
-    case 'auth':
-      console.log('Authentication failed')
-      break
-    case 'rate_limit':
-      console.log('Rate limit exceeded')
-      break
-    case 'invalid_request':
-      console.log('Invalid request:', providerError.message)
-      break
-    case 'server_error':
-      console.log('Server error:', providerError.message)
-      break
-    case 'network_error':
-      console.log('Network error:', providerError.message)
-      break
+    case "auth":
+      console.log("Authentication failed");
+      break;
+    case "rate_limit":
+      console.log("Rate limit exceeded");
+      break;
+    case "invalid_request":
+      console.log("Invalid request:", providerError.message);
+      break;
+    case "server_error":
+      console.log("Server error:", providerError.message);
+      break;
+    case "network_error":
+      console.log("Network error:", providerError.message);
+      break;
   }
 }
 ```
@@ -229,6 +243,7 @@ npx vitest test/providers.test.ts
 ```
 
 ### Test Coverage
+
 - ✅ Mock provider functionality
 - ✅ OpenAI provider setup and validation
 - ✅ Provider factory creation
@@ -241,24 +256,25 @@ npx vitest test/providers.test.ts
 To add a new provider (e.g., Claude):
 
 1. **Create the adapter class**:
+
 ```typescript
 export class ClaudeProviderAdapter extends BaseProviderAdapter {
   getModels(): ProviderModel[] {
     return [
       {
-        id: 'claude-3-haiku',
-        name: 'Claude 3 Haiku',
+        id: "claude-3-haiku",
+        name: "Claude 3 Haiku",
         contextWindow: 200000,
         maxOutputTokens: 4096,
-      }
-    ]
+      },
+    ];
   }
 
   getPricing(model: string): ProviderPricing | null {
     return {
       inputTokensPer1K: 0.00025,
       outputTokensPer1K: 0.00125,
-    }
+    };
   }
 
   async call(request: ProviderRequest): Promise<ProviderResponse> {
@@ -266,12 +282,13 @@ export class ClaudeProviderAdapter extends BaseProviderAdapter {
   }
 
   validateConfig(): boolean {
-    return Boolean(this.config.apiKey)
+    return Boolean(this.config.apiKey);
   }
 }
 ```
 
 2. **Register in the factory**:
+
 ```typescript
 // In ProviderFactory
 private static readonly PROVIDER_CONSTRUCTORS = {
@@ -282,36 +299,39 @@ private static readonly PROVIDER_CONSTRUCTORS = {
 ```
 
 3. **Add to types**:
+
 ```typescript
-export type ProviderType = 'openai' | 'claude' | 'mock'
+export type ProviderType = "openai" | "claude" | "mock";
 ```
 
 ## 📱 Integration Examples
 
 ### Dashboard Integration
+
 ```typescript
 // Display provider stats
 const stats = {
   totalProviders: registry.getAllProviders().length,
   activeProviders: registry.getActiveProviders().length,
   totalCost: calculateTotalCost(),
-}
+};
 ```
 
 ### Test Runner Integration
+
 ```typescript
 // Run tests across multiple providers
 const testResults = await Promise.all(
-  activeProviders.map(async provider => {
-    const response = await provider.call(testRequest)
+  activeProviders.map(async (provider) => {
+    const response = await provider.call(testRequest);
     return {
       provider: provider.getName(),
       response: response.content,
       cost: response.cost.totalCost,
       latency: response.metadata.latency,
-    }
-  })
-)
+    };
+  }),
+);
 ```
 
 ## 🎯 Key Benefits
@@ -327,6 +347,7 @@ const testResults = await Promise.all(
 ## 🚀 Next Steps
 
 The provider system is ready for:
+
 - Adding more AI providers (Claude, Mistral, LeChat)
 - Integration with the test runner
 - Cost analytics and reporting

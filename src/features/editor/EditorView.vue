@@ -1,7 +1,7 @@
 <template>
   <div class="editor">
-    <h1>{{ $t('editor.title') }}</h1>
-    <p>{{ $t('editor.description') }}</p>
+    <h1>{{ $t("editor.title") }}</h1>
+    <p>{{ $t("editor.description") }}</p>
   </div>
 </template>
 

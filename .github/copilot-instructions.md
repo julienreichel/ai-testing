@@ -56,15 +56,15 @@ This is a Vue 3 project with comprehensive testing using Vitest. The codebase fo
 
 <!-- ✅ Correct: Use i18n -->
 <template>
-  <q-btn>{{ $t('common.submit') }}</q-btn>
-  <p>{{ $t('forms.enterName') }}</p>
+  <q-btn>{{ $t("common.submit") }}</q-btn>
+  <p>{{ $t("forms.enterName") }}</p>
 </template>
 
 <script setup>
-import { useI18n } from 'vue-i18n';
+import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
-const message = t('validation.required');
+const message = t("validation.required");
 </script>
 ```
 
@@ -120,7 +120,7 @@ const percentage = (value / PERCENTAGE_DIVISOR) * rate;
 
 ```typescript
 // ✅ CORRECT: Test user-visible behavior
-it('shows recent activity status to users', () => {
+it("shows recent activity status to users", () => {
   const recentTime = new Date(Date.now() - 30 * 1000).toISOString();
 
   const wrapper = mount(
@@ -131,14 +131,14 @@ it('shows recent activity status to users', () => {
   );
 
   // User behavior: What does the user see?
-  expect(wrapper.text()).toBe('Just now');
+  expect(wrapper.text()).toBe("Just now");
 
   // Visual behavior: Is it visually distinct? (flexible matching)
   expect(wrapper.html()).toMatch(/text-green|color.*green|recent/i);
 });
 
 // ✅ CORRECT: Test user interactions and outcomes
-it('allows users to view user details', async () => {
+it("allows users to view user details", async () => {
   const wrapper = mount(
     UserActions,
     withQuasarBrowser({
@@ -147,12 +147,14 @@ it('allows users to view user details', async () => {
   );
 
   // Find by semantic meaning, not implementation
-  const viewAction = wrapper.find('[data-testid="view-user"], .q-btn:first-child');
-  await viewAction.trigger('click');
+  const viewAction = wrapper.find(
+    '[data-testid="view-user"], .q-btn:first-child',
+  );
+  await viewAction.trigger("click");
 
   // Test outcome user cares about
-  expect(wrapper.emitted('view')).toBeTruthy();
-  expect(wrapper.emitted('view')?.[0]).toEqual([sampleUser]);
+  expect(wrapper.emitted("view")).toBeTruthy();
+  expect(wrapper.emitted("view")?.[0]).toEqual([sampleUser]);
 });
 ```
 
@@ -160,7 +162,7 @@ it('allows users to view user details', async () => {
 
 ```typescript
 // ❌ WRONG: Over-mocking implementation details
-vi.mock('src/composables/useUserFormatters', () => ({
+vi.mock("src/composables/useUserFormatters", () => ({
   useUserFormatters: () => ({
     getLastActiveClass: mockGetLastActiveClass,
   }),
@@ -170,21 +172,21 @@ vi.mock('src/composables/useUserFormatters', () => ({
 expect(mockGetLastActiveClass).toHaveBeenCalledWith(lastActiveValue);
 
 // ❌ WRONG: Testing CSS classes (implementation details)
-expect(wrapper.find('span').classes()).toContain('text-green');
+expect(wrapper.find("span").classes()).toContain("text-green");
 
 // ❌ WRONG: Testing DOM structure instead of behavior
-expect(wrapper.find('span').exists()).toBe(true);
+expect(wrapper.find("span").exists()).toBe(true);
 expect(buttons.length).toBe(3);
 ```
 
 #### **Boston School Test Structure**
 
 ```typescript
-describe('ComponentName - User Behavior', () => {
-  describe('When [user scenario]', () => {
-    it('should [expected user outcome]', () => {
+describe("ComponentName - User Behavior", () => {
+  describe("When [user scenario]", () => {
+    it("should [expected user outcome]", () => {
       // Arrange: Set up realistic user scenario
-      const userInput = 'realistic-data';
+      const userInput = "realistic-data";
 
       // Act: User performs action
       const wrapper = mount(
@@ -195,15 +197,15 @@ describe('ComponentName - User Behavior', () => {
       );
 
       // Assert: User sees expected outcome
-      expect(wrapper.text()).toBe('expected-user-visible-text');
+      expect(wrapper.text()).toBe("expected-user-visible-text");
 
       // Assert: Behavior patterns (flexible implementation)
       expect(wrapper.html()).toMatch(/visual-indicator-pattern/i);
     });
   });
 
-  describe('Accessibility and UX', () => {
-    it('provides accessible experience for screen readers', () => {
+  describe("Accessibility and UX", () => {
+    it("provides accessible experience for screen readers", () => {
       // Test accessibility requirements
     });
   });
@@ -231,9 +233,9 @@ For EVERY test, verify:
 ### Test Structure (Behavior-Driven AAA Pattern)
 
 ```typescript
-it('should [describe user behavior/outcome]', () => {
+it("should [describe user behavior/outcome]", () => {
   // Arrange - Set up realistic user scenario
-  const userInput = 'realistic-user-data';
+  const userInput = "realistic-user-data";
 
   // Act - User performs action or views component
   const wrapper = mount(
@@ -244,7 +246,7 @@ it('should [describe user behavior/outcome]', () => {
   );
 
   // Assert - User sees expected behavior/outcome
-  expect(wrapper.text()).toBe('user-visible-result');
+  expect(wrapper.text()).toBe("user-visible-result");
   // Flexible implementation matching for visual behavior
   expect(wrapper.html()).toMatch(/behavior-pattern/i);
 });
@@ -270,7 +272,7 @@ it('should [describe user behavior/outcome]', () => {
 
 <script setup>
 // 1. Imports
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted } from "vue";
 
 // 2. Props with validation
 const props = defineProps({
@@ -278,7 +280,7 @@ const props = defineProps({
 });
 
 // 3. Emits
-const emit = defineEmits(['event-name']);
+const emit = defineEmits(["event-name"]);
 
 // 4. Composables
 const { state, methods } = useComposable();
@@ -342,11 +344,11 @@ function calculateDamage(player) {
 ```javascript
 function validateInput(data) {
   if (!data) {
-    throw new Error('Data is required');
+    throw new Error("Data is required");
   }
 
-  if (typeof data !== 'object') {
-    throw new TypeError('Data must be an object');
+  if (typeof data !== "object") {
+    throw new TypeError("Data must be an object");
   }
 
   // Continue with validation
@@ -361,8 +363,8 @@ async function fetchData() {
     const response = await api.getData();
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch data:', error);
-    throw new Error('Data fetch failed');
+    console.error("Failed to fetch data:", error);
+    throw new Error("Data fetch failed");
   }
 }
 ```
@@ -458,10 +460,10 @@ const threshold = value > 0.85; // What does 0.85 represent?
 
 // Avoid: Hardcoded strings (use i18n)
 <q-btn>Submit Form</q-btn>;
-const errorMessage = 'Please enter a valid email';
+const errorMessage = "Please enter a valid email";
 
 // Avoid: Mutating props
-props.user.name = 'New Name';
+props.user.name = "New Name";
 
 // Avoid: Template duplication (violates DRY)
 <template>

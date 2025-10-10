@@ -2,25 +2,25 @@
   <div class="providers">
     <!-- Header -->
     <div class="providers-header">
-      <h1>{{ $t('providers.title') }}</h1>
+      <h1>{{ $t("providers.title") }}</h1>
       <button class="btn btn-primary" @click="showAddDialog = true">
-        {{ $t('providers.addProvider') }}
+        {{ $t("providers.addProvider") }}
       </button>
     </div>
 
     <!-- Security Notice -->
     <div v-if="!hasShownNotice" class="security-notice">
       <div class="notice-content">
-        <h3>{{ $t('providers.securityNotice.title') }}</h3>
-        <p>{{ $t('providers.securityNotice.message') }}</p>
+        <h3>{{ $t("providers.securityNotice.title") }}</h3>
+        <p>{{ $t("providers.securityNotice.message") }}</p>
         <ul>
-          <li>{{ $t('providers.securityNotice.point1') }}</li>
-          <li>{{ $t('providers.securityNotice.point2') }}</li>
-          <li>{{ $t('providers.securityNotice.point3') }}</li>
+          <li>{{ $t("providers.securityNotice.point1") }}</li>
+          <li>{{ $t("providers.securityNotice.point2") }}</li>
+          <li>{{ $t("providers.securityNotice.point3") }}</li>
         </ul>
         <div class="notice-actions">
           <button class="btn btn-primary" @click="acknowledgeNotice">
-            {{ $t('providers.securityNotice.acknowledge') }}
+            {{ $t("providers.securityNotice.acknowledge") }}
           </button>
         </div>
       </div>
@@ -29,10 +29,14 @@
     <!-- Providers List -->
     <div class="providers-list">
       <div v-if="providerStatuses.length === 0" class="empty-state">
-        <p>{{ $t('providers.noProviders') }}</p>
+        <p>{{ $t("providers.noProviders") }}</p>
       </div>
 
-      <div v-for="provider in providerStatuses" :key="provider.id" class="provider-card">
+      <div
+        v-for="provider in providerStatuses"
+        :key="provider.id"
+        class="provider-card"
+      >
         <div class="provider-info">
           <div class="provider-header">
             <h3>{{ provider.name }}</h3>
@@ -41,22 +45,37 @@
 
           <div class="provider-status">
             <div class="status-item">
-              <span class="status-label">{{ $t('providers.apiKey') }}:</span>
-              <span :class="['status-value', provider.hasKey ? 'has-key' : 'no-key']">
-                {{ provider.hasKey ? $t('providers.configured') : $t('providers.notConfigured') }}
+              <span class="status-label">{{ $t("providers.apiKey") }}:</span>
+              <span
+                :class="[
+                  'status-value',
+                  provider.hasKey ? 'has-key' : 'no-key',
+                ]"
+              >
+                {{
+                  provider.hasKey
+                    ? $t("providers.configured")
+                    : $t("providers.notConfigured")
+                }}
               </span>
             </div>
 
             <div v-if="provider.hasKey" class="status-item">
-              <span class="status-label">{{ $t('providers.validation') }}:</span>
+              <span class="status-label"
+                >{{ $t("providers.validation") }}:</span
+              >
               <span :class="['status-value', getValidationClass(provider)]">
                 {{ getValidationText(provider) }}
               </span>
             </div>
 
             <div v-if="provider.lastTested" class="status-item">
-              <span class="status-label">{{ $t('providers.lastTested') }}:</span>
-              <span class="status-value">{{ formatDate(provider.lastTested) }}</span>
+              <span class="status-label"
+                >{{ $t("providers.lastTested") }}:</span
+              >
+              <span class="status-value">{{
+                formatDate(provider.lastTested)
+              }}</span>
             </div>
           </div>
         </div>
@@ -68,15 +87,19 @@
             :disabled="testingProvider === provider.id"
             @click="testProvider(provider.id)"
           >
-            {{ testingProvider === provider.id ? $t('providers.testing') : $t('providers.test') }}
+            {{
+              testingProvider === provider.id
+                ? $t("providers.testing")
+                : $t("providers.test")
+            }}
           </button>
 
           <button class="btn btn-outline" @click="editProvider(provider)">
-            {{ $t('providers.edit') }}
+            {{ $t("providers.edit") }}
           </button>
 
           <button class="btn btn-danger" @click="confirmDelete(provider)">
-            {{ $t('providers.remove') }}
+            {{ $t("providers.remove") }}
           </button>
         </div>
       </div>
@@ -85,40 +108,66 @@
     <!-- Add Provider Dialog -->
     <div v-if="showAddDialog" class="dialog-overlay" @click="closeAddDialog">
       <div class="dialog" @click.stop>
-        <h2>{{ $t('providers.addProvider') }}</h2>
+        <h2>{{ $t("providers.addProvider") }}</h2>
 
         <form @submit.prevent="addProvider">
           <div class="form-group">
-            <label>{{ $t('providers.providerType') }}</label>
+            <label>{{ $t("providers.providerType") }}</label>
             <select v-model="newProvider.type" required>
-              <option value="">{{ $t('providers.selectType') }}</option>
-              <option v-for="type in supportedProviderTypes" :key="type" :value="type">
+              <option value="">{{ $t("providers.selectType") }}</option>
+              <option
+                v-for="type in supportedProviderTypes"
+                :key="type"
+                :value="type"
+              >
                 {{ type.toUpperCase() }}
               </option>
             </select>
           </div>
 
           <div class="form-group">
-            <label>{{ $t('providers.name') }}</label>
-            <input v-model="newProvider.name" type="text" required :placeholder="$t('providers.namePlaceholder')" />
+            <label>{{ $t("providers.name") }}</label>
+            <input
+              v-model="newProvider.name"
+              type="text"
+              required
+              :placeholder="$t('providers.namePlaceholder')"
+            />
           </div>
 
           <div v-if="newProvider.type !== 'mock'" class="form-group">
-            <label>{{ $t('providers.apiKey') }}</label>
-            <input v-model="newProvider.apiKey" type="password" required :placeholder="getApiKeyPlaceholder(newProvider.type)" />
+            <label>{{ $t("providers.apiKey") }}</label>
+            <input
+              v-model="newProvider.apiKey"
+              type="password"
+              required
+              :placeholder="getApiKeyPlaceholder(newProvider.type)"
+            />
           </div>
 
           <div v-if="showBaseUrl" class="form-group">
-            <label>{{ $t('providers.baseUrl') }} ({{ $t('providers.optional') }})</label>
-            <input v-model="newProvider.baseUrl" type="url" :placeholder="$t('providers.baseUrlPlaceholder')" />
+            <label
+              >{{ $t("providers.baseUrl") }} ({{
+                $t("providers.optional")
+              }})</label
+            >
+            <input
+              v-model="newProvider.baseUrl"
+              type="url"
+              :placeholder="$t('providers.baseUrlPlaceholder')"
+            />
           </div>
 
           <div class="dialog-actions">
-            <button type="button" class="btn btn-outline" @click="closeAddDialog">
-              {{ $t('common.cancel') }}
+            <button
+              type="button"
+              class="btn btn-outline"
+              @click="closeAddDialog"
+            >
+              {{ $t("common.cancel") }}
             </button>
             <button type="submit" class="btn btn-primary" :disabled="isLoading">
-              {{ isLoading ? $t('providers.adding') : $t('providers.add') }}
+              {{ isLoading ? $t("providers.adding") : $t("providers.add") }}
             </button>
           </div>
         </form>
@@ -134,112 +183,117 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useProvidersStore } from '../../store/providers'
-import type { ProviderKeyStatus } from '../../store/providers'
-import type { ProviderType } from '../../providers'
+import { ref, computed, onMounted } from "vue";
+import { useProvidersStore } from "../../store/providers";
+import type { ProviderKeyStatus } from "../../store/providers";
+import type { ProviderType } from "../../providers";
 
-const providersStore = useProvidersStore()
+const providersStore = useProvidersStore();
 
 // State
-const showAddDialog = ref(false)
-const hasShownNotice = computed(() => providersStore.hasShownEncryptionNotice())
+const showAddDialog = ref(false);
+const hasShownNotice = computed(() =>
+  providersStore.hasShownEncryptionNotice(),
+);
 
 const newProvider = ref({
-  type: '' as ProviderType | '',
-  name: '',
-  apiKey: '',
-  baseUrl: '',
-})
+  type: "" as ProviderType | "",
+  name: "",
+  apiKey: "",
+  baseUrl: "",
+});
 
 // Computed
-const providerStatuses = computed(() => providersStore.providerStatuses)
-const supportedProviderTypes = computed(() => providersStore.supportedProviderTypes)
-const isLoading = computed(() => providersStore.isLoading)
-const error = computed(() => providersStore.error)
-const testingProvider = computed(() => providersStore.testingProvider)
+const providerStatuses = computed(() => providersStore.providerStatuses);
+const supportedProviderTypes = computed(
+  () => providersStore.supportedProviderTypes,
+);
+const isLoading = computed(() => providersStore.isLoading);
+const error = computed(() => providersStore.error);
+const testingProvider = computed(() => providersStore.testingProvider);
 
-const showBaseUrl = computed(() =>
-  newProvider.value.type === 'openai'
-)
+const showBaseUrl = computed(() => newProvider.value.type === "openai");
 
 // Methods
 const acknowledgeNotice = (): void => {
-  providersStore.markEncryptionNoticeShown()
-}
+  providersStore.markEncryptionNoticeShown();
+};
 
 const closeAddDialog = (): void => {
-  showAddDialog.value = false
-  newProvider.value = { type: '', name: '', apiKey: '', baseUrl: '' }
-}
+  showAddDialog.value = false;
+  newProvider.value = { type: "", name: "", apiKey: "", baseUrl: "" };
+};
 
 const addProvider = async (): Promise<void> => {
-  if (!newProvider.value.type || !newProvider.value.name) return
+  if (!newProvider.value.type || !newProvider.value.name) return;
 
   try {
-    const type = newProvider.value.type as ProviderType
+    const type = newProvider.value.type;
     await providersStore.addKey(
       type,
       newProvider.value.name,
       newProvider.value.apiKey,
-      newProvider.value.baseUrl || undefined
-    )
-    closeAddDialog()
+      newProvider.value.baseUrl || undefined,
+    );
+    closeAddDialog();
   } catch (err) {
-    console.error('Failed to add provider:', err)
+    console.error("Failed to add provider:", err);
   }
-}
+};
 
 const testProvider = async (id: string): Promise<void> => {
-  await providersStore.testKey(id)
-}
+  await providersStore.testKey(id);
+};
 
 const editProvider = (provider: ProviderKeyStatus): void => {
   // TODO: Implement edit functionality
-  console.log('Edit provider:', provider)
-}
+  console.log("Edit provider:", provider);
+};
 
 const confirmDelete = (provider: ProviderKeyStatus): void => {
   if (confirm(`Remove ${provider.name}?`)) {
-    providersStore.removeKey(provider.id)
+    providersStore.removeKey(provider.id);
   }
-}
+};
 
 const getValidationClass = (provider: ProviderKeyStatus): string => {
-  if (provider.isValid === null) return 'not-tested'
-  return provider.isValid ? 'valid' : 'invalid'
-}
+  if (provider.isValid === null) return "not-tested";
+  return provider.isValid ? "valid" : "invalid";
+};
 
 const getValidationText = (provider: ProviderKeyStatus): string => {
-  if (provider.isValid === null) return 'Not tested'
-  return provider.isValid ? 'Valid' : 'Invalid'
-}
+  if (provider.isValid === null) return "Not tested";
+  return provider.isValid ? "Valid" : "Invalid";
+};
 
 const formatDate = (date: Date): string => {
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-  }).format(date)
-}
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  }).format(date);
+};
 
-const getApiKeyPlaceholder = (type: ProviderType | ''): string => {
+const getApiKeyPlaceholder = (type: ProviderType | ""): string => {
   switch (type) {
-    case 'openai': return 'sk-...'
-    case 'claude': return 'sk-ant-...'
-    default: return 'Enter API key'
+    case "openai":
+      return "sk-...";
+    case "claude":
+      return "sk-ant-...";
+    default:
+      return "Enter API key";
   }
-}
+};
 
 const clearError = (): void => {
-  providersStore.clearError()
-}
+  providersStore.clearError();
+};
 
 // Lifecycle
 onMounted(() => {
-  providersStore.initialize()
-})
+  providersStore.initialize();
+});
 </script>
 
 <style scoped>
@@ -273,7 +327,8 @@ onMounted(() => {
   color: #856404;
 }
 
-.notice-content p, .notice-content li {
+.notice-content p,
+.notice-content li {
   color: #856404;
 }
 
@@ -341,11 +396,21 @@ onMounted(() => {
   min-width: 80px;
 }
 
-.status-value.has-key { color: #054213; }
-.status-value.no-key { color: #dc3545; }
-.status-value.valid { color: #054213; }
-.status-value.invalid { color: #dc3545; }
-.status-value.not-tested { color: #6c757d; }
+.status-value.has-key {
+  color: #054213;
+}
+.status-value.no-key {
+  color: #dc3545;
+}
+.status-value.valid {
+  color: #054213;
+}
+.status-value.invalid {
+  color: #dc3545;
+}
+.status-value.not-tested {
+  color: #6c757d;
+}
 
 .provider-actions {
   display: flex;

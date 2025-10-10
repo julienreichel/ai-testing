@@ -5,11 +5,7 @@
     </div>
     <ul class="nav-links">
       <li v-for="item in navigationItems" :key="item.path">
-        <router-link
-          :to="item.path"
-          class="nav-link"
-          active-class="active"
-        >
+        <router-link :to="item.path" class="nav-link" active-class="active">
           {{ item.name }}
         </router-link>
       </li>
@@ -18,22 +14,22 @@
 </template>
 
 <script setup lang="ts">
-import type { NavigationItem } from '../types'
+import type { NavigationItem } from "../types";
 
 const navigationItems: NavigationItem[] = [
-  { name: 'Dashboard', path: '/dashboard' },
-  { name: 'Providers', path: '/providers' },
-  { name: 'Editor', path: '/editor' },
-  { name: 'Tests', path: '/tests' },
-  { name: 'Runs', path: '/runs' },
-]
+  { name: "Dashboard", path: "/dashboard" },
+  { name: "Providers", path: "/providers" },
+  { name: "Editor", path: "/editor" },
+  { name: "Tests", path: "/tests" },
+  { name: "Runs", path: "/runs" },
+];
 </script>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'AppNav',
+  name: "AppNav",
 });
 </script>
 

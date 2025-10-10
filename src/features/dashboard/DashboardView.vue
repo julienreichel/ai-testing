@@ -1,17 +1,17 @@
 <template>
   <div class="dashboard">
-    <h1>{{ $t('dashboard.title') }}</h1>
+    <h1>{{ $t("dashboard.title") }}</h1>
     <div class="dashboard-grid">
       <div class="stats-card">
-        <h3>{{ $t('dashboard.activeProviders') }}</h3>
+        <h3>{{ $t("dashboard.activeProviders") }}</h3>
         <p class="stat-number">{{ activeProviders.length }}</p>
       </div>
       <div class="stats-card">
-        <h3>{{ $t('dashboard.totalTests') }}</h3>
+        <h3>{{ $t("dashboard.totalTests") }}</h3>
         <p class="stat-number">{{ testCases.length }}</p>
       </div>
       <div class="stats-card">
-        <h3>{{ $t('dashboard.recentRuns') }}</h3>
+        <h3>{{ $t("dashboard.recentRuns") }}</h3>
         <p class="stat-number">{{ recentTestRuns.length }}</p>
       </div>
     </div>
@@ -19,11 +19,11 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
-import { useAppStore } from '../../store'
+import { storeToRefs } from "pinia";
+import { useAppStore } from "../../store";
 
-const appStore = useAppStore()
-const { activeProviders, testCases, recentTestRuns } = storeToRefs(appStore)
+const appStore = useAppStore();
+const { activeProviders, testCases, recentTestRuns } = storeToRefs(appStore);
 </script>
 
 <style scoped>
