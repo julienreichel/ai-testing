@@ -1,0 +1,24 @@
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "activeProviders": "Active Providers",
+    "totalTests": "Total Tests",
+    "recentRuns": "Recent Runs"
+  },
+  "providers": {
+    "title": "AI Providers",
+    "description": "Manage your AI provider configurations"
+  },
+  "editor": {
+    "title": "Test Editor",
+    "description": "Create and edit test cases"
+  },
+  "tests": {
+    "title": "Test Cases",
+    "description": "Manage your test cases"
+  },
+  "runs": {
+    "title": "Test Runs",
+    "description": "View test run results and history"
+  }
+}
