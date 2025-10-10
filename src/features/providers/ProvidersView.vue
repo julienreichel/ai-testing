@@ -224,12 +224,12 @@ const closeAddDialog = (): void => {
   newProvider.value = { type: "", name: "", apiKey: "", baseUrl: "" };
 };
 
-const addProvider = async (): Promise<void> => {
+const addProvider = (): void => {
   if (!newProvider.value.type || !newProvider.value.name) return;
 
   try {
     const type = newProvider.value.type;
-    await providersStore.addKey(
+    providersStore.addKey(
       type,
       newProvider.value.name,
       newProvider.value.apiKey,

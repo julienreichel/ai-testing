@@ -8,6 +8,8 @@ import type {
   ProviderError,
 } from "../types/providers";
 
+const DEFAULT_TEMPERATURE = 0.7;
+const DEFAULT_MAX_TOKENS = 1000;
 /**
  * OpenAI Provider Adapter
  * Implements the BaseProviderAdapter for OpenAI's API
@@ -27,8 +29,7 @@ export class OpenAIProviderAdapter extends BaseProviderAdapter {
   } as const;
 
   // Default values
-  private static readonly DEFAULT_TEMPERATURE = 0.7;
-  private static readonly DEFAULT_MAX_TOKENS = 1000;
+
 
   private static readonly MODELS: ProviderModel[] = [
     {
@@ -115,8 +116,8 @@ export class OpenAIProviderAdapter extends BaseProviderAdapter {
       model: request.model,
       messages,
       temperature:
-        request.temperature ?? OpenAIProviderAdapter.DEFAULT_TEMPERATURE,
-      max_tokens: request.maxTokens ?? OpenAIProviderAdapter.DEFAULT_MAX_TOKENS,
+        request.temperature ?? DEFAULT_TEMPERATURE,
+      max_tokens: request.maxTokens ?? DEFAULT_MAX_TOKENS,
     };
 
     const controller = new AbortController();
