@@ -1,9 +1,30 @@
 {
   "dashboard": {
     "title": "Dashboard",
+    "subtitle": "Monitor your AI testing environment and manage providers",
     "activeProviders": "Active Providers",
     "totalTests": "Total Tests",
-    "recentRuns": "Recent Runs"
+    "recentRuns": "Recent Runs",
+    "outOf": "out of {total}",
+    "testCasesReady": "ready to run",
+    "last24Hours": "last 24 hours",
+    "providerOverview": "Provider Overview",
+    "manageProviders": "Manage Providers",
+    "noProviders": "No providers configured",
+    "noProvidersDescription": "Add your first AI provider to start testing",
+    "addFirstProvider": "Add First Provider",
+    "summary": {
+      "configured": "Configured",
+      "active": "Active",
+      "errors": "Errors"
+    },
+    "quickActions": "Quick Actions",
+    "createTest": "Create Test Case",
+    "createTestDescription": "Design new test scenarios for your AI models",
+    "runTests": "Run Tests",
+    "runTestsDescription": "Execute test cases against your configured providers",
+    "viewResults": "View Results",
+    "viewResultsDescription": "Analyze test run results and performance metrics"
   },
   "providers": {
     "title": "AI Providers",
@@ -38,6 +59,21 @@
     "testFailedMessage": "Provider connection test failed. Please check your configuration.",
     "edit": "Edit",
     "editTypeNotice": "Provider type cannot be changed when editing",
+    "statusLabel": "Status",
+    "testConnection": "Test Connection",
+    "configure": "Configure",
+    "custom": "Custom",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "error": "Error",
+      "untested": "Untested",
+      "noKey": "No API Key"
+    },
+    "keyStatus": {
+      "configured": "Configured",
+      "missing": "Missing"
+    },
     "remove": "Remove",
     "deleteSuccess": "Provider Deleted",
     "deleteSuccessMessage": "Provider has been successfully removed",
@@ -91,7 +127,12 @@
     "error": "Error",
     "success": "Success",
     "info": "Info",
-    "warning": "Warning"
+    "warning": "Warning",
+    "never": "Never",
+    "justNow": "Just now",
+    "minutesAgo": "{count} minutes ago",
+    "hoursAgo": "{count} hours ago",
+    "daysAgo": "{count} days ago"
   },
   "validation": {
     "required": "This field is required",
