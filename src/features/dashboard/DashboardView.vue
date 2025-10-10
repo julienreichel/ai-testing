@@ -84,8 +84,6 @@ onMounted(() => {
   margin-bottom: 3rem;
 }
 
-
-
 @media (max-width: 768px) {
   .dashboard {
     padding: 1rem;

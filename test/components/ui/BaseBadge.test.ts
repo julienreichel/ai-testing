@@ -192,7 +192,7 @@ describe("BaseBadge - User Behavior", () => {
         props: {
           variant: "danger",
           size: "sm",
-          icon: "!"
+          icon: "!",
         },
         slots: { default: "3" },
       });
@@ -206,7 +206,7 @@ describe("BaseBadge - User Behavior", () => {
       const wrapper = createWrapper({
         props: {
           variant: "info",
-          outlined: true
+          outlined: true,
         },
         slots: { default: "JavaScript" },
       });
@@ -245,7 +245,7 @@ describe("BaseBadge - User Behavior", () => {
       const wrapper = createWrapper({
         props: { variant: "warning" },
         slots: {
-          default: '<span>Complex <strong>Content</strong></span>',
+          default: "<span>Complex <strong>Content</strong></span>",
         },
       });
 
@@ -297,11 +297,11 @@ describe("BaseBadge - User Behavior", () => {
     });
 
     it("should work well in lists and collections", () => {
-      const badges = ["New", "Popular", "Sale"].map(text =>
+      const badges = ["New", "Popular", "Sale"].map((text) =>
         createWrapper({
           props: { variant: "primary" },
           slots: { default: text },
-        })
+        }),
       );
 
       badges.forEach((badge) => {

@@ -112,7 +112,7 @@ describe("BaseSpinner - User Behavior", () => {
       const wrapper = createWrapper({
         props: {
           size: "sm",
-          color: "white"
+          color: "white",
         },
       });
 
@@ -125,7 +125,7 @@ describe("BaseSpinner - User Behavior", () => {
       const wrapper = createWrapper({
         props: {
           size: "lg",
-          color: "primary"
+          color: "primary",
         },
       });
 
@@ -138,7 +138,7 @@ describe("BaseSpinner - User Behavior", () => {
       const wrapper = createWrapper({
         props: {
           size: "md",
-          color: "primary"
+          color: "primary",
         },
       });
 

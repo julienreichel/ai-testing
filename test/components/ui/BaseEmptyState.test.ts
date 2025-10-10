@@ -23,7 +23,9 @@ describe("BaseEmptyState - User Behavior", () => {
       });
 
       expect(wrapper.text()).toContain("No Items Found");
-      expect(wrapper.text()).toContain("There are currently no items to display.");
+      expect(wrapper.text()).toContain(
+        "There are currently no items to display.",
+      );
     });
 
     it("should display default icon when no custom icon provided", () => {
@@ -70,8 +72,12 @@ describe("BaseEmptyState - User Behavior", () => {
         },
       });
 
-      expect(wrapper.find(".empty-state-title").text()).toBe("Complete Empty State");
-      expect(wrapper.find(".empty-state-description").text()).toBe("This explains what users should do next.");
+      expect(wrapper.find(".empty-state-title").text()).toBe(
+        "Complete Empty State",
+      );
+      expect(wrapper.find(".empty-state-description").text()).toBe(
+        "This explains what users should do next.",
+      );
     });
 
     it("should support custom content through slots", () => {
@@ -122,7 +128,8 @@ describe("BaseEmptyState - User Behavior", () => {
           title: "Custom Actions",
         },
         slots: {
-          action: '<button class="custom-action">Custom Button</button><a href="#" class="custom-link">Or browse examples</a>',
+          action:
+            '<button class="custom-action">Custom Button</button><a href="#" class="custom-link">Or browse examples</a>',
         },
       });
 
@@ -242,7 +249,9 @@ describe("BaseEmptyState - User Behavior", () => {
       });
 
       expect(wrapper.text()).toContain("Welcome to Your Dashboard");
-      expect(wrapper.text()).toContain("Get started by adding your first project.");
+      expect(wrapper.text()).toContain(
+        "Get started by adding your first project.",
+      );
       expect(wrapper.find(".empty-state-button").text()).toBe("Create Project");
       expect(wrapper.find(".empty-state-icon").exists()).toBe(true);
     });
@@ -304,7 +313,9 @@ describe("BaseEmptyState - User Behavior", () => {
       });
 
       expect(wrapper.find("h3").text()).toBe("Accessible Empty State");
-      expect(wrapper.find("p").text()).toBe("Screen reader friendly description.");
+      expect(wrapper.find("p").text()).toBe(
+        "Screen reader friendly description.",
+      );
     });
 
     it("should maintain focus management for interactive elements", () => {

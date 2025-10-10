@@ -281,7 +281,9 @@ describe("BaseInputField - User Behavior", () => {
 
       const errorMessage = wrapper.find(".field-error");
       expect(errorMessage.exists()).toBe(true);
-      expect(errorMessage.text()).toContain("Please enter a valid email address");
+      expect(errorMessage.text()).toContain(
+        "Please enter a valid email address",
+      );
       expect(wrapper.classes()).toContain("field-error");
       expect(wrapper.find("input").classes()).toContain("input-error");
     });
@@ -459,7 +461,7 @@ describe("BaseInputField - User Behavior", () => {
       const textarea = wrapper.find("textarea");
       expect(textarea.attributes("rows")).toBe("5");
       expect(wrapper.find(".field-hint").text()).toBe(
-        "Please be as detailed as possible"
+        "Please be as detailed as possible",
       );
 
       await textarea.setValue("I need help with my account");

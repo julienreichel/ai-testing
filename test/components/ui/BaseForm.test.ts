@@ -290,7 +290,8 @@ describe("BaseForm - User Behavior", () => {
         },
         slots: {
           default: '<input type="text" />',
-          footer: '<div class="form-actions"><button class="custom-action">Custom Action</button></div>',
+          footer:
+            '<div class="form-actions"><button class="custom-action">Custom Action</button></div>',
         },
       });
 
@@ -306,7 +307,8 @@ describe("BaseForm - User Behavior", () => {
         },
         slots: {
           default: '<input type="text" />',
-          footer: '<div class="form-actions"><button class="extra-action">Extra</button><button type="button">Cancel</button><button type="submit">Submit</button></div>',
+          footer:
+            '<div class="form-actions"><button class="extra-action">Extra</button><button type="button">Cancel</button><button type="submit">Submit</button></div>',
         },
       });
 
@@ -575,13 +577,19 @@ describe("BaseForm - User Behavior", () => {
         },
       });
 
-      expect(wrapper.findAll("button")[1]?.attributes("disabled")).toBeUndefined();
+      expect(
+        wrapper.findAll("button")[1]?.attributes("disabled"),
+      ).toBeUndefined();
 
       await wrapper.setProps({ loading: true });
-      expect(wrapper.findAll("button")[1]?.attributes("disabled")).toBeDefined();
+      expect(
+        wrapper.findAll("button")[1]?.attributes("disabled"),
+      ).toBeDefined();
 
       await wrapper.setProps({ loading: false, disabled: true });
-      expect(wrapper.findAll("button")[1]?.attributes("disabled")).toBeDefined();
+      expect(
+        wrapper.findAll("button")[1]?.attributes("disabled"),
+      ).toBeDefined();
     });
   });
 

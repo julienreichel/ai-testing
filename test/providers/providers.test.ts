@@ -2,7 +2,10 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { MockProviderAdapter } from "../../src/providers/MockProviderAdapter";
 import { OpenAIProviderAdapter } from "../../src/providers/OpenAIProviderAdapter";
 import { ProviderFactory, ProviderRegistry } from "../../src/providers";
-import type { ProviderConfig, ProviderRequest } from "../../src/types/providers";
+import type {
+  ProviderConfig,
+  ProviderRequest,
+} from "../../src/types/providers";
 
 describe("Provider System", () => {
   describe("MockProviderAdapter - Template Implementation", () => {

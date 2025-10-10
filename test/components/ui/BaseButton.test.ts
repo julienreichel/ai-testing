@@ -104,7 +104,7 @@ describe("BaseButton - User Behavior", () => {
       const wrapper = createWrapper({
         props: {
           loading: true,
-          loadingText: "Saving..."
+          loadingText: "Saving...",
         },
         slots: { default: "Save" },
       });
@@ -220,7 +220,7 @@ describe("BaseButton - User Behavior", () => {
     it("should work with complex slot content", () => {
       const wrapper = createWrapper({
         slots: {
-          default: '<span>Save <strong>Now</strong></span>',
+          default: "<span>Save <strong>Now</strong></span>",
         },
       });
 

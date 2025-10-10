@@ -151,7 +151,7 @@ describe("BaseCard - User Behavior", () => {
       const wrapper = createWrapper({
         slots: {
           default: "Content",
-          actions: '<button>Action 1</button><button>Action 2</button>',
+          actions: "<button>Action 1</button><button>Action 2</button>",
         },
       });
 
@@ -181,12 +181,14 @@ describe("BaseCard - User Behavior", () => {
           header: "Full Header",
           default: "Main Content",
           footer: "Full Footer",
-          actions: '<button>Save</button><button>Cancel</button>',
+          actions: "<button>Save</button><button>Cancel</button>",
         },
       });
 
       // Check all sections exist and are in correct order
-      const sections = wrapper.findAll(".card-header, .card-body, .card-footer, .card-actions");
+      const sections = wrapper.findAll(
+        ".card-header, .card-body, .card-footer, .card-actions",
+      );
       expect(sections).toHaveLength(4);
 
       expect(wrapper.find(".card-header").text()).toBe("Full Header");
@@ -198,7 +200,8 @@ describe("BaseCard - User Behavior", () => {
     it("should handle complex nested content gracefully", () => {
       const wrapper = createWrapper({
         slots: {
-          header: '<div class="custom-header"><h3>Title</h3><span>Subtitle</span></div>',
+          header:
+            '<div class="custom-header"><h3>Title</h3><span>Subtitle</span></div>',
           default: `
             <div class="content-section">
               <p>Paragraph 1</p>
@@ -208,7 +211,8 @@ describe("BaseCard - User Behavior", () => {
               </ul>
             </div>
           `,
-          actions: '<div class="btn-group"><button class="primary">OK</button></div>',
+          actions:
+            '<div class="btn-group"><button class="primary">OK</button></div>',
         },
       });
 

@@ -386,7 +386,8 @@ describe("BaseNotice - User Behavior", () => {
     });
 
     it("should handle long content gracefully", () => {
-      const longContent = "This is a very long notice content that should wrap properly and maintain good readability even when it extends beyond a single line of text.";
+      const longContent =
+        "This is a very long notice content that should wrap properly and maintain good readability even when it extends beyond a single line of text.";
 
       const wrapper = createWrapper({
         slots: {
@@ -425,7 +426,9 @@ describe("BaseNotice - User Behavior", () => {
       });
 
       expect(wrapper.find(".notice-title").text()).toBe("Screen Reader Test");
-      expect(wrapper.text()).toContain("This content should be accessible to screen readers");
+      expect(wrapper.text()).toContain(
+        "This content should be accessible to screen readers",
+      );
     });
 
     it("should support keyboard navigation for dismiss button", () => {
@@ -460,7 +463,9 @@ describe("BaseNotice - User Behavior", () => {
       });
 
       expect(wrapper.classes()).toContain("notice-warning");
-      expect(wrapper.find(".notice-title").text()).toBe("Complete Configuration");
+      expect(wrapper.find(".notice-title").text()).toBe(
+        "Complete Configuration",
+      );
       expect(wrapper.find(".notice-icon").text()).toBe("⚠️");
       expect(wrapper.find(".notice-dismiss").exists()).toBe(true);
       expect(wrapper.find(".complete-btn").exists()).toBe(true);

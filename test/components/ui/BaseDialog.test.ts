@@ -68,7 +68,7 @@ describe("BaseDialog - User Behavior", () => {
     it("should accept various size configurations", () => {
       const sizes = ["sm", "md", "lg", "xl"];
 
-      sizes.forEach(size => {
+      sizes.forEach((size) => {
         const wrapper = createWrapper({
           props: {
             modelValue: true,
@@ -169,10 +169,10 @@ describe("BaseDialog - User Behavior", () => {
             modelValue: i % 2 === 0,
             title: `Dialog ${i}`,
           },
-        })
+        }),
       );
 
-      dialogs.forEach(dialog => {
+      dialogs.forEach((dialog) => {
         expect(dialog.exists()).toBe(true);
       });
     });

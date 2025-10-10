@@ -32,30 +32,85 @@ export class OpenAIProviderAdapter extends BaseProviderAdapter {
 
   private static readonly MODELS: ProviderModel[] = [
     {
+      id: "gpt-5-nano",
+      name: "GPT-5 Nano",
+      description: "Ultra-light version of GPT-5 (low cost, lower capacity)",
+      contextWindow: 128000, // (or whatever spec OpenAI uses)
+      maxOutputTokens: 32768, // example; confirm with spec
+    },
+    {
+      id: "gpt-5-mini",
+      name: "GPT-5 Mini",
+      description: "Balanced mid-tier GPT-5 variant",
+      contextWindow: 256000,
+      maxOutputTokens: 65536,
+    },
+    {
+      id: "gpt-5",
+      name: "GPT-5",
+      description: "Full GPT-5 flagship",
+      contextWindow: 512000,
+      maxOutputTokens: 131072,
+    },
+    {
       id: "gpt-4o-mini",
       name: "GPT-4o Mini",
-      description: "Fast and efficient model for simple tasks",
+      description: "Cost-efficient omni-modal model",
       contextWindow: 128000,
       maxOutputTokens: 16384,
     },
     {
+      id: "gpt-4o",
+      name: "GPT-4o",
+      description: "General-purpose omni-modal model",
+      contextWindow: 128000,
+      maxOutputTokens: 4096,
+    },
+    {
       id: "gpt-4-turbo",
       name: "GPT-4 Turbo",
-      description: "Most capable model for complex tasks",
+      description: "High-capacity model for complex tasks",
       contextWindow: 128000,
+      maxOutputTokens: 4096,
+    },
+    {
+      id: "gpt-3.5-turbo",
+      name: "GPT-3.5 Turbo",
+      description: "More affordable model for lighter tasks",
+      contextWindow: 16384,
       maxOutputTokens: 4096,
     },
   ];
 
   // Pricing as of 2024 (per 1K tokens in USD)
   private static readonly PRICING: Record<string, ProviderPricing> = {
+    "gpt-5-nano": {
+      inputTokensPer1K: 0.00005, // $0.05 per 1,000 = $50 per 1M
+      outputTokensPer1K: 0.0004, // $0.40 per 1,000 = $400 per 1M
+    },
+    "gpt-5-mini": {
+      inputTokensPer1K: 0.00025, // $0.25 per 1,000 = $250 per 1M
+      outputTokensPer1K: 0.002, // $2.00 per 1,000 = $2,000 per 1M
+    },
+    "gpt-5": {
+      inputTokensPer1K: 0.00125, // $1.25 per 1,000 = $1,250 per 1M
+      outputTokensPer1K: 0.01, // $10.00 per 1,000 = $10,000 per 1M
+    },
     "gpt-4o-mini": {
-      inputTokensPer1K: 0.00015,
-      outputTokensPer1K: 0.0006,
+      inputTokensPer1K: 0.00015, // $0.15 per 1,000 input tokens :contentReference[oaicite:0]{index=0}
+      outputTokensPer1K: 0.0006, // $0.60 per 1,000 output tokens :contentReference[oaicite:1]{index=1}
+    },
+    "gpt-4o": {
+      inputTokensPer1K: 0.005, // $0.005 per 1,000 input tokens :contentReference[oaicite:2]{index=2}
+      outputTokensPer1K: 0.015, // $0.015 per 1,000 output tokens :contentReference[oaicite:3]{index=3}
     },
     "gpt-4-turbo": {
-      inputTokensPer1K: 0.01,
-      outputTokensPer1K: 0.03,
+      inputTokensPer1K: 0.01, // ~$0.01 per 1,000 input tokens (estimate)
+      outputTokensPer1K: 0.03, // ~$0.03 per 1,000 output tokens
+    },
+    "gpt-3.5-turbo": {
+      inputTokensPer1K: 0.0003, // ~$0.0003 per 1,000 input tokens (estimate)
+      outputTokensPer1K: 0.0006, // ~$0.0006 per 1,000 output tokens
     },
   };
 

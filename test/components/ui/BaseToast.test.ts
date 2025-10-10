@@ -57,7 +57,9 @@ describe("BaseToast - User Behavior", () => {
       });
 
       expect(wrapper.find(".toast-title").text()).toBe("Success");
-      expect(wrapper.find(".toast-message").text()).toBe("Operation completed successfully");
+      expect(wrapper.find(".toast-message").text()).toBe(
+        "Operation completed successfully",
+      );
     });
 
     it("should work with slot content", () => {
@@ -154,7 +156,13 @@ describe("BaseToast - User Behavior", () => {
         const wrapper = createWrapper({
           props: {
             modelValue: true,
-            position: position as "top-left" | "top-right" | "bottom-left" | "bottom-right" | "top-center" | "bottom-center",
+            position: position as
+              | "top-left"
+              | "top-right"
+              | "bottom-left"
+              | "bottom-right"
+              | "top-center"
+              | "bottom-center",
             message: `Toast at ${position}`,
           },
         });
@@ -428,7 +436,9 @@ describe("BaseToast - User Behavior", () => {
       });
 
       expect(wrapper.text()).toContain("Important Notice");
-      expect(wrapper.text()).toContain("Please read this important information");
+      expect(wrapper.text()).toContain(
+        "Please read this important information",
+      );
     });
 
     it("should support keyboard interaction for close button", () => {

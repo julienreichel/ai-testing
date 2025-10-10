@@ -96,7 +96,7 @@ src/
 │       ├── ProvidersView.vue  # Main view (190 lines)
 │       └── components/        # Feature-specific components
 ├── store/                     # Pinia stores
-├── router/                    # Vue Router configuration  
+├── router/                    # Vue Router configuration
 ├── locales/                   # i18n translations
 └── assets/                    # Global styles and assets
 ```
