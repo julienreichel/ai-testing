@@ -2,7 +2,12 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { ProviderRegistry, ProviderFactory } from "../providers";
 import type { ProviderType } from "../providers";
-import type { ProviderConfig, ProviderRequest } from "../types/providers";
+import type {
+  ProviderConfig,
+  ProviderRequest,
+  ProviderModel,
+  ProviderPricing,
+} from "../types/providers";
 import { storageUtils, validationUtils, providerUtils } from "./provider-utils";
 
 const ENCRYPTION_NOTICE_KEY = "ai-testing-encryption-notice-shown";
@@ -50,6 +55,25 @@ export const useProvidersStore = defineStore("providers", () => {
       (status) => status.hasKey && status.isValid === true,
     ),
   );
+
+  const getProviderModels = (providerId: string): ProviderModel[] => {
+    const provider = registry.value.getProvider(providerId);
+    if (!provider) {
+      return [];
+    }
+    return provider.getModels();
+  };
+
+  const getProviderPricing = (
+    providerId: string,
+    model: string,
+  ): ProviderPricing | null => {
+    const provider = registry.value.getProvider(providerId);
+    if (!provider) {
+      return null;
+    }
+    return provider.getPricing(model);
+  };
 
   // Actions
   const addKey = (
@@ -198,6 +222,8 @@ export const useProvidersStore = defineStore("providers", () => {
     addKey,
     removeKey,
     getKey,
+    getProviderModels,
+    getProviderPricing,
     testKey,
     initialize,
     clearAllData,

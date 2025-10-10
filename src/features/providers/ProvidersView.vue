@@ -320,7 +320,7 @@ onMounted(() => {
 .providers-list {
   display: grid;
   gap: 1.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(800px, 1fr));
 }
 
 /* Responsive */

@@ -1,16 +1,7 @@
 <template>
-  <div class="editor">
-    <h1>{{ $t("editor.title") }}</h1>
-    <p>{{ $t("editor.description") }}</p>
-  </div>
+  <prompt-editor />
 </template>
 
 <script setup lang="ts">
-// Test editor logic will go here
+import { PromptEditor } from "./index";
 </script>
-
-<style scoped>
-.editor {
-  padding: 2rem;
-}
-</style>

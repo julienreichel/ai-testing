@@ -105,6 +105,38 @@
     "title": "Test Editor",
     "description": "Create and edit test cases"
   },
+  "promptEditor": {
+    "title": "Prompt Editor",
+    "provider": "Provider",
+    "selectProvider": "Select a provider",
+    "model": "Model",
+    "selectModel": "Select a model",
+    "systemPrompt": "System Prompt",
+    "systemPromptPlaceholder": "Enter system instructions (optional)",
+    "systemPromptHint": "System prompts set the behavior and personality of the AI assistant",
+    "userPrompt": "User Prompt",
+    "userPromptPlaceholder": "Enter your prompt here",
+    "parameters": "Parameters",
+    "temperature": "Temperature",
+    "temperatureHint": "Controls randomness (0 = deterministic, 2 = very creative)",
+    "maxTokens": "Max Tokens",
+    "maxTokensHint": "Maximum length of the response",
+    "estimatedTokens": "Estimated tokens",
+    "runOnce": "Run Once",
+    "clear": "Clear",
+    "saveAsTestCase": "Save as Test Case",
+    "generatingResponse": "Generating Response",
+    "pleaseWait": "Please wait while we process your request",
+    "executionError": "Execution Error",
+    "response": "Response",
+    "latency": "Latency",
+    "inputTokens": "Input Tokens",
+    "outputTokens": "Output Tokens",
+    "totalTokens": "Total Tokens",
+    "cost": "Cost",
+    "noResults": "No Results",
+    "runPromptToSeeResults": "Run a prompt to see results here"
+  },
   "tests": {
     "title": "Test Cases",
     "description": "Manage your test cases"
@@ -132,7 +164,10 @@
     "justNow": "Just now",
     "minutesAgo": "{count} minutes ago",
     "hoursAgo": "{count} hours ago",
-    "daysAgo": "{count} days ago"
+    "daysAgo": "{count} days ago",
+    "copy": "Copy",
+    "clear": "Clear",
+    "retry": "Retry"
   },
   "validation": {
     "required": "This field is required",

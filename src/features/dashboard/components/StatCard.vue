@@ -25,10 +25,7 @@ interface StatCardProps {
 
 const props = defineProps<StatCardProps>();
 
-const iconClasses = computed(() => [
-  "stat-icon",
-  `stat-icon-${props.variant}`,
-]);
+const iconClasses = computed(() => ["stat-icon", `stat-icon-${props.variant}`]);
 </script>
 
 <style scoped>

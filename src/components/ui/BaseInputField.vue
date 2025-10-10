@@ -186,7 +186,7 @@ const handleFocus = (event: Event): void => {
 }
 
 .field-input {
-  width: 100%;
+  width: 95%;
   border: 1px solid var(--border-color, #d1d5db);
   border-radius: 6px;
   font-size: 0.875rem;
