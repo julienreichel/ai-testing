@@ -53,10 +53,23 @@
           :result="promptRunner.state.value.result"
           :error="promptRunner.state.value.error"
           :is-running="promptRunner.state.value.isRunning"
+          :validation-result="validationResult"
           @cancel="promptRunner.cancelRun"
           @retry="runPrompt"
           @clear-results="promptRunner.clearResults"
           @save-as-test="saveAsTestCase"
+        />
+      </div>
+
+      <!-- Rules Section - After Results -->
+      <div
+        v-if="promptRunner.state.value.result?.content"
+        class="rules-section"
+      >
+        <h3>Output Validation Rules</h3>
+        <rules-editor-compact
+          v-model:rule-set="validationRules"
+          :test-data="promptRunner.state.value.result.content"
         />
       </div>
     </div>
@@ -70,7 +83,11 @@ import { useProvidersStore } from "../../store/providers";
 import { usePromptRunner } from "../../composables/usePromptRunner";
 import { BaseButton, BaseInputField } from "../../components/ui";
 import { ProviderSelector, ResultsDisplay } from "./components";
+import RulesEditorCompact from "./components/RulesEditorCompact.vue";
+import { createRuleSet } from "../rules/utils";
+import { RuleEngine } from "../rules/engine";
 import type { ProviderSelection } from "./components/ProviderSelector.vue";
+import type { RuleSet, RuleSetResult } from "../rules/types";
 
 interface PromptData {
   userPrompt: string;
@@ -92,6 +109,10 @@ const promptData = ref<PromptData>({
   temperature: 0.7,
   maxTokens: 150,
 });
+
+// Rules state
+const validationRules = ref<RuleSet>(createRuleSet());
+const validationResult = ref<RuleSetResult | null>(null);
 
 // Composables
 const promptRunner = usePromptRunner();
@@ -129,7 +150,19 @@ const runPrompt = async (): Promise<void> => {
   };
 
   await promptRunner.runPrompt(providerSelection.value.providerId, request);
+
+  // Run rule validation if we have a successful result
+  const result = promptRunner.state.value.result;
+  if (result && result.content && validationRules.value.rules.length > 0) {
+    validationResult.value = RuleEngine.validateRuleSet(
+      validationRules.value,
+      result.content,
+    );
+  } else {
+    validationResult.value = null;
+  }
 };
+
 const clearAll = (): void => {
   promptData.value = {
     userPrompt: "",
@@ -137,6 +170,7 @@ const clearAll = (): void => {
     maxTokens: 150,
   };
   promptRunner.clearResults();
+  validationResult.value = null;
 };
 
 const saveAsTestCase = (): void => {
@@ -183,6 +217,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  height: 90vh;
+  overflow-y: auto;
 }
 
 .prompt-section {
@@ -210,6 +246,13 @@ onMounted(() => {
   display: flex;
   gap: 0.75rem;
   align-items: center;
+}
+
+.rules-section {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
 }
 
 .results-section {

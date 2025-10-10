@@ -122,7 +122,7 @@ describe("Provider System", () => {
     it("should provide OpenAI models", () => {
       const models = provider.getModels();
 
-      expect(models).toHaveLength(2);
+      expect(models).toHaveLength(7);
       expect(models.find((m) => m.id === "gpt-4o-mini")).toBeDefined();
       expect(models.find((m) => m.id === "gpt-4-turbo")).toBeDefined();
     });

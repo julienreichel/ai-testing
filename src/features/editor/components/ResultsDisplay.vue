@@ -77,6 +77,51 @@
         <div class="response-text">
           <pre>{{ result.content }}</pre>
         </div>
+
+        <!-- Validation Results (if available) -->
+        <div v-if="validationResult" class="validation-results">
+          <div class="validation-header">
+            <h4>{{ $t("rules.testResults") }}</h4>
+            <div
+              :class="[
+                'validation-status',
+                validationResult.pass ? 'pass' : 'fail',
+              ]"
+            >
+              {{
+                validationResult.pass ? $t("rules.passed") : $t("rules.failed")
+              }}
+            </div>
+          </div>
+
+          <div class="validation-summary">
+            <p class="validation-message">{{ validationResult.message }}</p>
+            <p class="validation-stats">
+              {{ validationResult.passedCount }}/{{
+                validationResult.totalCount
+              }}
+              rules passed
+            </p>
+          </div>
+
+          <div v-if="validationResult.results.length > 0" class="rule-results">
+            <div
+              v-for="ruleResult in validationResult.results"
+              :key="ruleResult.ruleId"
+              :class="['rule-result', ruleResult.pass ? 'pass' : 'fail']"
+            >
+              <div class="rule-result-header">
+                <span class="rule-name">Rule {{ ruleResult.ruleId }}</span>
+                <span
+                  :class="['rule-status', ruleResult.pass ? 'pass' : 'fail']"
+                >
+                  {{ ruleResult.pass ? "✓" : "✗" }}
+                </span>
+              </div>
+              <p class="rule-message">{{ ruleResult.message }}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Third line: tokens and cost -->
@@ -129,6 +174,7 @@
 
 <script setup lang="ts">
 import type { ProviderResponse } from "../../../types/providers";
+import type { RuleSetResult } from "../../rules/types";
 import {
   BaseSpinner,
   BaseButton,
@@ -139,28 +185,31 @@ interface ResultsDisplayProps {
   result: ProviderResponse | null;
   error: string | null;
   isRunning: boolean;
+  validationResult?: RuleSetResult | null;
 }
 
 defineProps<ResultsDisplayProps>();
 
-const emit = defineEmits<{
+defineEmits<{
   cancel: [];
   retry: [];
   clearResults: [];
   saveAsTest: [];
 }>();
 
+const MILLISECONDS_PER_SECOND = 1000;
+
 const formatLatency = (latencyMs: number): string => {
-  if (latencyMs < 1000) {
+  if (latencyMs < MILLISECONDS_PER_SECOND) {
     return `${Math.round(latencyMs)}ms`;
   }
-  return `${(latencyMs / 1000).toFixed(1)}s`;
+  return `${(latencyMs / MILLISECONDS_PER_SECOND).toFixed(1)}s`;
 };
 
-const copyToClipboard = async (): Promise<void> => {
+const copyToClipboard = (): void => {
   // This would be implemented with the actual result content
   try {
-    // await navigator.clipboard.writeText(result.content);
+    // navigator.clipboard.writeText(result.content);
     // Show success feedback
   } catch (error) {
     // Handle copy error
@@ -307,6 +356,120 @@ const copyToClipboard = async (): Promise<void> => {
 .metric.cost .metric-value {
   color: #ea580c;
   font-weight: 700;
+}
+
+/* Validation Results Styles */
+.validation-results {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.validation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.validation-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.validation-status {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+.validation-status.pass {
+  color: #10b981;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+}
+
+.validation-status.fail {
+  color: #ef4444;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.validation-summary {
+  margin-bottom: 1rem;
+}
+
+.validation-message {
+  margin: 0 0 0.5rem 0;
+  font-weight: 500;
+  color: #374151;
+}
+
+.validation-stats {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.rule-results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rule-result {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 0.75rem;
+}
+
+.rule-result.pass {
+  border-left: 4px solid #10b981;
+}
+
+.rule-result.fail {
+  border-left: 4px solid #ef4444;
+}
+
+.rule-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.rule-name {
+  font-weight: 500;
+  color: #111827;
+  font-size: 0.875rem;
+}
+
+.rule-status {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.rule-status.pass {
+  color: #10b981;
+}
+
+.rule-status.fail {
+  color: #ef4444;
+}
+
+.rule-message {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #6b7280;
 }
 
 @media (max-width: 768px) {

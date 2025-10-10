@@ -63,6 +63,7 @@ export interface DeleteConfirmationDialogProps {
 
 withDefaults(defineProps<DeleteConfirmationDialogProps>(), {
   title: "Confirm Deletion",
+  description: "",
   confirmLabel: "Delete",
   cancelLabel: "Cancel",
   isDeleting: false,

@@ -120,11 +120,14 @@ const updateUserPrompt = (value: string | number): void => {
   });
 };
 
+const DEFAULT_TEMPERATURE = 0.7;
+const DEFAULT_MAX_TOKENS = 150;
+
 const updateTemperature = (value: string | number): void => {
   const numValue = typeof value === "string" ? parseFloat(value) : value;
   emit("update:modelValue", {
     ...props.modelValue,
-    temperature: isNaN(numValue) ? 0.7 : numValue,
+    temperature: isNaN(numValue) ? DEFAULT_TEMPERATURE : numValue,
   });
 };
 
@@ -132,7 +135,7 @@ const updateMaxTokens = (value: string | number): void => {
   const numValue = typeof value === "string" ? parseInt(value, 10) : value;
   emit("update:modelValue", {
     ...props.modelValue,
-    maxTokens: isNaN(numValue) ? 150 : numValue,
+    maxTokens: isNaN(numValue) ? DEFAULT_MAX_TOKENS : numValue,
   });
 };
 </script>
