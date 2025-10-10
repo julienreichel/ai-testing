@@ -222,7 +222,7 @@ const deleteProvider = async (): Promise<void> => {
   try {
     // Add a small delay to show the loading state
     const LOADING_DELAY_MS = 500;
-    await new Promise(resolve => setTimeout(resolve, LOADING_DELAY_MS));
+    await new Promise((resolve) => setTimeout(resolve, LOADING_DELAY_MS));
 
     providersStore.removeKey(providerToDelete.value.id);
     showNotification(
@@ -347,8 +347,6 @@ onMounted(() => {
   padding-right: 0.5rem;
   margin-right: -0.5rem;
 }
-
-
 
 /* Responsive */
 @media (max-width: 768px) {

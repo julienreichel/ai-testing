@@ -4,7 +4,9 @@
     <div v-if="isRunning" class="result-state">
       <div class="result-header">
         <div class="header-left">
-          <span class="response-label">{{ $t("promptEditor.generatingResponse") }}</span>
+          <span class="response-label">{{
+            $t("promptEditor.generatingResponse")
+          }}</span>
           <base-spinner size="sm" class="header-spinner" />
         </div>
         <div class="header-right">
@@ -25,7 +27,9 @@
     <div v-else-if="error" class="result-state">
       <div class="result-header">
         <div class="header-left">
-          <span class="response-label error">{{ $t('promptEditor.executionError') }}</span>
+          <span class="response-label error">{{
+            $t("promptEditor.executionError")
+          }}</span>
         </div>
         <div class="header-right">
           <base-button variant="outline" size="sm" @click="$emit('retry')">
@@ -47,7 +51,9 @@
       <div class="result-header">
         <div class="header-left">
           <span class="response-label">{{ $t("promptEditor.response") }}</span>
-          <span class="latency">{{ formatLatency(result.metadata.latency) }}</span>
+          <span class="latency">{{
+            formatLatency(result.metadata.latency)
+          }}</span>
         </div>
         <div class="header-right">
           <base-button variant="primary" size="sm" @click="$emit('saveAsTest')">
@@ -56,7 +62,11 @@
           <base-button variant="outline" size="sm" @click="copyToClipboard">
             {{ $t("common.copy") }}
           </base-button>
-          <base-button variant="outline" size="sm" @click="$emit('clearResults')">
+          <base-button
+            variant="outline"
+            size="sm"
+            @click="$emit('clearResults')"
+          >
             {{ $t("common.clear") }}
           </base-button>
         </div>
@@ -73,20 +83,34 @@
       <div class="result-footer">
         <div class="metrics">
           <span class="metric">
-            <span class="metric-label">{{ $t("promptEditor.inputTokens") }}:</span>
-            <span class="metric-value">{{ result.usage.inputTokens.toLocaleString() }}</span>
+            <span class="metric-label"
+              >{{ $t("promptEditor.inputTokens") }}:</span
+            >
+            <span class="metric-value">{{
+              result.usage.inputTokens.toLocaleString()
+            }}</span>
           </span>
           <span class="metric">
-            <span class="metric-label">{{ $t("promptEditor.outputTokens") }}:</span>
-            <span class="metric-value">{{ result.usage.outputTokens.toLocaleString() }}</span>
+            <span class="metric-label"
+              >{{ $t("promptEditor.outputTokens") }}:</span
+            >
+            <span class="metric-value">{{
+              result.usage.outputTokens.toLocaleString()
+            }}</span>
           </span>
           <span class="metric">
-            <span class="metric-label">{{ $t("promptEditor.totalTokens") }}:</span>
-            <span class="metric-value">{{ result.usage.totalTokens.toLocaleString() }}</span>
+            <span class="metric-label"
+              >{{ $t("promptEditor.totalTokens") }}:</span
+            >
+            <span class="metric-value">{{
+              result.usage.totalTokens.toLocaleString()
+            }}</span>
           </span>
           <span class="metric cost">
             <span class="metric-label">{{ $t("promptEditor.cost") }}:</span>
-            <span class="metric-value">${{ result.cost.totalCost.toFixed(4) }}</span>
+            <span class="metric-value"
+              >${{ result.cost.totalCost.toFixed(4) }}</span
+            >
           </span>
         </div>
       </div>

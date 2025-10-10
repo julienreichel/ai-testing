@@ -1,5 +1,10 @@
 <template>
-  <base-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" :title="title" size="sm">
+  <base-dialog
+    :model-value="modelValue"
+    @update:model-value="$emit('update:modelValue', $event)"
+    :title="title"
+    size="sm"
+  >
     <div class="delete-confirmation">
       <div class="delete-icon">
         <svg
@@ -16,12 +21,12 @@
           />
         </svg>
       </div>
-      
+
       <div class="delete-content">
         <p class="delete-message">
           {{ message }}
         </p>
-        
+
         <p v-if="description" class="delete-description">
           {{ description }}
         </p>
@@ -32,8 +37,8 @@
       <base-button variant="outline" @click="handleCancel">
         {{ cancelLabel }}
       </base-button>
-      <base-button 
-        variant="danger" 
+      <base-button
+        variant="danger"
         :loading="isDeleting"
         @click="handleConfirm"
       >

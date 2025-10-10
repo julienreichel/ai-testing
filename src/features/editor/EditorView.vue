@@ -129,7 +129,8 @@ const runPrompt = async (): Promise<void> => {
   };
 
   await promptRunner.runPrompt(providerSelection.value.providerId, request);
-};const clearAll = (): void => {
+};
+const clearAll = (): void => {
   promptData.value = {
     userPrompt: "",
     temperature: 0.7,
@@ -165,7 +166,6 @@ onMounted(() => {
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
-
 }
 
 .editor-header {
