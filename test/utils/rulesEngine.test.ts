@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { RuleEngine } from "../../../src/utils/rulesEngine";
-import { createRule, createRuleSet } from "../../../src/utils/rulesUtils";
+import { RuleEngine } from "../../src/utils/rulesEngine";
+import { createRule, createRuleSet } from "../../src/utils/rulesUtils";
 import type {
   StringRule,
   RegexRule,
   LengthRule,
   RuleSetResult,
-} from "../../../src/types/rules";
+} from "../../src/types/rules";
 
 describe("RuleEngine", () => {
   describe("validateRule", () => {
