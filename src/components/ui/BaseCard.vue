@@ -103,7 +103,7 @@ const handleClick = (event: MouseEvent): void => {
 }
 
 .card-padding-lg .card-body {
-  padding: 2rem;
+  padding: 0rem;
 }
 
 .card-header {

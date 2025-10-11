@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useProvidersStore } from "../../store/providers";
 import { usePromptRunner } from "../../composables/usePromptRunner";
 import { BaseButton, BaseInputField } from "../../components/ui";
@@ -91,6 +91,7 @@ import RulesEditorCompact from "./components/RulesEditorCompact.vue";
 import SaveTestCaseDialog from "../../components/SaveTestCaseDialog.vue";
 import { createRuleSet } from "../../utils/rulesUtils";
 import { RuleEngine } from "../../utils/rulesEngine";
+import { testDB } from "../../services/testManagementDatabase";
 import type { ProviderSelection } from "./components/ProviderSelector.vue";
 import type { RuleSet, RuleSetResult } from "../../types/rules";
 import type { ProviderResponse } from "../../types/providers";
@@ -102,6 +103,7 @@ interface PromptData {
 }
 
 const router = useRouter();
+const route = useRoute();
 const providersStore = useProvidersStore();
 
 // Component state
@@ -275,9 +277,35 @@ const onTestCaseSaved = (testCaseId: string): void => {
   }, NOTIFICATION_DELAY);
 };
 
-// Initialize providers on mount
-onMounted(() => {
+// Initialize providers and handle test case prefilling on mount
+onMounted(async () => {
   providersStore.initialize();
+
+  // Check if there's a test case ID in the query parameters for prefilling
+  const testCaseId = route.query.testCaseId as string;
+  if (!testCaseId) return;
+
+  try {
+    const testCase = await testDB.getTestCase(testCaseId);
+    if (!testCase) return;
+
+    // Prefill the prompt
+    promptData.value.userPrompt = testCase.prompt;
+
+    // Prefill the rules if they exist
+    if (!testCase.rules || testCase.rules.length === 0) return;
+
+    const firstRuleSet = testCase.rules[0];
+    if (!firstRuleSet) return;
+
+    validationRules.value = {
+      id: firstRuleSet.id || crypto.randomUUID(),
+      rules: firstRuleSet.rules || [],
+      aggregation: firstRuleSet.aggregation || 'AND',
+    };
+  } catch (error) {
+    console.error('Failed to load test case for prefilling:', error);
+  }
 });
 </script>
 

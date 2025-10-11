@@ -45,7 +45,7 @@
             <div class="detail-actions">
               <base-button
                 variant="outline"
-                @click="openTestCaseInEditor"
+                @click="openTestCaseInEditor()"
               >
                 Open in Editor
               </base-button>
@@ -176,31 +176,29 @@
               variant="default"
               hover
               clickable
-              class="test-case-card"
+              padding="sm"
+              class="test-case-card compact"
               @click="selectTestCase(testCase)"
             >
-              <template #header>
-                <div class="test-case-header">
-                  <h4>{{ testCase.name }}</h4>
-                  <span class="run-count">{{ testCase.metadata?.runCount || 0 }} runs</span>
+              <div class="test-case-compact">
+                <!-- First line: Name, runs, and action button -->
+                <div class="test-case-line-1">
+                  <div class="test-case-main-info">
+                    <h4 class="test-case-name">{{ testCase.name }}</h4>
+                    <span class="run-count">{{ testCase.metadata?.runCount || 0 }} runs</span>
+                  </div>
                 </div>
-              </template>
 
-              <p v-if="testCase.description" class="test-case-description">
-                {{ truncateText(testCase.description, 100) }}
-              </p>
-              <div class="test-case-preview">
-                <strong>Prompt:</strong>
-                <span>{{ truncateText(testCase.prompt, 80) }}</span>
-              </div>
-              <div v-if="testCase.rules?.length" class="rules-preview">
-                <strong>Rules:</strong>
-                <span>{{ getTotalRulesCount(testCase.rules) }} validation rules</span>
+                <!-- Second line: Prompt and rules inline -->
+                <div class="test-case-line-2">
+                  <span class="test-case-prompt">{{ truncateText(testCase.prompt, 120) }}</span>
+                  <span v-if="testCase.rules?.length" class="test-case-rules">
+                    {{ getTotalRulesCount(testCase.rules) }} rules
+                  </span>
+                </div>
               </div>
             </base-card>
-          </div>
-
-          <!-- Empty Project State -->
+          </div>          <!-- Empty Project State -->
           <base-empty-state
             v-else
             title="No Test Cases Yet"
@@ -412,16 +410,15 @@ const openEditor = (): void => {
   void router.push('/editor');
 };
 
-const openTestCaseInEditor = (): void => {
-  if (!selectedTestCase.value) return;
+const openTestCaseInEditor = (testCase?: TestCase): void => {
+  const targetTestCase = testCase || selectedTestCase.value;
+  if (!targetTestCase) return;
 
-  // Navigate to editor with test case data pre-filled
+  // Navigate to editor with only test case ID for prefilling
   void router.push({
     path: '/editor',
     query: {
-      prompt: selectedTestCase.value.prompt,
-      // Serialize rules for URL
-      rules: JSON.stringify(selectedTestCase.value.rules),
+      testCaseId: targetTestCase.id,
     }
   });
 };
@@ -498,9 +495,9 @@ const cancelDelete = (): void => {
 // Load all test cases from all projects
 const loadAllTestCases = async (): Promise<void> => {
   const allCases: TestCase[] = [];
-  
+
   console.log(`Loading test cases for ${projects.value.length} projects...`);
-  
+
   // Load test cases for each project
   for (const project of projects.value) {
     try {
@@ -515,7 +512,7 @@ const loadAllTestCases = async (): Promise<void> => {
       console.error(`Failed to load test cases for project ${project.id}:`, err);
     }
   }
-  
+
   console.log(`Total test cases loaded: ${allCases.length}`);
   allTestCases.value = allCases;
 };
@@ -610,6 +607,7 @@ onMounted(async () => {
 
 .test-case-content {
   display: flex;
+  width: 100%;
   flex-direction: column;
   gap: 1.5rem;
 }
@@ -618,11 +616,11 @@ onMounted(async () => {
 .projects-list {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .project-card {
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 
 .project-header {
@@ -661,57 +659,87 @@ onMounted(async () => {
 /* Test cases grid */
 .test-cases-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+  width: 100%;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
 
-.test-case-header {
+/* Compact test case card */
+.test-case-card.compact {
+  margin-bottom: 0;
+}
+
+.test-case-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.test-case-line-1 {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.75rem;
+  align-items: center;
+  gap: 1rem;
 }
 
-.test-case-header h4 {
+.test-case-main-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.test-case-name {
   margin: 0;
   color: #111827;
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  text-align: left;
 }
 
 .run-count {
   background: #f3f4f6;
   color: #6b7280;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
   font-weight: 500;
+  white-space: nowrap;
 }
 
-.test-case-description {
-  margin: 0 0 1rem 0;
-  color: #6b7280;
-  font-size: 0.875rem;
+.test-case-action {
+  flex-shrink: 0;
 }
 
-.test-case-preview,
-.rules-preview {
+.test-case-line-2 {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
   font-size: 0.875rem;
-  margin-bottom: 0.75rem;
-}
-
-.test-case-preview strong,
-.rules-preview strong {
-  color: #374151;
-}
-
-.test-case-preview span,
-.rules-preview span {
   color: #6b7280;
+  line-height: 1.3;
+}
+
+.test-case-prompt {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.test-case-rules {
+  color: #059669;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Test case detail content */
@@ -727,6 +755,8 @@ onMounted(async () => {
 }
 
 .prompt-display {
+  width: 100%;
+  text-align: left;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
@@ -739,6 +769,7 @@ onMounted(async () => {
 }
 
 .rules-display {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 1rem;
