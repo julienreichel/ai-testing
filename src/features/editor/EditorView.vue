@@ -18,6 +18,17 @@
         />
       </div>
 
+      <!-- Rules Section - After Results -->
+      <div
+        class="rules-section"
+      >
+        <h3>Output Validation Rules</h3>
+        <rules-editor-compact
+          v-model:rule-set="validationRules"
+          :test-data="promptRunner.state.value.result?.content"
+        />
+      </div>
+
       <!-- Provider and Run Section -->
       <div class="provider-run-section">
         <div class="provider-controls">
@@ -61,18 +72,15 @@
         />
       </div>
 
-      <!-- Rules Section - After Results -->
-      <div
-        v-if="promptRunner.state.value.result?.content"
-        class="rules-section"
-      >
-        <h3>Output Validation Rules</h3>
-        <rules-editor-compact
-          v-model:rule-set="validationRules"
-          :test-data="promptRunner.state.value.result.content"
-        />
-      </div>
+
     </div>
+
+    <save-test-case-dialog
+      v-model="showSaveDialog"
+      :prompt="promptData.userPrompt"
+      :rules="validationRules.rules.length > 0 ? [validationRules] : []"
+      @saved="onTestCaseSaved"
+    />
   </div>
 </template>
 
@@ -84,10 +92,12 @@ import { usePromptRunner } from "../../composables/usePromptRunner";
 import { BaseButton, BaseInputField } from "../../components/ui";
 import { ProviderSelector, ResultsDisplay } from "./components";
 import RulesEditorCompact from "./components/RulesEditorCompact.vue";
+import SaveTestCaseDialog from "../../components/SaveTestCaseDialog.vue";
 import { createRuleSet } from "../../utils/rulesUtils";
 import { RuleEngine } from "../../utils/rulesEngine";
 import type { ProviderSelection } from "./components/ProviderSelector.vue";
 import type { RuleSet, RuleSetResult } from "../../types/rules";
+import type { ProviderResponse } from "../../types/providers";
 
 interface PromptData {
   userPrompt: string;
@@ -114,6 +124,9 @@ const promptData = ref<PromptData>({
 const validationRules = ref<RuleSet>(createRuleSet());
 const validationResult = ref<RuleSetResult | null>(null);
 
+// Dialog state
+const showSaveDialog = ref(false);
+
 // Composables
 const promptRunner = usePromptRunner();
 
@@ -135,6 +148,8 @@ const updateUserPrompt = (value: string | number): void => {
 const runPrompt = async (): Promise<void> => {
   if (!canRunPrompt.value) return;
 
+  const startTime = performance.now();
+
   const messages = [
     {
       role: "user" as const,
@@ -151,6 +166,9 @@ const runPrompt = async (): Promise<void> => {
 
   await promptRunner.runPrompt(providerSelection.value.providerId, request);
 
+  const endTime = performance.now();
+  const executionTime = endTime - startTime;
+
   // Run rule validation if we have a successful result
   const result = promptRunner.state.value.result;
   if (result && result.content && validationRules.value.rules.length > 0) {
@@ -158,8 +176,60 @@ const runPrompt = async (): Promise<void> => {
       validationRules.value,
       result.content,
     );
+
+    // Create a test run if we have validation results and a current test case
+    await createTestRunFromValidation(result, validationResult.value, executionTime);
   } else {
     validationResult.value = null;
+  }
+};
+
+const createTestRunFromValidation = async (
+  result: ProviderResponse,
+  validation: RuleSetResult,
+  executionTime: number
+): Promise<void> => {
+  try {
+    // Import test management composable
+    const { useTestManagement } = await import('../../composables/useTestManagement');
+    const testManager = useTestManagement();
+
+    // Only create test run if we have a current project and test case
+    if (!testManager.currentProject.value || !testManager.currentTestCase.value) {
+      console.log('No current project or test case - skipping test run creation');
+      return;
+    }
+
+    const testRunData = {
+      projectId: testManager.currentProject.value.id,
+      testCaseId: testManager.currentTestCase.value.id,
+      modelProvider: providerSelection.value.providerId,
+      modelName: providerSelection.value.model,
+      prompt: promptData.value.userPrompt,
+      response: result.content,
+      executionTime,
+      status: 'completed' as const,
+      modelConfig: {
+        temperature: promptData.value.temperature,
+        maxTokens: promptData.value.maxTokens,
+      },
+      tokens: {
+        promptTokens: result.usage.inputTokens,
+        completionTokens: result.usage.outputTokens,
+        totalTokens: result.usage.totalTokens,
+      },
+      evaluationResults: {
+        overallPass: validation.pass,
+        message: validation.message,
+        ruleSetResults: [validation],
+      },
+    };
+
+    const testRun = await testManager.createTestRun(testRunData);
+    console.log('Test run created successfully:', testRun);
+  } catch (error) {
+    console.error('Failed to create test run:', error);
+    // Don't throw - this shouldn't break the main prompt execution flow
   }
 };
 
@@ -174,19 +244,28 @@ const clearAll = (): void => {
 };
 
 const saveAsTestCase = (): void => {
-  // Navigate to test case creation with current data
-  const queryParams = {
-    userPrompt: promptData.value.userPrompt,
-    temperature: promptData.value.temperature.toString(),
-    maxTokens: promptData.value.maxTokens.toString(),
-    providerId: providerSelection.value.providerId,
-    model: providerSelection.value.model,
-  };
+  // Show the save dialog
+  showSaveDialog.value = true;
+};
 
-  void router.push({
-    path: "/tests/create",
-    query: queryParams,
-  });
+const onTestCaseSaved = (testCaseId: string): void => {
+  console.log('Test case saved successfully:', testCaseId);
+
+  // Show success notification
+  // Using setTimeout to ensure the dialog closes first
+  const NOTIFICATION_DELAY = 100; // ms
+  setTimeout(() => {
+    const proceed = confirm(
+      'Test case saved successfully!\n\nWould you like to navigate to the Tests page to view it?'
+    );
+
+    if (proceed) {
+      void router.push({
+        path: "/tests",
+        query: { selectedTestCase: testCaseId }
+      });
+    }
+  }, NOTIFICATION_DELAY);
 };
 
 // Initialize providers on mount
@@ -217,8 +296,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  height: 90vh;
-  overflow-y: auto;
 }
 
 .prompt-section {
@@ -253,6 +330,7 @@ onMounted(() => {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 1.5rem;
+  color: #000
 }
 
 .results-section {

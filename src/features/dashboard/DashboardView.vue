@@ -31,16 +31,56 @@
         variant="runs"
       />
     </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <h2>{{ $t('dashboard.quickActions') }}</h2>
+      <div class="actions-grid">
+        <div class="action-card">
+          <h3>{{ $t('dashboard.createTest') }}</h3>
+          <p>{{ $t('dashboard.createTestDescription') }}</p>
+          <base-button
+            variant="primary"
+            @click="() => router.push('/editor')"
+          >
+            {{ $t('dashboard.createTest') }}
+          </base-button>
+        </div>
+
+        <div class="action-card">
+          <h3>{{ $t('testManagement.title') }}</h3>
+          <p>Import and export test projects for team collaboration</p>
+          <!-- TODO: Enable when TestExportImport component is ready -->
+          <base-button variant="outline" disabled>
+            {{ $t('testManagement.export') }} / {{ $t('testManagement.import') }}
+          </base-button>
+        </div>
+
+        <div class="action-card">
+          <h3>{{ $t('dashboard.viewResults') }}</h3>
+          <p>{{ $t('dashboard.viewResultsDescription') }}</p>
+          <base-button
+            variant="outline"
+            @click="() => router.push('/runs')"
+          >
+            {{ $t('dashboard.viewResults') }}
+          </base-button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
 import { useAppStore } from "../../store";
 import { useProvidersStore } from "../../store/providers";
 import { StatCard } from "./components";
+import { BaseButton } from "../../components/ui";
 
+const router = useRouter();
 const appStore = useAppStore();
 const providersStore = useProvidersStore();
 
@@ -98,5 +138,50 @@ onMounted(() => {
     gap: 1rem;
     margin-bottom: 2rem;
   }
+
+  .actions-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.quick-actions {
+  margin-top: 2rem;
+}
+
+.quick-actions h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.action-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.action-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.action-card p {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  flex: 1;
 }
 </style>

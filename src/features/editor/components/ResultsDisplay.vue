@@ -93,17 +93,6 @@
               }}
             </div>
           </div>
-
-          <div class="validation-summary">
-            <p class="validation-message">{{ validationResult.message }}</p>
-            <p class="validation-stats">
-              {{ validationResult.passedCount }}/{{
-                validationResult.totalCount
-              }}
-              rules passed
-            </p>
-          </div>
-
           <div v-if="validationResult.results.length > 0" class="rule-results">
             <div
               v-for="ruleResult in validationResult.results"
@@ -111,14 +100,14 @@
               :class="['rule-result', ruleResult.pass ? 'pass' : 'fail']"
             >
               <div class="rule-result-header">
-                <span class="rule-name">Rule {{ ruleResult.ruleId }}</span>
+                <span class="rule-message">{{ ruleResult.message }}</span>
                 <span
                   :class="['rule-status', ruleResult.pass ? 'pass' : 'fail']"
                 >
                   {{ ruleResult.pass ? "✓" : "✗" }}
                 </span>
               </div>
-              <p class="rule-message">{{ ruleResult.message }}</p>
+
             </div>
           </div>
         </div>
