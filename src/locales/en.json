@@ -234,8 +234,6 @@
     "projectName": "Project Name",
     "description": "Description",
     "testRuns": "Test Runs",
-    "showSidebar": "Show Test Management",
-    "hideSidebar": "Hide Test Management",
     "saveTestCase": "Save Test Case",
     "testCaseName": "Test Case Name",
     "enterTestCaseName": "Enter test case name",
