@@ -4,16 +4,16 @@
  */
 
 import { computed, onMounted } from 'vue';
-import { useTestManagementState } from './state';
-import { testDB } from './database';
+import { useTestManagementState } from '../features/testManagement/state';
+import { testDB } from '../features/testManagement/database';
 import type {
   Project,
   TestCase,
   TestRun,
   ExportProject,
   ImportResult,
-} from './types';
-import type { RuleSet, RuleSetResult } from '../rules/types';
+} from '../features/testManagement/types';
+import type { RuleSet, RuleSetResult } from '../features/rules/types';
 
 const JSON_INDENT_SPACES = 2;
 

@@ -11,8 +11,8 @@
  */
 
 // Main composable (note: has ESLint complexity warning but is functional)
-export { useTestManagement } from './useTestManagement';
-export type { CreateProjectData, CreateTestCaseData, CreateTestRunData } from './useTestManagement';
+export { useTestManagement } from '../../composables/useTestManagement';
+export type { CreateProjectData, CreateTestCaseData, CreateTestRunData } from '../../composables/useTestManagement';
 
 // State management
 export { useTestManagementState } from './state';
