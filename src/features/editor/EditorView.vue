@@ -75,6 +75,8 @@
       v-model="showSaveDialog"
       :prompt="promptData.userPrompt"
       :rules="validationRules.rules.length > 0 ? [validationRules] : []"
+      :existing-test-case-id="currentTestCaseId"
+      :is-update-mode="isUpdateMode"
       @saved="onTestCaseSaved"
     />
   </div>
@@ -124,6 +126,10 @@ const validationResult = ref<RuleSetResult | null>(null);
 
 // Dialog state
 const showSaveDialog = ref(false);
+
+// Current test case state (for update functionality)
+const currentTestCaseId = ref<string | null>(null);
+const isUpdateMode = computed(() => !!currentTestCaseId.value);
 
 // Composables
 const promptRunner = usePromptRunner();
@@ -288,6 +294,9 @@ onMounted(async () => {
   try {
     const testCase = await testDB.getTestCase(testCaseId);
     if (!testCase) return;
+
+    // Set current test case ID for update mode
+    currentTestCaseId.value = testCaseId;
 
     // Prefill the prompt
     promptData.value.userPrompt = testCase.prompt;

@@ -5,7 +5,7 @@
 <template>
   <base-dialog
     :model-value="modelValue"
-    :title="$t('testManagement.saveTestCase')"
+    :title="props.isUpdateMode ? 'Update Test Case' : $t('testManagement.saveTestCase')"
     size="md"
     @update:model-value="$emit('update:modelValue', $event)"
   >
@@ -94,14 +94,36 @@
 
       <!-- Dialog Actions -->
       <div class="dialog-actions">
-        <base-button
-          variant="primary"
-          :disabled="!canSave || isSaving"
-          :loading="isSaving"
-          @click="handleSave"
-        >
-          {{ $t("common.save") }}
-        </base-button>
+        <template v-if="props.isUpdateMode">
+          <!-- Update Mode: Show Update and Save as New options -->
+          <base-button
+            variant="primary"
+            :disabled="!canSave || isSaving"
+            :loading="isSaving && saveMode === 'update'"
+            @click="handleSave('update')"
+          >
+            Update Test Case
+          </base-button>
+          <base-button
+            variant="outline"
+            :disabled="!canSave || isSaving"
+            :loading="isSaving && saveMode === 'create'"
+            @click="handleSave('create')"
+          >
+            Save as New Test Case
+          </base-button>
+        </template>
+        <template v-else>
+          <!-- Create Mode: Show regular save -->
+          <base-button
+            variant="primary"
+            :disabled="!canSave || isSaving"
+            :loading="isSaving"
+            @click="handleSave('create')"
+          >
+            {{ $t("common.save") }}
+          </base-button>
+        </template>
         <base-button variant="outline" @click="handleCancel">
           {{ $t("common.cancel") }}
         </base-button>
@@ -113,6 +135,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { useTestManagement } from "../composables/useTestManagement";
+import { testDB } from "../services/testManagementDatabase";
 import { BaseDialog, BaseButton, BaseInputField } from "./ui";
 import type { RuleSet } from "../types/rules";
 
@@ -122,6 +145,8 @@ interface Props {
   modelValue: boolean;
   prompt: string;
   rules: RuleSet[];
+  existingTestCaseId?: string | null;
+  isUpdateMode?: boolean;
 }
 
 interface Emits {
@@ -142,6 +167,7 @@ const selectedProjectOption = ref<string>("");
 const newProjectName = ref("");
 const newProjectDescription = ref("");
 const isSaving = ref(false);
+const saveMode = ref<'update' | 'create'>('create');
 
 // Special value to identify when creating a new project
 const CREATE_NEW_PROJECT_VALUE = "__create_new__";
@@ -189,6 +215,22 @@ const canSave = computed(() => {
   return hasTestCaseName && hasValidProject;
 });
 
+// Load existing test case data when in update mode
+watch(() => [props.modelValue, props.existingTestCaseId, props.isUpdateMode], async ([isOpen, testCaseId, isUpdate]) => {
+  if (isOpen && isUpdate && testCaseId && typeof testCaseId === 'string') {
+    try {
+      const testCase = await testDB.getTestCase(testCaseId);
+      if (testCase) {
+        testCaseName.value = testCase.name;
+        testCaseDescription.value = testCase.description || '';
+        // Note: project and rules are already handled by EditorView prefilling
+      }
+    } catch (error) {
+      console.error('Failed to load test case for dialog:', error);
+    }
+  }
+}, { immediate: true });
+
 // Methods
 const onProjectSelectionChange = (value: string | number): void => {
   selectedProjectOption.value = String(value);
@@ -199,10 +241,11 @@ const onProjectSelectionChange = (value: string | number): void => {
   }
 };
 
-const handleSave = async (): Promise<void> => {
+const handleSave = async (mode: 'update' | 'create' = 'create'): Promise<void> => {
   if (!canSave.value) return;
 
   try {
+    saveMode.value = mode;
     isSaving.value = true;
 
     let projectId = selectedProjectOption.value;
@@ -221,8 +264,7 @@ const handleSave = async (): Promise<void> => {
       await testManager.selectProject(projectId);
     }
 
-    // Create the test case - serialize rules to avoid DataCloneError
-    // Use JSON serialization to ensure complete removal of Vue reactivity
+    // Prepare test case data - serialize rules to avoid DataCloneError
     const serializedRules = JSON.parse(JSON.stringify(props.rules));
 
     const testCaseData = {
@@ -233,9 +275,18 @@ const handleSave = async (): Promise<void> => {
       tags: [] as string[], // No provider-specific tags as requested
     };
 
-    const testCase = await testManager.createTestCase(testCaseData);
+    let testCaseId: string;
+    if (mode === 'update' && props.existingTestCaseId) {
+      // Update existing test case
+      await testManager.updateTestCase(props.existingTestCaseId, testCaseData);
+      testCaseId = props.existingTestCaseId;
+    } else {
+      // Create new test case
+      const testCase = await testManager.createTestCase(testCaseData);
+      testCaseId = testCase.id;
+    }
 
-    emit("saved", testCase.id);
+    emit("saved", testCaseId);
     handleCancel();
   } catch (error) {
     console.error("Failed to save test case:", error);
