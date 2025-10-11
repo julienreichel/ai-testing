@@ -5,7 +5,7 @@
 <template>
   <base-dialog
     :model-value="modelValue"
-    :title="props.isUpdateMode ? 'Update Test Case' : $t('testManagement.saveTestCase')"
+    :title="props.isUpdateMode ? $t('testManagement.updateTestCase') : $t('testManagement.saveTestCase')"
     size="md"
     @update:model-value="$emit('update:modelValue', $event)"
   >
@@ -102,7 +102,7 @@
             :loading="isSaving && saveMode === 'update'"
             @click="handleSave('update')"
           >
-            Update Test Case
+            {{ $t('testManagement.updateTestCase') }}
           </base-button>
           <base-button
             variant="outline"
@@ -110,7 +110,7 @@
             :loading="isSaving && saveMode === 'create'"
             @click="handleSave('create')"
           >
-            Save as New Test Case
+            {{ $t('testManagement.saveAsNewTestCase') }}
           </base-button>
         </template>
         <template v-else>

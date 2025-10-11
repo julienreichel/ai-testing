@@ -248,6 +248,8 @@
     "enterProjectDescription": "Enter project description (optional)",
     "promptPreview": "Prompt Preview",
     "validationRules": "Validation Rules",
-    "rulesCount": "{count} validation rules configured"
+    "rulesCount": "{count} validation rules configured",
+    "updateTestCase": "Update Test Case",
+    "saveAsNewTestCase": "Save as New Test Case"
   }
 }
