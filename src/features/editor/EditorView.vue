@@ -84,10 +84,10 @@ import { usePromptRunner } from "../../composables/usePromptRunner";
 import { BaseButton, BaseInputField } from "../../components/ui";
 import { ProviderSelector, ResultsDisplay } from "./components";
 import RulesEditorCompact from "./components/RulesEditorCompact.vue";
-import { createRuleSet } from "../rules/utils";
-import { RuleEngine } from "../rules/engine";
+import { createRuleSet } from "../../utils/rulesUtils";
+import { RuleEngine } from "../../utils/rulesEngine";
 import type { ProviderSelection } from "./components/ProviderSelector.vue";
-import type { RuleSet, RuleSetResult } from "../rules/types";
+import type { RuleSet, RuleSetResult } from "../../types/rules";
 
 interface PromptData {
   userPrompt: string;

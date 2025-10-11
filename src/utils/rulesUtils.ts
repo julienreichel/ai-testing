@@ -5,7 +5,7 @@ import type {
   StringRule,
   RegexRule,
   LengthRule,
-} from "./types";
+} from "../types/rules";
 
 /**
  * Generate unique ID for rules and rule sets

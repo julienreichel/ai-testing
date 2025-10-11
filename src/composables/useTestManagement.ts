@@ -12,8 +12,8 @@ import type {
   TestRun,
   ExportProject,
   ImportResult,
-} from '../features/testManagement/types';
-import type { RuleSet, RuleSetResult } from '../features/rules/types';
+} from '../types/testManagement';
+import type { RuleSet, RuleSetResult } from '../types/rules';
 
 const JSON_INDENT_SPACES = 2;
 

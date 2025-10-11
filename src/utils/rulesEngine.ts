@@ -6,7 +6,7 @@ import type {
   StringRule,
   RegexRule,
   LengthRule,
-} from "./types";
+} from "../types/rules";
 
 /**
  * Rule validation functions

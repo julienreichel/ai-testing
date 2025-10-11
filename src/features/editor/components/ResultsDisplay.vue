@@ -174,7 +174,7 @@
 
 <script setup lang="ts">
 import type { ProviderResponse } from "../../../types/providers";
-import type { RuleSetResult } from "../../rules/types";
+import type { RuleSetResult } from "../../../types/rules";
 import {
   BaseSpinner,
   BaseButton,

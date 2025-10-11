@@ -3,7 +3,7 @@
  * Defines the structure for Projects, Test Cases, and Runs
  */
 
-import type { RuleSet, RuleSetResult } from "../rules/types";
+import type { RuleSet, RuleSetResult } from "./rules";
 
 export interface Project {
   id: string;

@@ -11,7 +11,7 @@ import type {
   QueryOptions,
   ExportProject,
   ImportResult
-} from '../features/testManagement/types';
+} from '../types/testManagement';
 
 // Database schema definition
 interface TestManagementDB extends DBSchema {

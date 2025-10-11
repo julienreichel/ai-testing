@@ -166,13 +166,13 @@ import type {
   StringRule,
   RegexRule,
   LengthRule,
-} from "../../../features/rules/types";
+} from "../../../types/rules";
 import {
   createRuleSet,
   createRule,
   RULE_TYPE_OPTIONS,
-} from "../../../features/rules/utils";
-import { RuleEngine } from "../../../features/rules/engine";
+} from "../../../utils/rulesUtils";
+import { RuleEngine } from "../../../utils/rulesEngine";
 import BaseButton from "../../../components/ui/BaseButton.vue";
 
 interface Props {

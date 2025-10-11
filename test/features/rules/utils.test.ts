@@ -8,12 +8,12 @@ import {
   generateId,
   validateRuleConfig,
   RULE_TYPE_OPTIONS,
-} from "../../../src/features/rules/utils";
+} from "../../../src/utils/rulesUtils";
 import type {
   StringRule,
   RegexRule,
   LengthRule,
-} from "../../../src/features/rules/types";
+} from "../../../src/types/rules";
 
 describe("Rules Utils", () => {
   describe("generateId", () => {

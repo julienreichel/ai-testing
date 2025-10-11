@@ -25,21 +25,23 @@ export interface TestCase {
   updatedAt: Date;
 }
 
-export interface TestRun {
+export interface TestRunResult {
   id: string;
   testCaseId: string;
-  providerId: string;
-  status: "pending" | "running" | "completed" | "failed";
-  input: string;
+  executedAt: Date;
+  success: boolean;
   output?: string;
+  error?: string;
   metrics?: {
     responseTime: number;
-    tokens: number;
+    tokensUsed: number;
     cost?: number;
   };
-  createdAt: Date;
-  completedAt?: Date;
 }
+
+// Re-export domain-specific types
+export * from './rules';
+export * from './testManagement';
 
 export interface NavigationItem {
   name: string;
