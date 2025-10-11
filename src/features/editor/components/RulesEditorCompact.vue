@@ -464,3 +464,11 @@ function testRules(): void {
   font-size: 0.75rem;
 }
 </style>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "RulesEditorCompact",
+});
+</script>

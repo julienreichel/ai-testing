@@ -20,7 +20,7 @@ describe("Rules Utils", () => {
     it("should generate unique IDs", () => {
       const id1 = generateId();
       const id2 = generateId();
-      
+
       expect(id1).toBeDefined();
       expect(id2).toBeDefined();
       expect(id1).not.toBe(id2);
@@ -79,7 +79,7 @@ describe("Rules Utils", () => {
     it("should clone rule with new ID", () => {
       const original = createRule("equals") as StringRule;
       original.value = "test";
-      
+
       const cloned = cloneRule(original) as StringRule;
 
       expect(cloned.id).toBeDefined();
@@ -110,7 +110,7 @@ describe("Rules Utils", () => {
   describe("validateRuleConfig", () => {
     it("should accept any rule as valid (simplified validation)", () => {
       const rule = createRule("equals") as StringRule;
-      
+
       const result = validateRuleConfig(rule);
       expect(result.valid).toBe(true);
       expect(result.errors).toHaveLength(0);
@@ -118,7 +118,7 @@ describe("Rules Utils", () => {
 
     it("should accept regex rule as valid", () => {
       const rule = createRule("regex") as RegexRule;
-      
+
       const result = validateRuleConfig(rule);
       expect(result.valid).toBe(true);
       expect(result.errors).toHaveLength(0);
@@ -126,7 +126,7 @@ describe("Rules Utils", () => {
 
     it("should accept length rule as valid", () => {
       const rule = createRule("length") as LengthRule;
-      
+
       const result = validateRuleConfig(rule);
       expect(result.valid).toBe(true);
       expect(result.errors).toHaveLength(0);
@@ -138,7 +138,7 @@ describe("Rules Utils", () => {
       const rule1 = createRule("equals") as StringRule;
       const rule2 = createRule("contains") as StringRule;
       const rule3 = createRule("startsWith") as StringRule;
-      
+
       const originalRules = [rule1, rule2, rule3];
       const result = moveRule(originalRules, 2, 0); // Move rule3 to position 0
 
@@ -151,7 +151,7 @@ describe("Rules Utils", () => {
     it("should handle invalid indices gracefully", () => {
       const rule1 = createRule("equals") as StringRule;
       const originalRules = [rule1];
-      
+
       const result = moveRule(originalRules, 5, 0); // Invalid fromIndex
 
       expect(result).toHaveLength(1);
@@ -162,7 +162,7 @@ describe("Rules Utils", () => {
       const rule1 = createRule("equals") as StringRule;
       const rule2 = createRule("contains") as StringRule;
       const originalRules = [rule1, rule2];
-      
+
       const result = moveRule(originalRules, 1, 0);
 
       expect(originalRules).toHaveLength(2);
@@ -174,7 +174,7 @@ describe("Rules Utils", () => {
   describe("RULE_TYPE_OPTIONS", () => {
     it("should provide all rule type options", () => {
       expect(RULE_TYPE_OPTIONS).toHaveLength(6);
-      
+
       const values = RULE_TYPE_OPTIONS.map(option => option.value);
       expect(values).toContain("equals");
       expect(values).toContain("contains");
