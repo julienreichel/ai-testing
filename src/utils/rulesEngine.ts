@@ -8,6 +8,62 @@ import type {
   LengthRule,
 } from "../types/rules";
 
+// Translation messages - these could be moved to i18n in the future
+const MESSAGES = {
+  equals: {
+    pass: (value: string): string => `Text equals "${value}"`,
+    fail: (expected: string, actual: string): string => `Expected "${expected}", got "${actual}"`,
+  },
+  contains: {
+    pass: (value: string): string => `Text contains "${value}"`,
+    fail: (value: string): string => `Text does not contain "${value}"`,
+  },
+  startsWith: {
+    pass: (value: string): string => `Text starts with "${value}"`,
+    fail: (value: string): string => `Text does not start with "${value}"`,
+  },
+  endsWith: {
+    pass: (value: string): string => `Text ends with "${value}"`,
+    fail: (value: string): string => `Text does not end with "${value}"`,
+  },
+  regex: {
+    pass: (pattern: string, flags: string): string =>
+      `Text matches pattern /${pattern}/${flags}`,
+    fail: (pattern: string, flags: string): string =>
+      `Text does not match pattern /${pattern}/${flags}`,
+    invalidPattern: (error: string): string => `Invalid regex pattern: ${error}`,
+  },
+  length: {
+    withinRange: (length: number, min: number, max: number): string =>
+      `Length ${length} is within range ${min}-${max}`,
+    outsideRange: (length: number, min: number, max: number): string =>
+      `Length ${length} is not within range ${min}-${max}`,
+    atLeastMin: (length: number, min: number): string =>
+      `Length ${length} is at least ${min}`,
+    belowMin: (length: number, min: number): string =>
+      `Length ${length} is less than minimum ${min}`,
+    atMostMax: (length: number, max: number): string =>
+      `Length ${length} is at most ${max}`,
+    exceedsMax: (length: number, max: number): string =>
+      `Length ${length} exceeds maximum ${max}`,
+    lengthIs: (length: number): string => `Length is ${length}`,
+  },
+  ruleSet: {
+    noRules: (): string => "No rules to validate",
+    allPassed: (total: number): string => `All ${total} rules passed`,
+    somePassedAnd: (passed: number, total: number): string =>
+      `${passed}/${total} rules passed (requires all)`,
+    somePassedOr: (passed: number, total: number): string =>
+      `${passed}/${total} rules passed (requires at least one)`,
+    nonePassedOr: (): string => "No rules passed (requires at least one)",
+    overallAllPassed: (total: number): string => `All ${total} rule sets passed`,
+    overallSomePassed: (passed: number, total: number): string =>
+      `${passed}/${total} rule sets passed`,
+    noRuleSets: (): string => "No rule sets to validate",
+  },
+  unknownRuleType: (): string => "Unknown rule type",
+};
+
 /**
  * Rule validation functions
  */
@@ -21,8 +77,8 @@ const validateEqualsRule = (rule: StringRule, input: string): RuleResult => {
     ruleId: rule.id,
     pass,
     message: pass
-      ? `Text equals "${rule.value}"`
-      : `Expected "${rule.value}", got "${input}"`,
+      ? MESSAGES.equals.pass(rule.value)
+      : MESSAGES.equals.fail(rule.value, input),
     actualValue: input,
     expectedValue: rule.value,
   };
@@ -38,8 +94,8 @@ const validateContainsRule = (rule: StringRule, input: string): RuleResult => {
     ruleId: rule.id,
     pass,
     message: pass
-      ? `Text contains "${rule.value}"`
-      : `Text does not contain "${rule.value}"`,
+      ? MESSAGES.contains.pass(rule.value)
+      : MESSAGES.contains.fail(rule.value),
     actualValue: input,
     expectedValue: rule.value,
   };
@@ -58,8 +114,8 @@ const validateStartsWithRule = (
     ruleId: rule.id,
     pass,
     message: pass
-      ? `Text starts with "${rule.value}"`
-      : `Text does not start with "${rule.value}"`,
+      ? MESSAGES.startsWith.pass(rule.value)
+      : MESSAGES.startsWith.fail(rule.value),
     actualValue: input,
     expectedValue: rule.value,
   };
@@ -75,8 +131,8 @@ const validateEndsWithRule = (rule: StringRule, input: string): RuleResult => {
     ruleId: rule.id,
     pass,
     message: pass
-      ? `Text ends with "${rule.value}"`
-      : `Text does not end with "${rule.value}"`,
+      ? MESSAGES.endsWith.pass(rule.value)
+      : MESSAGES.endsWith.fail(rule.value),
     actualValue: input,
     expectedValue: rule.value,
   };
@@ -86,21 +142,23 @@ const validateRegexRule = (rule: RegexRule, input: string): RuleResult => {
   try {
     const regex = new RegExp(rule.pattern, rule.flags || "");
     const pass = regex.test(input);
+    const flags = rule.flags || "";
 
     return {
       ruleId: rule.id,
       pass,
       message: pass
-        ? `Text matches pattern /${rule.pattern}/${rule.flags || ""}`
-        : `Text does not match pattern /${rule.pattern}/${rule.flags || ""}`,
+        ? MESSAGES.regex.pass(rule.pattern, flags)
+        : MESSAGES.regex.fail(rule.pattern, flags),
       actualValue: input,
-      expectedValue: `/${rule.pattern}/${rule.flags || ""}`,
+      expectedValue: `/${rule.pattern}/${flags}`,
     };
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return {
       ruleId: rule.id,
       pass: false,
-      message: `Invalid regex pattern: ${error instanceof Error ? error.message : "Unknown error"}`,
+      message: MESSAGES.regex.invalidPattern(errorMessage),
       actualValue: input,
       expectedValue: rule.pattern,
     };
@@ -117,20 +175,20 @@ const validateLengthRule = (rule: LengthRule, input: string): RuleResult => {
   if (min !== undefined && max !== undefined) {
     pass = length >= min && length <= max;
     message = pass
-      ? `Length ${length} is within range ${min}-${max}`
-      : `Length ${length} is not within range ${min}-${max}`;
+      ? MESSAGES.length.withinRange(length, min, max)
+      : MESSAGES.length.outsideRange(length, min, max);
   } else if (min !== undefined) {
     pass = length >= min;
     message = pass
-      ? `Length ${length} is at least ${min}`
-      : `Length ${length} is less than minimum ${min}`;
+      ? MESSAGES.length.atLeastMin(length, min)
+      : MESSAGES.length.belowMin(length, min);
   } else if (max !== undefined) {
     pass = length <= max;
     message = pass
-      ? `Length ${length} is at most ${max}`
-      : `Length ${length} exceeds maximum ${max}`;
+      ? MESSAGES.length.atMostMax(length, max)
+      : MESSAGES.length.exceedsMax(length, max);
   } else {
-    message = `Length is ${length}`;
+    message = MESSAGES.length.lengthIs(length);
   }
 
   return {
@@ -171,7 +229,7 @@ const validateAnyRule = (rule: Rule, input: string): RuleResult => {
       return {
         ruleId: "unknown",
         pass: false,
-        message: "Unknown rule type",
+        message: MESSAGES.unknownRuleType(),
       };
   }
 };
@@ -201,18 +259,18 @@ export class RuleEngine {
 
     if (totalCount === 0) {
       pass = true;
-      message = "No rules to validate";
+      message = MESSAGES.ruleSet.noRules();
     } else if (ruleSet.aggregation === "AND") {
       pass = passedCount === totalCount;
       message = pass
-        ? `All ${totalCount} rules passed`
-        : `${passedCount}/${totalCount} rules passed (requires all)`;
+        ? MESSAGES.ruleSet.allPassed(totalCount)
+        : MESSAGES.ruleSet.somePassedAnd(passedCount, totalCount);
     } else {
       // OR
       pass = passedCount > 0;
       message = pass
-        ? `${passedCount}/${totalCount} rules passed (requires at least one)`
-        : `No rules passed (requires at least one)`;
+        ? MESSAGES.ruleSet.somePassedOr(passedCount, totalCount)
+        : MESSAGES.ruleSet.nonePassedOr();
     }
 
     return {
@@ -245,7 +303,7 @@ export class RuleEngine {
     if (nonEmptyResults.length === 0) {
       return {
         pass: true,
-        message: "No rule sets to validate",
+        message: MESSAGES.ruleSet.noRuleSets(),
       };
     }
 
@@ -258,8 +316,8 @@ export class RuleEngine {
       pass: passedRuleSets === totalRuleSets,
       message:
         passedRuleSets === totalRuleSets
-          ? `All ${totalRuleSets} rule sets passed`
-          : `${passedRuleSets}/${totalRuleSets} rule sets passed`,
+          ? MESSAGES.ruleSet.overallAllPassed(totalRuleSets)
+          : MESSAGES.ruleSet.overallSomePassed(passedRuleSets, totalRuleSets),
     };
   }
 }

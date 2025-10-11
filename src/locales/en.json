@@ -207,7 +207,50 @@
     "testRulesDialog": "Test Validation Rules",
     "runTest": "Run Test",
     "passed": "Passed",
-    "failed": "Failed"
+    "failed": "Failed",
+    "validation": {
+      "equals": {
+        "pass": "Text equals \"{value}\"",
+        "fail": "Expected \"{expected}\", got \"{actual}\""
+      },
+      "contains": {
+        "pass": "Text contains \"{value}\"",
+        "fail": "Text does not contain \"{value}\""
+      },
+      "startsWith": {
+        "pass": "Text starts with \"{value}\"",
+        "fail": "Text does not start with \"{value}\""
+      },
+      "endsWith": {
+        "pass": "Text ends with \"{value}\"",
+        "fail": "Text does not end with \"{value}\""
+      },
+      "regex": {
+        "pass": "Text matches pattern /{pattern}/{flags}",
+        "fail": "Text does not match pattern /{pattern}/{flags}",
+        "invalidPattern": "Invalid regex pattern: {error}"
+      },
+      "length": {
+        "withinRange": "Length {length} is within range {min}-{max}",
+        "outsideRange": "Length {length} is not within range {min}-{max}",
+        "atLeastMin": "Length {length} is at least {min}",
+        "belowMin": "Length {length} is less than minimum {min}",
+        "atMostMax": "Length {length} is at most {max}",
+        "exceedsMax": "Length {length} exceeds maximum {max}",
+        "lengthIs": "Length is {length}"
+      },
+      "ruleSet": {
+        "noRules": "No rules to validate",
+        "allPassed": "All {total} rules passed",
+        "somePassedAnd": "{passed}/{total} rules passed (requires all)",
+        "somePassedOr": "{passed}/{total} rules passed (requires at least one)",
+        "nonePassedOr": "No rules passed (requires at least one)",
+        "overallAllPassed": "All {total} rule sets passed",
+        "overallSomePassed": "{passed}/{total} rule sets passed",
+        "noRuleSets": "No rule sets to validate"
+      },
+      "unknownRuleType": "Unknown rule type"
+    }
   },
   "validation": {
     "required": "This field is required",
