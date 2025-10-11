@@ -138,7 +138,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useTestManagement } from '../../../composables/useTestManagement';
+import { useTestManagement } from '../composables/useTestManagement';
 
 // Test Management composable
 const testManager = useTestManagement();

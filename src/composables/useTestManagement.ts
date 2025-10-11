@@ -4,8 +4,8 @@
  */
 
 import { computed, onMounted } from 'vue';
-import { useTestManagementState } from '../features/testManagement/state';
-import { testDB } from '../features/testManagement/database';
+import { useTestManagementState } from './useTestManagementState';
+import { testDB } from '../services/testManagementDatabase';
 import type {
   Project,
   TestCase,

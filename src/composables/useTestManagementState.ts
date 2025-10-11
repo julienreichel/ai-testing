@@ -11,8 +11,8 @@ import type {
   TestRun,
   ProjectTreeNode,
   ImportResult
-} from './types';
-import type { RuleSet } from '../rules/types';
+} from '../features/testManagement/types';
+import type { RuleSet } from '../features/rules/types';
 
 // Constants
 const MAX_RECENT_RUNS = 10;

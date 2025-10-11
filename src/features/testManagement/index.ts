@@ -15,11 +15,11 @@ export { useTestManagement } from '../../composables/useTestManagement';
 export type { CreateProjectData, CreateTestCaseData, CreateTestRunData } from '../../composables/useTestManagement';
 
 // State management
-export { useTestManagementState } from './state';
-export type { ProjectStats } from './state';
+export { useTestManagementState } from '../../composables/useTestManagementState';
+export type { ProjectStats } from '../../composables/useTestManagementState';
 
 // Database service
-export { testDB } from './database';
+export { testDB } from '../../services/testManagementDatabase';
 
 // Core types
 export type {
