@@ -12,7 +12,9 @@
     <div class="save-test-case-dialog">
       <!-- Test Case Name -->
       <div class="form-group">
-        <label for="testCaseName">{{ $t('testManagement.testCaseName') }} *</label>
+        <label for="testCaseName"
+          >{{ $t("testManagement.testCaseName") }} *</label
+        >
         <base-input-field
           id="testCaseName"
           v-model="testCaseName"
@@ -23,7 +25,9 @@
 
       <!-- Test Case Description -->
       <div class="form-group">
-        <label for="testCaseDescription">{{ $t('testManagement.description') }}</label>
+        <label for="testCaseDescription">{{
+          $t("testManagement.description")
+        }}</label>
         <base-input-field
           id="testCaseDescription"
           v-model="testCaseDescription"
@@ -35,7 +39,9 @@
 
       <!-- Project Selection -->
       <div class="form-group">
-        <label for="projectSelection">{{ $t('testManagement.project') }} *</label>
+        <label for="projectSelection"
+          >{{ $t("testManagement.project") }} *</label
+        >
         <div class="project-selection-wrapper">
           <select
             id="projectSelection"
@@ -43,24 +49,28 @@
             class="project-mode-select"
             @change="onProjectModeChange"
           >
-            <option value="">{{ $t('testManagement.chooseOption') }}</option>
+            <option value="">{{ $t("testManagement.chooseOption") }}</option>
             <option v-if="availableProjects.length > 0" value="existing">
-              {{ $t('testManagement.useExistingProject') }}
+              {{ $t("testManagement.useExistingProject") }}
             </option>
-            <option value="new">{{ $t('testManagement.createNewProject') }}</option>
+            <option value="new">
+              {{ $t("testManagement.createNewProject") }}
+            </option>
           </select>
         </div>
       </div>
 
       <!-- Existing Project Selection -->
       <div v-if="selectedProjectMode === 'existing'" class="form-group">
-        <label for="existingProject">{{ $t('testManagement.selectExistingProject') }}</label>
+        <label for="existingProject">{{
+          $t("testManagement.selectExistingProject")
+        }}</label>
         <select
           id="existingProject"
           v-model="selectedProjectId"
           class="project-select"
         >
-          <option value="">{{ $t('testManagement.chooseProject') }}</option>
+          <option value="">{{ $t("testManagement.chooseProject") }}</option>
           <option
             v-for="project in availableProjects"
             :key="project.id"
@@ -74,7 +84,9 @@
       <!-- New Project Creation -->
       <div v-if="selectedProjectMode === 'new'" class="new-project-section">
         <div class="form-group">
-          <label for="newProjectName">{{ $t('testManagement.projectName') }} *</label>
+          <label for="newProjectName"
+            >{{ $t("testManagement.projectName") }} *</label
+          >
           <base-input-field
             id="newProjectName"
             v-model="newProjectName"
@@ -83,7 +95,9 @@
           />
         </div>
         <div class="form-group">
-          <label for="newProjectDescription">{{ $t('testManagement.projectDescription') }}</label>
+          <label for="newProjectDescription">{{
+            $t("testManagement.projectDescription")
+          }}</label>
           <base-input-field
             id="newProjectDescription"
             v-model="newProjectDescription"
@@ -96,7 +110,7 @@
 
       <!-- Prompt Preview -->
       <div class="form-group">
-        <label>{{ $t('testManagement.promptPreview') }}</label>
+        <label>{{ $t("testManagement.promptPreview") }}</label>
         <div class="prompt-preview">
           {{ promptPreview }}
         </div>
@@ -104,9 +118,9 @@
 
       <!-- Rules Preview -->
       <div v-if="hasRules" class="form-group">
-        <label>{{ $t('testManagement.validationRules') }}</label>
+        <label>{{ $t("testManagement.validationRules") }}</label>
         <div class="rules-preview">
-          {{ $t('testManagement.rulesCount', { count: rulesCount }) }}
+          {{ $t("testManagement.rulesCount", { count: rulesCount }) }}
         </div>
       </div>
 
@@ -118,13 +132,10 @@
           :loading="isSaving"
           @click="handleSave"
         >
-          {{ $t('common.save') }}
+          {{ $t("common.save") }}
         </base-button>
-        <base-button
-          variant="outline"
-          @click="handleCancel"
-        >
-          {{ $t('common.cancel') }}
+        <base-button variant="outline" @click="handleCancel">
+          {{ $t("common.cancel") }}
         </base-button>
       </div>
     </div>
@@ -132,10 +143,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { useTestManagement } from '../composables/useTestManagement';
-import { BaseDialog, BaseButton, BaseInputField } from './ui';
-import type { RuleSet } from '../types/rules';
+import { ref, computed, watch } from "vue";
+import { useTestManagement } from "../composables/useTestManagement";
+import { BaseDialog, BaseButton, BaseInputField } from "./ui";
+import type { RuleSet } from "../types/rules";
 
 const PROMPT_PREVIEW_LENGTH = 100;
 
@@ -146,8 +157,8 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: boolean): void;
-  (e: 'saved', testCaseId: string): void;
+  (e: "update:modelValue", value: boolean): void;
+  (e: "saved", testCaseId: string): void;
 }
 
 const props = defineProps<Props>();
@@ -157,18 +168,20 @@ const emit = defineEmits<Emits>();
 const testManager = useTestManagement();
 
 // Form state
-const testCaseName = ref('');
-const testCaseDescription = ref('');
-const selectedProjectMode = ref<'existing' | 'new' | ''>('');
-const selectedProjectId = ref('');
-const newProjectName = ref('');
-const newProjectDescription = ref('');
+const testCaseName = ref("");
+const testCaseDescription = ref("");
+const selectedProjectMode = ref<"existing" | "new" | "">("");
+const selectedProjectId = ref("");
+const newProjectName = ref("");
+const newProjectDescription = ref("");
 const isSaving = ref(false);
 
 // Computed properties
 const availableProjects = computed(() => testManager.projectTree.value || []);
 const hasRules = computed(() => props.rules.length > 0);
-const rulesCount = computed(() => props.rules.reduce((count, ruleSet) => count + ruleSet.rules.length, 0));
+const rulesCount = computed(() =>
+  props.rules.reduce((count, ruleSet) => count + ruleSet.rules.length, 0),
+);
 
 const promptPreview = computed(() => {
   if (props.prompt.length <= PROMPT_PREVIEW_LENGTH) {
@@ -178,10 +191,11 @@ const promptPreview = computed(() => {
 });
 
 const canSave = computed(() => {
-  const hasTestCaseName = testCaseName.value.trim() !== '';
+  const hasTestCaseName = testCaseName.value.trim() !== "";
   const hasValidProject =
-    (selectedProjectMode.value === 'existing' && selectedProjectId.value !== '') ||
-    (selectedProjectMode.value === 'new' && newProjectName.value.trim() !== '');
+    (selectedProjectMode.value === "existing" &&
+      selectedProjectId.value !== "") ||
+    (selectedProjectMode.value === "new" && newProjectName.value.trim() !== "");
 
   return hasTestCaseName && hasValidProject;
 });
@@ -189,9 +203,9 @@ const canSave = computed(() => {
 // Methods
 const onProjectModeChange = (): void => {
   // Reset project-specific selections when mode changes
-  selectedProjectId.value = '';
-  newProjectName.value = '';
-  newProjectDescription.value = '';
+  selectedProjectId.value = "";
+  newProjectName.value = "";
+  newProjectDescription.value = "";
 };
 
 const handleSave = async (): Promise<void> => {
@@ -203,7 +217,7 @@ const handleSave = async (): Promise<void> => {
     let projectId = selectedProjectId.value;
 
     // Create new project if needed
-    if (selectedProjectMode.value === 'new') {
+    if (selectedProjectMode.value === "new") {
       const newProject = await testManager.createProject({
         name: newProjectName.value.trim(),
         description: newProjectDescription.value.trim() || undefined,
@@ -230,18 +244,18 @@ const handleSave = async (): Promise<void> => {
 
     const testCase = await testManager.createTestCase(testCaseData);
 
-    emit('saved', testCase.id);
+    emit("saved", testCase.id);
     handleCancel();
   } catch (error) {
-    console.error('Failed to save test case:', error);
+    console.error("Failed to save test case:", error);
 
     // Provide user-friendly error message
-    let errorMessage = 'Failed to save test case';
+    let errorMessage = "Failed to save test case";
     if (error instanceof Error) {
-      if (error.message.includes('DataCloneError')) {
-        errorMessage = 'Unable to save: Data contains unsupported format';
-      } else if (error.message.includes('QuotaExceededError')) {
-        errorMessage = 'Unable to save: Storage quota exceeded';
+      if (error.message.includes("DataCloneError")) {
+        errorMessage = "Unable to save: Data contains unsupported format";
+      } else if (error.message.includes("QuotaExceededError")) {
+        errorMessage = "Unable to save: Storage quota exceeded";
       } else {
         errorMessage = `Failed to save: ${error.message}`;
       }
@@ -254,26 +268,29 @@ const handleSave = async (): Promise<void> => {
 };
 
 const handleCancel = (): void => {
-  emit('update:modelValue', false);
+  emit("update:modelValue", false);
   // Reset form
   resetForm();
 };
 
 const resetForm = (): void => {
-  testCaseName.value = '';
-  testCaseDescription.value = '';
-  selectedProjectMode.value = '';
-  selectedProjectId.value = '';
-  newProjectName.value = '';
-  newProjectDescription.value = '';
+  testCaseName.value = "";
+  testCaseDescription.value = "";
+  selectedProjectMode.value = "";
+  selectedProjectId.value = "";
+  newProjectName.value = "";
+  newProjectDescription.value = "";
 };
 
 // Initialize default test case name when dialog opens
-watch(() => props.modelValue, (isOpen) => {
-  if (isOpen) {
-    testCaseName.value = `Test Case - ${new Date().toLocaleString()}`;
-  }
-});
+watch(
+  () => props.modelValue,
+  (isOpen) => {
+    if (isOpen) {
+      testCaseName.value = `Test Case - ${new Date().toLocaleString()}`;
+    }
+  },
+);
 </script>
 
 <style scoped>
@@ -328,7 +345,7 @@ watch(() => props.modelValue, (isOpen) => {
   border: 1px solid #e5e7eb;
   border-radius: 4px;
   padding: 0.75rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-size: 0.8rem;
   color: #4b5563;
   white-space: pre-wrap;

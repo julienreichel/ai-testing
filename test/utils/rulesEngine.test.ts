@@ -85,7 +85,7 @@ describe("RuleEngine", () => {
 
         const passingResult = RuleEngine.validateRule(rule, "Hello 123 world");
         expect(passingResult.pass).toBe(true);
-        expect(passingResult.message).toBe('Text matches pattern /\\d+/g');
+        expect(passingResult.message).toBe("Text matches pattern /\\d+/g");
 
         const failingResult = RuleEngine.validateRule(
           rule,
@@ -93,7 +93,7 @@ describe("RuleEngine", () => {
         );
         expect(failingResult.pass).toBe(false);
         expect(failingResult.message).toBe(
-          'Text does not match pattern /\\d+/g',
+          "Text does not match pattern /\\d+/g",
         );
       });
 
@@ -104,7 +104,7 @@ describe("RuleEngine", () => {
 
         const result = RuleEngine.validateRule(rule, "HELLO WORLD");
         expect(result.pass).toBe(true);
-        expect(result.message).toBe('Text matches pattern /hello/i');
+        expect(result.message).toBe("Text matches pattern /hello/i");
       });
 
       it("should handle invalid regex patterns", () => {
@@ -133,7 +133,9 @@ describe("RuleEngine", () => {
           "This is a very long text",
         );
         expect(failingResult.pass).toBe(false);
-        expect(failingResult.message).toBe("Length 24 is not within range 5-10");
+        expect(failingResult.message).toBe(
+          "Length 24 is not within range 5-10",
+        );
       });
 
       it("should validate minimum length only", () => {
@@ -147,9 +149,7 @@ describe("RuleEngine", () => {
 
         const failingResult = RuleEngine.validateRule(rule, "Hi");
         expect(failingResult.pass).toBe(false);
-        expect(failingResult.message).toBe(
-          "Length 2 is less than minimum 5",
-        );
+        expect(failingResult.message).toBe("Length 2 is less than minimum 5");
       });
 
       it("should validate maximum length only", () => {
@@ -161,10 +161,7 @@ describe("RuleEngine", () => {
         expect(passingResult.pass).toBe(true);
         expect(passingResult.message).toBe("Length 5 is within range 0-5");
 
-        const failingResult = RuleEngine.validateRule(
-          rule,
-          "Hello World",
-        );
+        const failingResult = RuleEngine.validateRule(rule, "Hello World");
         expect(failingResult.pass).toBe(false);
         expect(failingResult.message).toBe("Length 11 is not within range 0-5");
       });
@@ -184,10 +181,7 @@ describe("RuleEngine", () => {
 
       ruleSet.rules = [rule1, rule2];
 
-      const passingResult = RuleEngine.validateRuleSet(
-        ruleSet,
-        "Hello World",
-      );
+      const passingResult = RuleEngine.validateRuleSet(ruleSet, "Hello World");
       expect(passingResult.pass).toBe(true);
       expect(passingResult.message).toBe("All 2 rules passed");
       expect(passingResult.passedCount).toBe(2);
@@ -215,21 +209,19 @@ describe("RuleEngine", () => {
 
       ruleSet.rules = [rule1, rule2];
 
-      const passingResult = RuleEngine.validateRuleSet(
-        ruleSet,
-        "Hello World",
-      );
+      const passingResult = RuleEngine.validateRuleSet(ruleSet, "Hello World");
       expect(passingResult.pass).toBe(true);
-      expect(passingResult.message).toBe("1/2 rules passed (requires at least one)");
+      expect(passingResult.message).toBe(
+        "1/2 rules passed (requires at least one)",
+      );
       expect(passingResult.passedCount).toBe(1);
       expect(passingResult.totalCount).toBe(2);
 
-      const failingResult = RuleEngine.validateRuleSet(
-        ruleSet,
-        "Good morning",
-      );
+      const failingResult = RuleEngine.validateRuleSet(ruleSet, "Good morning");
       expect(failingResult.pass).toBe(false);
-      expect(failingResult.message).toBe("No rules passed (requires at least one)");
+      expect(failingResult.message).toBe(
+        "No rules passed (requires at least one)",
+      );
       expect(failingResult.passedCount).toBe(0);
       expect(failingResult.totalCount).toBe(2);
     });

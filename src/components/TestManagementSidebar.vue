@@ -6,26 +6,26 @@
   <div class="test-management-sidebar">
     <!-- Header -->
     <div class="sidebar-header">
-      <h3>{{ $t('testManagement.title') }}</h3>
+      <h3>{{ $t("testManagement.title") }}</h3>
       <button
         class="btn-create-project"
         @click="showCreateProject = true"
         :disabled="isLoading"
       >
-        {{ $t('testManagement.createProject') }}
+        {{ $t("testManagement.createProject") }}
       </button>
     </div>
 
     <!-- Loading State -->
     <div v-if="isLoading" class="loading-state">
-      {{ $t('common.loading') }}
+      {{ $t("common.loading") }}
     </div>
 
     <!-- Error State -->
     <div v-if="error" class="error-state">
       <p>{{ error }}</p>
       <button @click="clearError" class="btn-clear-error">
-        {{ $t('common.dismiss') }}
+        {{ $t("common.dismiss") }}
       </button>
     </div>
 
@@ -38,13 +38,11 @@
         :class="{ active: currentProject?.id === project.id }"
       >
         <!-- Project Header -->
-        <div
-          class="project-header"
-          @click="selectProject(project.id)"
-        >
+        <div class="project-header" @click="selectProject(project.id)">
           <span class="project-name">{{ project.name }}</span>
           <span class="project-stats">
-            ({{ project.children?.length || 0 }} {{ $t('testManagement.testCases') }})
+            ({{ project.children?.length || 0 }}
+            {{ $t("testManagement.testCases") }})
           </span>
         </div>
 
@@ -62,29 +60,24 @@
           >
             <span class="test-case-name">{{ testCase.name }}</span>
             <span class="test-case-stats">
-              ({{ testCase.metadata?.runCount || 0 }} {{ $t('testManagement.runs') }})
+              ({{ testCase.metadata?.runCount || 0 }}
+              {{ $t("testManagement.runs") }})
             </span>
           </div>
         </div>
 
         <!-- Add Test Case Button -->
-        <div
-          v-if="currentProject?.id === project.id"
-          class="add-test-case"
-        >
-          <button
-            class="btn-add-test-case"
-            @click="showCreateTestCase = true"
-          >
-            + {{ $t('testManagement.addTestCase') }}
+        <div v-if="currentProject?.id === project.id" class="add-test-case">
+          <button class="btn-add-test-case" @click="showCreateTestCase = true">
+            + {{ $t("testManagement.addTestCase") }}
           </button>
         </div>
       </div>
 
       <!-- Empty State -->
       <div v-if="projectTree.length === 0" class="empty-state">
-        <p>{{ $t('testManagement.noProjects') }}</p>
-        <p>{{ $t('testManagement.createFirstProject') }}</p>
+        <p>{{ $t("testManagement.noProjects") }}</p>
+        <p>{{ $t("testManagement.createFirstProject") }}</p>
       </div>
     </div>
 
@@ -95,7 +88,7 @@
         @click="showImportDialog = true"
         :disabled="isLoading"
       >
-        {{ $t('testManagement.import') }}
+        {{ $t("testManagement.import") }}
       </button>
       <button
         v-if="currentProject"
@@ -103,42 +96,60 @@
         @click="exportCurrentProject"
         :disabled="isLoading"
       >
-        {{ $t('testManagement.export') }}
+        {{ $t("testManagement.export") }}
       </button>
     </div>
   </div>
 
   <!-- Create Project Modal (placeholder) -->
-  <div v-if="showCreateProject" class="modal-overlay" @click="showCreateProject = false">
+  <div
+    v-if="showCreateProject"
+    class="modal-overlay"
+    @click="showCreateProject = false"
+  >
     <div class="modal-content" @click.stop>
-      <h4>{{ $t('testManagement.createProject') }}</h4>
+      <h4>{{ $t("testManagement.createProject") }}</h4>
       <!-- Project creation form would go here -->
-      <button @click="showCreateProject = false">{{ $t('common.close') }}</button>
+      <button @click="showCreateProject = false">
+        {{ $t("common.close") }}
+      </button>
     </div>
   </div>
 
   <!-- Create Test Case Modal (placeholder) -->
-  <div v-if="showCreateTestCase" class="modal-overlay" @click="showCreateTestCase = false">
+  <div
+    v-if="showCreateTestCase"
+    class="modal-overlay"
+    @click="showCreateTestCase = false"
+  >
     <div class="modal-content" @click.stop>
-      <h4>{{ $t('testManagement.createTestCase') }}</h4>
+      <h4>{{ $t("testManagement.createTestCase") }}</h4>
       <!-- Test case creation form would go here -->
-      <button @click="showCreateTestCase = false">{{ $t('common.close') }}</button>
+      <button @click="showCreateTestCase = false">
+        {{ $t("common.close") }}
+      </button>
     </div>
   </div>
 
   <!-- Import Dialog (placeholder) -->
-  <div v-if="showImportDialog" class="modal-overlay" @click="showImportDialog = false">
+  <div
+    v-if="showImportDialog"
+    class="modal-overlay"
+    @click="showImportDialog = false"
+  >
     <div class="modal-content" @click.stop>
-      <h4>{{ $t('testManagement.importProject') }}</h4>
+      <h4>{{ $t("testManagement.importProject") }}</h4>
       <!-- Import form would go here -->
-      <button @click="showImportDialog = false">{{ $t('common.close') }}</button>
+      <button @click="showImportDialog = false">
+        {{ $t("common.close") }}
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useTestManagement } from '../composables/useTestManagement';
+import { ref } from "vue";
+import { useTestManagement } from "../composables/useTestManagement";
 
 // Test Management composable
 const testManager = useTestManagement();
@@ -165,12 +176,15 @@ const exportCurrentProject = async (): Promise<void> => {
   if (!currentProject.value) return;
 
   try {
-    const exportData = await testManager.exportProject(currentProject.value.id, true);
+    const exportData = await testManager.exportProject(
+      currentProject.value.id,
+      true,
+    );
 
     // Create download link
-    const blob = new Blob([exportData], { type: 'application/json' });
+    const blob = new Blob([exportData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = `${currentProject.value.name}-export.json`;
     document.body.appendChild(link);
@@ -178,7 +192,7 @@ const exportCurrentProject = async (): Promise<void> => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   } catch (err) {
-    console.error('Failed to export project:', err);
+    console.error("Failed to export project:", err);
   }
 };
 </script>
@@ -224,7 +238,8 @@ const exportCurrentProject = async (): Promise<void> => {
   cursor: not-allowed;
 }
 
-.loading-state, .error-state {
+.loading-state,
+.error-state {
   padding: 1rem;
   text-align: center;
 }
@@ -273,7 +288,8 @@ const exportCurrentProject = async (): Promise<void> => {
   color: #333;
 }
 
-.project-stats, .test-case-stats {
+.project-stats,
+.test-case-stats {
   font-size: 0.8rem;
   color: #666;
 }
@@ -345,7 +361,8 @@ const exportCurrentProject = async (): Promise<void> => {
   gap: 0.5rem;
 }
 
-.btn-import, .btn-export {
+.btn-import,
+.btn-export {
   flex: 1;
   padding: 0.5rem;
   border: 1px solid #ddd;
@@ -369,7 +386,8 @@ const exportCurrentProject = async (): Promise<void> => {
   background: #545b62;
 }
 
-.btn-import:disabled, .btn-export:disabled {
+.btn-import:disabled,
+.btn-export:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

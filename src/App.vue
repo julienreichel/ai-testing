@@ -6,15 +6,19 @@
       <aside class="test-sidebar" :class="{ collapsed: sidebarCollapsed }">
         <!-- TODO: Enable sidebar when component is ready -->
         <div v-if="!sidebarCollapsed" class="sidebar-placeholder">
-          <h3>{{ $t('testManagement.title') }}</h3>
+          <h3>{{ $t("testManagement.title") }}</h3>
           <p>Test Management Sidebar coming soon...</p>
         </div>
         <button
           class="sidebar-toggle"
           @click="toggleSidebar"
-          :title="sidebarCollapsed ? $t('testManagement.showSidebar') : $t('testManagement.hideSidebar')"
+          :title="
+            sidebarCollapsed
+              ? $t('testManagement.showSidebar')
+              : $t('testManagement.hideSidebar')
+          "
         >
-          {{ sidebarCollapsed ? '→' : '←' }}
+          {{ sidebarCollapsed ? "→" : "←" }}
         </button>
       </aside>
 

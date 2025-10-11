@@ -9,11 +9,7 @@ import {
   validateRuleConfig,
   RULE_TYPE_OPTIONS,
 } from "../../src/utils/rulesUtils";
-import type {
-  StringRule,
-  RegexRule,
-  LengthRule,
-} from "../../src/types/rules";
+import type { StringRule, RegexRule, LengthRule } from "../../src/types/rules";
 
 describe("Rules Utils", () => {
   describe("generateId", () => {
@@ -175,7 +171,7 @@ describe("Rules Utils", () => {
     it("should provide all rule type options", () => {
       expect(RULE_TYPE_OPTIONS).toHaveLength(6);
 
-      const values = RULE_TYPE_OPTIONS.map(option => option.value);
+      const values = RULE_TYPE_OPTIONS.map((option) => option.value);
       expect(values).toContain("equals");
       expect(values).toContain("contains");
       expect(values).toContain("startsWith");
@@ -185,7 +181,7 @@ describe("Rules Utils", () => {
     });
 
     it("should have labels and descriptions for all options", () => {
-      RULE_TYPE_OPTIONS.forEach(option => {
+      RULE_TYPE_OPTIONS.forEach((option) => {
         expect(option.label).toBeDefined();
         expect(option.description).toBeDefined();
         expect(typeof option.label).toBe("string");

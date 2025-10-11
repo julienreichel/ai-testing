@@ -10,7 +10,7 @@
         :disabled="!canExport || isLoading"
         @click="showExportDialog = true"
       >
-        {{ $t('testManagement.export') }}
+        {{ $t("testManagement.export") }}
       </base-button>
 
       <base-button
@@ -18,7 +18,7 @@
         :disabled="isLoading"
         @click="showImportDialog = true"
       >
-        {{ $t('testManagement.import') }}
+        {{ $t("testManagement.import") }}
       </base-button>
     </div>
 
@@ -29,9 +29,9 @@
     >
       <div class="export-dialog">
         <div class="project-selection">
-          <label>{{ $t('testManagement.selectProject') }}:</label>
+          <label>{{ $t("testManagement.selectProject") }}:</label>
           <select v-model="selectedProjectId" class="project-select">
-            <option value="">{{ $t('testManagement.chooseProject') }}</option>
+            <option value="">{{ $t("testManagement.chooseProject") }}</option>
             <option
               v-for="project in projectTree"
               :key="project.id"
@@ -44,11 +44,8 @@
 
         <div class="export-options">
           <label class="checkbox-label">
-            <input
-              v-model="includeRuns"
-              type="checkbox"
-            >
-            {{ $t('testManagement.includeTestRuns') }}
+            <input v-model="includeRuns" type="checkbox" />
+            {{ $t("testManagement.includeTestRuns") }}
           </label>
         </div>
 
@@ -59,13 +56,10 @@
             :loading="isExporting"
             @click="exportProject"
           >
-            {{ $t('common.export') }}
+            {{ $t("common.export") }}
           </base-button>
-          <base-button
-            variant="outline"
-            @click="showExportDialog = false"
-          >
-            {{ $t('common.cancel') }}
+          <base-button variant="outline" @click="showExportDialog = false">
+            {{ $t("common.cancel") }}
           </base-button>
         </div>
       </div>
@@ -78,23 +72,35 @@
     >
       <div class="import-dialog">
         <div class="file-input-section">
-          <label>{{ $t('testManagement.selectFile') }}:</label>
+          <label>{{ $t("testManagement.selectFile") }}:</label>
           <input
             ref="fileInput"
             type="file"
             accept=".json"
             class="file-input"
             @change="handleFileSelect"
-          >
+          />
         </div>
 
         <div v-if="importPreview" class="import-preview">
-          <h4>{{ $t('testManagement.importPreview') }}</h4>
+          <h4>{{ $t("testManagement.importPreview") }}</h4>
           <div class="preview-details">
-            <p><strong>{{ $t('testManagement.projectName') }}:</strong> {{ importPreview.project.name }}</p>
-            <p><strong>{{ $t('testManagement.description') }}:</strong> {{ importPreview.project.description || 'N/A' }}</p>
-            <p><strong>{{ $t('testManagement.testCases') }}:</strong> {{ importPreview.testCases?.length || 0 }}</p>
-            <p><strong>{{ $t('testManagement.testRuns') }}:</strong> {{ importPreview.runs?.length || 0 }}</p>
+            <p>
+              <strong>{{ $t("testManagement.projectName") }}:</strong>
+              {{ importPreview.project.name }}
+            </p>
+            <p>
+              <strong>{{ $t("testManagement.description") }}:</strong>
+              {{ importPreview.project.description || "N/A" }}
+            </p>
+            <p>
+              <strong>{{ $t("testManagement.testCases") }}:</strong>
+              {{ importPreview.testCases?.length || 0 }}
+            </p>
+            <p>
+              <strong>{{ $t("testManagement.testRuns") }}:</strong>
+              {{ importPreview.runs?.length || 0 }}
+            </p>
           </div>
         </div>
 
@@ -105,13 +111,10 @@
             :loading="isImporting"
             @click="importProject"
           >
-            {{ $t('common.import') }}
+            {{ $t("common.import") }}
           </base-button>
-          <base-button
-            variant="outline"
-            @click="closeImportDialog"
-          >
-            {{ $t('common.cancel') }}
+          <base-button variant="outline" @click="closeImportDialog">
+            {{ $t("common.cancel") }}
           </base-button>
         </div>
       </div>
@@ -128,11 +131,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useTestManagement } from '../composables/useTestManagement';
-import { BaseButton, BaseDialog } from './ui';
-import BaseToast from './ui/BaseToast.vue';
-import type { ExportProject } from '../types/testManagement';
+import { ref, computed } from "vue";
+import { useTestManagement } from "../composables/useTestManagement";
+import { BaseButton, BaseDialog } from "./ui";
+import BaseToast from "./ui/BaseToast.vue";
+import type { ExportProject } from "../types/testManagement";
 
 // Test Management composable
 const testManager = useTestManagement();
@@ -142,24 +145,24 @@ const showExportDialog = ref(false);
 const showImportDialog = ref(false);
 
 // Export state
-const selectedProjectId = ref('');
+const selectedProjectId = ref("");
 const includeRuns = ref(false);
 const isExporting = ref(false);
 
 // Import state
 const fileInput = ref<HTMLInputElement>();
-const importData = ref<string>('');
+const importData = ref<string>("");
 const importPreview = ref<ExportProject | null>(null);
 const isImporting = ref(false);
 
 // Status state
-const statusMessage = ref('');
-const statusType = ref<'success' | 'error' | 'info'>('info');
+const statusMessage = ref("");
+const statusType = ref<"success" | "error" | "info">("info");
 
 // Computed properties
 const { projectTree, isLoading } = testManager;
 const canExport = computed(() => projectTree.value.length > 0);
-const showStatusMessage = computed(() => statusMessage.value !== '');
+const showStatusMessage = computed(() => statusMessage.value !== "");
 
 // Methods
 const exportProject = async (): Promise<void> => {
@@ -167,15 +170,20 @@ const exportProject = async (): Promise<void> => {
 
   try {
     isExporting.value = true;
-    const exportData = await testManager.exportProject(selectedProjectId.value, includeRuns.value);
+    const exportData = await testManager.exportProject(
+      selectedProjectId.value,
+      includeRuns.value,
+    );
 
     // Create download
-    const blob = new Blob([exportData], { type: 'application/json' });
+    const blob = new Blob([exportData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
 
-    const project = projectTree.value.find(p => p.id === selectedProjectId.value);
-    const fileName = `${project?.name || 'project'}-export.json`;
+    const project = projectTree.value.find(
+      (p) => p.id === selectedProjectId.value,
+    );
+    const fileName = `${project?.name || "project"}-export.json`;
 
     link.href = url;
     link.download = fileName;
@@ -184,12 +192,12 @@ const exportProject = async (): Promise<void> => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    showStatus('Export completed successfully!', 'success');
+    showStatus("Export completed successfully!", "success");
     showExportDialog.value = false;
-    selectedProjectId.value = '';
+    selectedProjectId.value = "";
   } catch (error) {
-    console.error('Export failed:', error);
-    showStatus('Export failed. Please try again.', 'error');
+    console.error("Export failed:", error);
+    showStatus("Export failed. Please try again.", "error");
   } finally {
     isExporting.value = false;
   }
@@ -200,15 +208,18 @@ const handleFileSelect = (event: Event): void => {
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = (e) : void => {
+  reader.onload = (e): void => {
     try {
       const jsonData = e.target?.result as string;
       importData.value = jsonData;
       importPreview.value = JSON.parse(jsonData) as ExportProject;
     } catch (error) {
-      console.error('Failed to parse file:', error);
-      showStatus('Invalid JSON file. Please select a valid export file.', 'error');
-      importData.value = '';
+      console.error("Failed to parse file:", error);
+      showStatus(
+        "Invalid JSON file. Please select a valid export file.",
+        "error",
+      );
+      importData.value = "";
       importPreview.value = null;
     }
   };
@@ -222,12 +233,15 @@ const importProject = async (): Promise<void> => {
     isImporting.value = true;
     const result = await testManager.importProject(importData.value);
 
-    const importedCount = result.imported.projects + result.imported.testCases + result.imported.runs;
-    showStatus(`Import completed! Imported ${importedCount} items.`, 'success');
+    const importedCount =
+      result.imported.projects +
+      result.imported.testCases +
+      result.imported.runs;
+    showStatus(`Import completed! Imported ${importedCount} items.`, "success");
     closeImportDialog();
   } catch (error) {
-    console.error('Import failed:', error);
-    showStatus('Import failed. Please check the file and try again.', 'error');
+    console.error("Import failed:", error);
+    showStatus("Import failed. Please check the file and try again.", "error");
   } finally {
     isImporting.value = false;
   }
@@ -235,20 +249,23 @@ const importProject = async (): Promise<void> => {
 
 const closeImportDialog = (): void => {
   showImportDialog.value = false;
-  importData.value = '';
+  importData.value = "";
   importPreview.value = null;
   if (fileInput.value) {
-    fileInput.value.value = '';
+    fileInput.value.value = "";
   }
 };
 
-const showStatus = (message: string, type: 'success' | 'error' | 'info'): void => {
+const showStatus = (
+  message: string,
+  type: "success" | "error" | "info",
+): void => {
   statusMessage.value = message;
   statusType.value = type;
 };
 
 const clearStatus = (): void => {
-  statusMessage.value = '';
+  statusMessage.value = "";
 };
 </script>
 
@@ -262,7 +279,8 @@ const clearStatus = (): void => {
   gap: 0.5rem;
 }
 
-.export-dialog, .import-dialog {
+.export-dialog,
+.import-dialog {
   min-width: 400px;
 }
 

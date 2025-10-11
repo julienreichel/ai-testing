@@ -34,36 +34,31 @@
 
     <!-- Quick Actions -->
     <div class="quick-actions">
-      <h2>{{ $t('dashboard.quickActions') }}</h2>
+      <h2>{{ $t("dashboard.quickActions") }}</h2>
       <div class="actions-grid">
         <div class="action-card">
-          <h3>{{ $t('dashboard.createTest') }}</h3>
-          <p>{{ $t('dashboard.createTestDescription') }}</p>
-          <base-button
-            variant="primary"
-            @click="() => router.push('/editor')"
-          >
-            {{ $t('dashboard.createTest') }}
+          <h3>{{ $t("dashboard.createTest") }}</h3>
+          <p>{{ $t("dashboard.createTestDescription") }}</p>
+          <base-button variant="primary" @click="() => router.push('/editor')">
+            {{ $t("dashboard.createTest") }}
           </base-button>
         </div>
 
         <div class="action-card">
-          <h3>{{ $t('testManagement.title') }}</h3>
+          <h3>{{ $t("testManagement.title") }}</h3>
           <p>Import and export test projects for team collaboration</p>
           <!-- TODO: Enable when TestExportImport component is ready -->
           <base-button variant="outline" disabled>
-            {{ $t('testManagement.export') }} / {{ $t('testManagement.import') }}
+            {{ $t("testManagement.export") }} /
+            {{ $t("testManagement.import") }}
           </base-button>
         </div>
 
         <div class="action-card">
-          <h3>{{ $t('dashboard.viewResults') }}</h3>
-          <p>{{ $t('dashboard.viewResultsDescription') }}</p>
-          <base-button
-            variant="outline"
-            @click="() => router.push('/runs')"
-          >
-            {{ $t('dashboard.viewResults') }}
+          <h3>{{ $t("dashboard.viewResults") }}</h3>
+          <p>{{ $t("dashboard.viewResultsDescription") }}</p>
+          <base-button variant="outline" @click="() => router.push('/runs')">
+            {{ $t("dashboard.viewResults") }}
           </base-button>
         </div>
       </div>

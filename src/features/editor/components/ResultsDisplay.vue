@@ -107,7 +107,6 @@
                   {{ ruleResult.pass ? "✓" : "✗" }}
                 </span>
               </div>
-
             </div>
           </div>
         </div>

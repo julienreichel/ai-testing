@@ -3,16 +3,16 @@
  * Provides reactive state and type definitions
  */
 
-import { ref, computed } from 'vue';
-import type { Ref } from 'vue';
+import { ref, computed } from "vue";
+import type { Ref } from "vue";
 import type {
   Project,
   TestCase,
   TestRun,
   ProjectTreeNode,
-  ImportResult
-} from '../types/testManagement';
-import type { RuleSet } from '../types/rules';
+  ImportResult,
+} from "../types/testManagement";
+import type { RuleSet } from "../types/rules";
 
 // Constants
 const MAX_RECENT_RUNS = 10;
@@ -38,7 +38,7 @@ export interface CreateTestCaseData {
   tags?: string[];
 }
 
-export type CreateTestRunData = Omit<TestRun, 'id' | 'createdAt'>;
+export type CreateTestRunData = Omit<TestRun, "id" | "createdAt">;
 
 export interface TestManagementComposable {
   // State
@@ -58,11 +58,17 @@ export interface TestManagementComposable {
   loadProjects: () => Promise<void>;
   createProject: (data: CreateProjectData) => Promise<Project>;
   selectProject: (projectId: string) => Promise<void>;
-  updateProject: (projectId: string, updates: Partial<Project>) => Promise<void>;
+  updateProject: (
+    projectId: string,
+    updates: Partial<Project>,
+  ) => Promise<void>;
   deleteProject: (projectId: string) => Promise<void>;
   createTestCase: (data: CreateTestCaseData) => Promise<TestCase>;
   selectTestCase: (testCaseId: string) => Promise<void>;
-  updateTestCase: (testCaseId: string, updates: Partial<TestCase>) => Promise<void>;
+  updateTestCase: (
+    testCaseId: string,
+    updates: Partial<TestCase>,
+  ) => Promise<void>;
   deleteTestCase: (testCaseId: string) => Promise<void>;
   createTestRun: (data: CreateTestRunData) => Promise<TestRun>;
   updateTestRun: (runId: string, updates: Partial<TestRun>) => Promise<void>;
@@ -94,27 +100,31 @@ export function useTestManagementState(): {
   const error = ref<string | null>(null);
 
   const projectTree = computed<ProjectTreeNode[]>(() => {
-    return projects.value.map(project => ({
+    return projects.value.map((project) => ({
       id: project.id,
-      type: 'project' as const,
+      type: "project" as const,
       name: project.name,
       children: testCases.value
-        .filter(tc => tc.projectId === project.id)
-        .map(testCase => ({
+        .filter((tc) => tc.projectId === project.id)
+        .map((testCase) => ({
           id: testCase.id,
-          type: 'testCase' as const,
+          type: "testCase" as const,
           name: testCase.name,
           parentId: project.id,
           metadata: {
-            runCount: testRuns.value.filter(run => run.testCaseId === testCase.id).length,
+            runCount: testRuns.value.filter(
+              (run) => run.testCaseId === testCase.id,
+            ).length,
             lastRun: testRuns.value
-              .filter(run => run.testCaseId === testCase.id)
-              .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0]?.createdAt,
+              .filter((run) => run.testCaseId === testCase.id)
+              .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0]
+              ?.createdAt,
           },
         })),
       metadata: {
-        runCount: testRuns.value.filter(run => run.projectId === project.id).length,
-        status: 'active' as const,
+        runCount: testRuns.value.filter((run) => run.projectId === project.id)
+          .length,
+        status: "active" as const,
       },
     }));
   });
@@ -122,8 +132,12 @@ export function useTestManagementState(): {
   const currentProjectStats = computed<ProjectStats | null>(() => {
     if (!currentProject.value) return null;
 
-    const projectTestCases = testCases.value.filter(tc => tc.projectId === currentProject.value!.id);
-    const projectRuns = testRuns.value.filter(run => run.projectId === currentProject.value!.id);
+    const projectTestCases = testCases.value.filter(
+      (tc) => tc.projectId === currentProject.value!.id,
+    );
+    const projectRuns = testRuns.value.filter(
+      (run) => run.projectId === currentProject.value!.id,
+    );
     const recentRuns = projectRuns
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(0, MAX_RECENT_RUNS);
@@ -131,8 +145,15 @@ export function useTestManagementState(): {
     return {
       testCaseCount: projectTestCases.length,
       totalRuns: projectRuns.length,
-      successfulRuns: projectRuns.filter(run => run.status === 'completed' && run.evaluationResults?.overallPass).length,
-      failedRuns: projectRuns.filter(run => run.status === 'failed' || (run.status === 'completed' && !run.evaluationResults?.overallPass)).length,
+      successfulRuns: projectRuns.filter(
+        (run) =>
+          run.status === "completed" && run.evaluationResults?.overallPass,
+      ).length,
+      failedRuns: projectRuns.filter(
+        (run) =>
+          run.status === "failed" ||
+          (run.status === "completed" && !run.evaluationResults?.overallPass),
+      ).length,
       recentRuns,
     };
   });

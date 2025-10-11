@@ -47,7 +47,7 @@ export interface TestRun {
     ruleSetResults: RuleSetResult[];
   };
   executionTime: number; // in milliseconds
-  status: 'running' | 'completed' | 'failed' | 'cancelled';
+  status: "running" | "completed" | "failed" | "cancelled";
   error?: string;
   createdAt: Date;
   metadata?: Record<string, unknown>;
@@ -62,7 +62,7 @@ export interface QueryOptions {
   limit?: number;
   offset?: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
   filter?: Record<string, unknown>;
 }
 
@@ -90,13 +90,13 @@ export interface ImportResult {
  */
 export interface ProjectTreeNode {
   id: string;
-  type: 'project' | 'testCase';
+  type: "project" | "testCase";
   name: string;
   children?: ProjectTreeNode[];
   parentId?: string;
   metadata?: {
     runCount?: number;
     lastRun?: Date;
-    status?: 'active' | 'archived';
+    status?: "active" | "archived";
   };
 }

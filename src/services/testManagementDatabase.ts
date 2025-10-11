@@ -3,15 +3,15 @@
  * Handles all database operations for Projects, Test Cases, and Runs
  */
 
-import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
+import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import type {
   Project,
   TestCase,
   TestRun,
   QueryOptions,
   ExportProject,
-  ImportResult
-} from '../types/testManagement';
+  ImportResult,
+} from "../types/testManagement";
 
 // Database schema definition
 interface TestManagementDB extends DBSchema {
@@ -19,35 +19,35 @@ interface TestManagementDB extends DBSchema {
     key: string;
     value: Project;
     indexes: {
-      'by-created': Date;
-      'by-updated': Date;
-      'by-name': string;
+      "by-created": Date;
+      "by-updated": Date;
+      "by-name": string;
     };
   };
   testCases: {
     key: string;
     value: TestCase;
     indexes: {
-      'by-project': string;
-      'by-created': Date;
-      'by-updated': Date;
-      'by-name': string;
+      "by-project": string;
+      "by-created": Date;
+      "by-updated": Date;
+      "by-name": string;
     };
   };
   testRuns: {
     key: string;
     value: TestRun;
     indexes: {
-      'by-testcase': string;
-      'by-project': string;
-      'by-created': Date;
-      'by-status': string;
-      'by-model': string;
+      "by-testcase": string;
+      "by-project": string;
+      "by-created": Date;
+      "by-status": string;
+      "by-model": string;
     };
   };
 }
 
-const DB_NAME = 'TestManagementDB';
+const DB_NAME = "TestManagementDB";
 const DB_VERSION = 1;
 
 class TestManagementDatabase {
@@ -60,31 +60,31 @@ class TestManagementDatabase {
     this.db = await openDB<TestManagementDB>(DB_NAME, DB_VERSION, {
       upgrade(db) {
         // Projects store
-        const projectStore = db.createObjectStore('projects', {
-          keyPath: 'id',
+        const projectStore = db.createObjectStore("projects", {
+          keyPath: "id",
         });
-        projectStore.createIndex('by-created', 'createdAt');
-        projectStore.createIndex('by-updated', 'updatedAt');
-        projectStore.createIndex('by-name', 'name');
+        projectStore.createIndex("by-created", "createdAt");
+        projectStore.createIndex("by-updated", "updatedAt");
+        projectStore.createIndex("by-name", "name");
 
         // Test Cases store
-        const testCaseStore = db.createObjectStore('testCases', {
-          keyPath: 'id',
+        const testCaseStore = db.createObjectStore("testCases", {
+          keyPath: "id",
         });
-        testCaseStore.createIndex('by-project', 'projectId');
-        testCaseStore.createIndex('by-created', 'createdAt');
-        testCaseStore.createIndex('by-updated', 'updatedAt');
-        testCaseStore.createIndex('by-name', 'name');
+        testCaseStore.createIndex("by-project", "projectId");
+        testCaseStore.createIndex("by-created", "createdAt");
+        testCaseStore.createIndex("by-updated", "updatedAt");
+        testCaseStore.createIndex("by-name", "name");
 
         // Test Runs store
-        const testRunStore = db.createObjectStore('testRuns', {
-          keyPath: 'id',
+        const testRunStore = db.createObjectStore("testRuns", {
+          keyPath: "id",
         });
-        testRunStore.createIndex('by-testcase', 'testCaseId');
-        testRunStore.createIndex('by-project', 'projectId');
-        testRunStore.createIndex('by-created', 'createdAt');
-        testRunStore.createIndex('by-status', 'status');
-        testRunStore.createIndex('by-model', 'modelProvider');
+        testRunStore.createIndex("by-testcase", "testCaseId");
+        testRunStore.createIndex("by-project", "projectId");
+        testRunStore.createIndex("by-created", "createdAt");
+        testRunStore.createIndex("by-status", "status");
+        testRunStore.createIndex("by-model", "modelProvider");
       },
     });
   }
@@ -104,7 +104,9 @@ class TestManagementDatabase {
   /**
    * Create a new project
    */
-  async createProject(data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>): Promise<Project> {
+  async createProject(
+    data: Omit<Project, "id" | "createdAt" | "updatedAt">,
+  ): Promise<Project> {
     const db = await this.ensureDB();
     const now = new Date();
     const project: Project = {
@@ -114,7 +116,7 @@ class TestManagementDatabase {
       updatedAt: now,
     };
 
-    await db.add('projects', project);
+    await db.add("projects", project);
     return project;
   }
 
@@ -123,7 +125,7 @@ class TestManagementDatabase {
    */
   async getProject(id: string): Promise<Project | undefined> {
     const db = await this.ensureDB();
-    return db.get('projects', id);
+    return db.get("projects", id);
   }
 
   /**
@@ -131,8 +133,8 @@ class TestManagementDatabase {
    */
   async getProjects(options: QueryOptions = {}): Promise<Project[]> {
     const db = await this.ensureDB();
-    const tx = db.transaction('projects', 'readonly');
-    const store = tx.objectStore('projects');
+    const tx = db.transaction("projects", "readonly");
+    const store = tx.objectStore("projects");
 
     let cursor = await store.openCursor();
     const results: Project[] = [];
@@ -152,9 +154,12 @@ class TestManagementDatabase {
   /**
    * Update project
    */
-  async updateProject(id: string, updates: Partial<Omit<Project, 'id' | 'createdAt'>>): Promise<Project | null> {
+  async updateProject(
+    id: string,
+    updates: Partial<Omit<Project, "id" | "createdAt">>,
+  ): Promise<Project | null> {
     const db = await this.ensureDB();
-    const existing = await db.get('projects', id);
+    const existing = await db.get("projects", id);
 
     if (!existing) {
       return null;
@@ -166,7 +171,7 @@ class TestManagementDatabase {
       updatedAt: new Date(),
     };
 
-    await db.put('projects', updated);
+    await db.put("projects", updated);
     return updated;
   }
 
@@ -175,28 +180,37 @@ class TestManagementDatabase {
    */
   async deleteProject(id: string): Promise<boolean> {
     const db = await this.ensureDB();
-    const tx = db.transaction(['projects', 'testCases', 'testRuns'], 'readwrite');
+    const tx = db.transaction(
+      ["projects", "testCases", "testRuns"],
+      "readwrite",
+    );
 
     try {
       // Delete project
-      await tx.objectStore('projects').delete(id);
+      await tx.objectStore("projects").delete(id);
 
       // Delete all test cases in project
-      const testCases = await tx.objectStore('testCases').index('by-project').getAll(id);
+      const testCases = await tx
+        .objectStore("testCases")
+        .index("by-project")
+        .getAll(id);
       for (const testCase of testCases) {
-        await tx.objectStore('testCases').delete(testCase.id);
+        await tx.objectStore("testCases").delete(testCase.id);
       }
 
       // Delete all test runs in project
-      const testRuns = await tx.objectStore('testRuns').index('by-project').getAll(id);
+      const testRuns = await tx
+        .objectStore("testRuns")
+        .index("by-project")
+        .getAll(id);
       for (const testRun of testRuns) {
-        await tx.objectStore('testRuns').delete(testRun.id);
+        await tx.objectStore("testRuns").delete(testRun.id);
       }
 
       await tx.done;
       return true;
     } catch (error) {
-      console.error('Error deleting project:', error);
+      console.error("Error deleting project:", error);
       return false;
     }
   }
@@ -206,7 +220,9 @@ class TestManagementDatabase {
   /**
    * Create a new test case
    */
-  async createTestCase(data: Omit<TestCase, 'id' | 'createdAt' | 'updatedAt'>): Promise<TestCase> {
+  async createTestCase(
+    data: Omit<TestCase, "id" | "createdAt" | "updatedAt">,
+  ): Promise<TestCase> {
     const db = await this.ensureDB();
     const now = new Date();
     const testCase: TestCase = {
@@ -216,7 +232,7 @@ class TestManagementDatabase {
       updatedAt: now,
     };
 
-    await db.add('testCases', testCase);
+    await db.add("testCases", testCase);
     return testCase;
   }
 
@@ -225,24 +241,34 @@ class TestManagementDatabase {
    */
   async getTestCase(id: string): Promise<TestCase | undefined> {
     const db = await this.ensureDB();
-    return db.get('testCases', id);
+    return db.get("testCases", id);
   }
 
   /**
    * Get test cases by project
    */
-  async getTestCasesByProject(projectId: string, options: QueryOptions = {}): Promise<TestCase[]> {
+  async getTestCasesByProject(
+    projectId: string,
+    options: QueryOptions = {},
+  ): Promise<TestCase[]> {
     const db = await this.ensureDB();
-    const results = await db.getAllFromIndex('testCases', 'by-project', projectId);
+    const results = await db.getAllFromIndex(
+      "testCases",
+      "by-project",
+      projectId,
+    );
     return this.sortResults(results, options);
   }
 
   /**
    * Update test case
    */
-  async updateTestCase(id: string, updates: Partial<Omit<TestCase, 'id' | 'createdAt'>>): Promise<TestCase | null> {
+  async updateTestCase(
+    id: string,
+    updates: Partial<Omit<TestCase, "id" | "createdAt">>,
+  ): Promise<TestCase | null> {
     const db = await this.ensureDB();
-    const existing = await db.get('testCases', id);
+    const existing = await db.get("testCases", id);
 
     if (!existing) {
       return null;
@@ -254,7 +280,7 @@ class TestManagementDatabase {
       updatedAt: new Date(),
     };
 
-    await db.put('testCases', updated);
+    await db.put("testCases", updated);
     return updated;
   }
 
@@ -263,22 +289,25 @@ class TestManagementDatabase {
    */
   async deleteTestCase(id: string): Promise<boolean> {
     const db = await this.ensureDB();
-    const tx = db.transaction(['testCases', 'testRuns'], 'readwrite');
+    const tx = db.transaction(["testCases", "testRuns"], "readwrite");
 
     try {
       // Delete test case
-      await tx.objectStore('testCases').delete(id);
+      await tx.objectStore("testCases").delete(id);
 
       // Delete all test runs for this test case
-      const testRuns = await tx.objectStore('testRuns').index('by-testcase').getAll(id);
+      const testRuns = await tx
+        .objectStore("testRuns")
+        .index("by-testcase")
+        .getAll(id);
       for (const testRun of testRuns) {
-        await tx.objectStore('testRuns').delete(testRun.id);
+        await tx.objectStore("testRuns").delete(testRun.id);
       }
 
       await tx.done;
       return true;
     } catch (error) {
-      console.error('Error deleting test case:', error);
+      console.error("Error deleting test case:", error);
       return false;
     }
   }
@@ -288,7 +317,9 @@ class TestManagementDatabase {
   /**
    * Create a new test run
    */
-  async createTestRun(data: Omit<TestRun, 'id' | 'createdAt'>): Promise<TestRun> {
+  async createTestRun(
+    data: Omit<TestRun, "id" | "createdAt">,
+  ): Promise<TestRun> {
     const db = await this.ensureDB();
     const testRun: TestRun = {
       id: this.generateId(),
@@ -296,7 +327,7 @@ class TestManagementDatabase {
       createdAt: new Date(),
     };
 
-    await db.add('testRuns', testRun);
+    await db.add("testRuns", testRun);
     return testRun;
   }
 
@@ -305,33 +336,50 @@ class TestManagementDatabase {
    */
   async getTestRun(id: string): Promise<TestRun | undefined> {
     const db = await this.ensureDB();
-    return db.get('testRuns', id);
+    return db.get("testRuns", id);
   }
 
   /**
    * Get test runs by test case
    */
-  async getTestRunsByTestCase(testCaseId: string, options: QueryOptions = {}): Promise<TestRun[]> {
+  async getTestRunsByTestCase(
+    testCaseId: string,
+    options: QueryOptions = {},
+  ): Promise<TestRun[]> {
     const db = await this.ensureDB();
-    const results = await db.getAllFromIndex('testRuns', 'by-testcase', testCaseId);
+    const results = await db.getAllFromIndex(
+      "testRuns",
+      "by-testcase",
+      testCaseId,
+    );
     return this.sortResults(results, options);
   }
 
   /**
    * Get test runs by project
    */
-  async getTestRunsByProject(projectId: string, options: QueryOptions = {}): Promise<TestRun[]> {
+  async getTestRunsByProject(
+    projectId: string,
+    options: QueryOptions = {},
+  ): Promise<TestRun[]> {
     const db = await this.ensureDB();
-    const results = await db.getAllFromIndex('testRuns', 'by-project', projectId);
+    const results = await db.getAllFromIndex(
+      "testRuns",
+      "by-project",
+      projectId,
+    );
     return this.sortResults(results, options);
   }
 
   /**
    * Update test run
    */
-  async updateTestRun(id: string, updates: Partial<Omit<TestRun, 'id' | 'createdAt'>>): Promise<TestRun | null> {
+  async updateTestRun(
+    id: string,
+    updates: Partial<Omit<TestRun, "id" | "createdAt">>,
+  ): Promise<TestRun | null> {
     const db = await this.ensureDB();
-    const existing = await db.get('testRuns', id);
+    const existing = await db.get("testRuns", id);
 
     if (!existing) {
       return null;
@@ -342,7 +390,7 @@ class TestManagementDatabase {
       ...updates,
     };
 
-    await db.put('testRuns', updated);
+    await db.put("testRuns", updated);
     return updated;
   }
 
@@ -352,10 +400,10 @@ class TestManagementDatabase {
   async deleteTestRun(id: string): Promise<boolean> {
     const db = await this.ensureDB();
     try {
-      await db.delete('testRuns', id);
+      await db.delete("testRuns", id);
       return true;
     } catch (error) {
-      console.error('Error deleting test run:', error);
+      console.error("Error deleting test run:", error);
       return false;
     }
   }
@@ -365,7 +413,10 @@ class TestManagementDatabase {
   /**
    * Export project with all test cases and runs
    */
-  async exportProject(projectId: string, includeRuns = false): Promise<ExportProject | null> {
+  async exportProject(
+    projectId: string,
+    includeRuns = false,
+  ): Promise<ExportProject | null> {
     const project = await this.getProject(projectId);
     if (!project) {
       return null;
@@ -418,19 +469,28 @@ class TestManagementDatabase {
           await this.createTestCase(testCaseData);
           result.imported.testCases++;
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          result.errors.push(`Failed to import test case "${testCase.name}": ${errorMessage}`);
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          result.errors.push(
+            `Failed to import test case "${testCase.name}": ${errorMessage}`,
+          );
         }
       }
 
       // Import runs if provided
       if (data.runs) {
-        await this.importTestRuns(data.runs, data.testCases, newProject.id, result);
+        await this.importTestRuns(
+          data.runs,
+          data.testCases,
+          newProject.id,
+          result,
+        );
       }
 
       result.success = true;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to import project: ${errorMessage}`);
     }
 
@@ -444,7 +504,7 @@ class TestManagementDatabase {
     runs: TestRun[],
     originalTestCases: TestCase[],
     newProjectId: string,
-    result: ImportResult
+    result: ImportResult,
   ): Promise<void> {
     const newTestCases = await this.getTestCasesByProject(newProjectId);
     const testCaseMapping = new Map<string, string>();
@@ -471,7 +531,8 @@ class TestManagementDatabase {
           result.imported.runs++;
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
         result.errors.push(`Failed to import test run: ${errorMessage}`);
       }
     }
@@ -506,9 +567,9 @@ class TestManagementDatabase {
       let comparison = 0;
 
       // Handle different data types for comparison
-      if (typeof aVal === 'string' && typeof bVal === 'string') {
+      if (typeof aVal === "string" && typeof bVal === "string") {
         comparison = aVal.localeCompare(bVal);
-      } else if (typeof aVal === 'number' && typeof bVal === 'number') {
+      } else if (typeof aVal === "number" && typeof bVal === "number") {
         comparison = aVal - bVal;
       } else if (aVal instanceof Date && bVal instanceof Date) {
         comparison = aVal.getTime() - bVal.getTime();
@@ -519,7 +580,7 @@ class TestManagementDatabase {
         comparison = aStr.localeCompare(bStr);
       }
 
-      return options.sortOrder === 'desc' ? -comparison : comparison;
+      return options.sortOrder === "desc" ? -comparison : comparison;
     });
   }
 }

@@ -19,9 +19,7 @@
       </div>
 
       <!-- Rules Section - After Results -->
-      <div
-        class="rules-section"
-      >
+      <div class="rules-section">
         <h3>Output Validation Rules</h3>
         <rules-editor-compact
           v-model:rule-set="validationRules"
@@ -71,8 +69,6 @@
           @save-as-test="saveAsTestCase"
         />
       </div>
-
-
     </div>
 
     <save-test-case-dialog
@@ -178,7 +174,11 @@ const runPrompt = async (): Promise<void> => {
     );
 
     // Create a test run if we have validation results and a current test case
-    await createTestRunFromValidation(result, validationResult.value, executionTime);
+    await createTestRunFromValidation(
+      result,
+      validationResult.value,
+      executionTime,
+    );
   } else {
     validationResult.value = null;
   }
@@ -187,16 +187,23 @@ const runPrompt = async (): Promise<void> => {
 const createTestRunFromValidation = async (
   result: ProviderResponse,
   validation: RuleSetResult,
-  executionTime: number
+  executionTime: number,
 ): Promise<void> => {
   try {
     // Import test management composable
-    const { useTestManagement } = await import('../../composables/useTestManagement');
+    const { useTestManagement } = await import(
+      "../../composables/useTestManagement"
+    );
     const testManager = useTestManagement();
 
     // Only create test run if we have a current project and test case
-    if (!testManager.currentProject.value || !testManager.currentTestCase.value) {
-      console.log('No current project or test case - skipping test run creation');
+    if (
+      !testManager.currentProject.value ||
+      !testManager.currentTestCase.value
+    ) {
+      console.log(
+        "No current project or test case - skipping test run creation",
+      );
       return;
     }
 
@@ -208,7 +215,7 @@ const createTestRunFromValidation = async (
       prompt: promptData.value.userPrompt,
       response: result.content,
       executionTime,
-      status: 'completed' as const,
+      status: "completed" as const,
       modelConfig: {
         temperature: promptData.value.temperature,
         maxTokens: promptData.value.maxTokens,
@@ -226,9 +233,9 @@ const createTestRunFromValidation = async (
     };
 
     const testRun = await testManager.createTestRun(testRunData);
-    console.log('Test run created successfully:', testRun);
+    console.log("Test run created successfully:", testRun);
   } catch (error) {
-    console.error('Failed to create test run:', error);
+    console.error("Failed to create test run:", error);
     // Don't throw - this shouldn't break the main prompt execution flow
   }
 };
@@ -249,20 +256,20 @@ const saveAsTestCase = (): void => {
 };
 
 const onTestCaseSaved = (testCaseId: string): void => {
-  console.log('Test case saved successfully:', testCaseId);
+  console.log("Test case saved successfully:", testCaseId);
 
   // Show success notification
   // Using setTimeout to ensure the dialog closes first
   const NOTIFICATION_DELAY = 100; // ms
   setTimeout(() => {
     const proceed = confirm(
-      'Test case saved successfully!\n\nWould you like to navigate to the Tests page to view it?'
+      "Test case saved successfully!\n\nWould you like to navigate to the Tests page to view it?",
     );
 
     if (proceed) {
       void router.push({
         path: "/tests",
-        query: { selectedTestCase: testCaseId }
+        query: { selectedTestCase: testCaseId },
       });
     }
   }, NOTIFICATION_DELAY);
@@ -330,7 +337,7 @@ onMounted(() => {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 1.5rem;
-  color: #000
+  color: #000;
 }
 
 .results-section {

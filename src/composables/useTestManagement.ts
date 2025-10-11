@@ -3,17 +3,17 @@
  * Clean implementation with proper type safety
  */
 
-import { computed, onMounted } from 'vue';
-import { useTestManagementState } from './useTestManagementState';
-import { testDB } from '../services/testManagementDatabase';
+import { computed, onMounted } from "vue";
+import { useTestManagementState } from "./useTestManagementState";
+import { testDB } from "../services/testManagementDatabase";
 import type {
   Project,
   TestCase,
   TestRun,
   ExportProject,
   ImportResult,
-} from '../types/testManagement';
-import type { RuleSet, RuleSetResult } from '../types/rules';
+} from "../types/testManagement";
+import type { RuleSet, RuleSetResult } from "../types/rules";
 
 const JSON_INDENT_SPACES = 2;
 
@@ -39,7 +39,7 @@ export interface CreateTestRunData {
   prompt: string;
   response: string;
   executionTime: number;
-  status: 'running' | 'completed' | 'failed' | 'cancelled';
+  status: "running" | "completed" | "failed" | "cancelled";
   modelConfig?: Record<string, unknown>;
   tokens?: {
     promptTokens: number;
@@ -69,8 +69,9 @@ export function useTestManagement() {
       await testDB.init();
       await loadProjects();
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to initialize database';
-      console.error('Failed to initialize test management:', err);
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to initialize database";
+      console.error("Failed to initialize test management:", err);
     } finally {
       state.isLoading.value = false;
     }
@@ -84,9 +85,13 @@ export function useTestManagement() {
 
   const loadProjects = async (): Promise<void> => {
     try {
-      state.projects.value = await testDB.getProjects({ sortBy: 'updatedAt', sortOrder: 'desc' });
+      state.projects.value = await testDB.getProjects({
+        sortBy: "updatedAt",
+        sortOrder: "desc",
+      });
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to load projects';
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to load projects";
       throw err;
     }
   };
@@ -98,7 +103,8 @@ export function useTestManagement() {
       await loadProjects();
       return project;
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to create project';
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to create project";
       throw err;
     } finally {
       state.isLoading.value = false;
@@ -108,26 +114,30 @@ export function useTestManagement() {
   const selectProject = async (projectId: string): Promise<void> => {
     try {
       state.isLoading.value = true;
-      state.currentProject.value = await testDB.getProject(projectId) || null;
+      state.currentProject.value = (await testDB.getProject(projectId)) || null;
       if (state.currentProject.value) {
         state.testCases.value = await testDB.getTestCasesByProject(projectId, {
-          sortBy: 'updatedAt',
-          sortOrder: 'desc'
+          sortBy: "updatedAt",
+          sortOrder: "desc",
         });
         state.testRuns.value = await testDB.getTestRunsByProject(projectId, {
-          sortBy: 'createdAt',
-          sortOrder: 'desc'
+          sortBy: "createdAt",
+          sortOrder: "desc",
         });
       }
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to select project';
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to select project";
       throw err;
     } finally {
       state.isLoading.value = false;
     }
   };
 
-  const updateProject = async (projectId: string, updates: Partial<Project>): Promise<void> => {
+  const updateProject = async (
+    projectId: string,
+    updates: Partial<Project>,
+  ): Promise<void> => {
     try {
       await testDB.updateProject(projectId, updates);
       await loadProjects();
@@ -135,11 +145,12 @@ export function useTestManagement() {
         state.currentProject.value = {
           ...state.currentProject.value,
           ...updates,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         };
       }
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to update project';
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to update project";
       throw err;
     }
   };
@@ -154,16 +165,19 @@ export function useTestManagement() {
         state.testRuns.value = [];
       }
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to delete project';
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to delete project";
       throw err;
     }
   };
 
   // ==================== TEST CASE OPERATIONS ====================
 
-  const createTestCase = async (data: CreateTestCaseData): Promise<TestCase> => {
+  const createTestCase = async (
+    data: CreateTestCaseData,
+  ): Promise<TestCase> => {
     if (!state.currentProject.value) {
-      throw new Error('No project selected');
+      throw new Error("No project selected");
     }
 
     try {
@@ -174,36 +188,46 @@ export function useTestManagement() {
       state.testCases.value = [testCase, ...state.testCases.value];
       return testCase;
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to create test case';
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to create test case";
       throw err;
     }
   };
 
   const selectTestCase = async (testCaseId: string): Promise<void> => {
     try {
-      state.currentTestCase.value = await testDB.getTestCase(testCaseId) || null;
+      state.currentTestCase.value =
+        (await testDB.getTestCase(testCaseId)) || null;
       if (state.currentTestCase.value) {
         const runs = await testDB.getTestRunsByTestCase(testCaseId, {
-          sortBy: 'createdAt',
-          sortOrder: 'desc'
+          sortBy: "createdAt",
+          sortOrder: "desc",
         });
         // Update runs for this test case
         state.testRuns.value = [
-          ...state.testRuns.value.filter((run: TestRun) => run.testCaseId !== testCaseId),
-          ...runs
+          ...state.testRuns.value.filter(
+            (run: TestRun) => run.testCaseId !== testCaseId,
+          ),
+          ...runs,
         ];
       }
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to select test case';
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to select test case";
       throw err;
     }
   };
 
-  const updateTestCase = async (testCaseId: string, updates: Partial<TestCase>): Promise<void> => {
+  const updateTestCase = async (
+    testCaseId: string,
+    updates: Partial<TestCase>,
+  ): Promise<void> => {
     try {
       const updatedTestCase = await testDB.updateTestCase(testCaseId, updates);
       if (updatedTestCase) {
-        const index = state.testCases.value.findIndex((tc: TestCase) => tc.id === testCaseId);
+        const index = state.testCases.value.findIndex(
+          (tc: TestCase) => tc.id === testCaseId,
+        );
         if (index !== -1) {
           state.testCases.value[index] = updatedTestCase;
         }
@@ -212,7 +236,8 @@ export function useTestManagement() {
         }
       }
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to update test case';
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to update test case";
       throw err;
     }
   };
@@ -220,13 +245,18 @@ export function useTestManagement() {
   const deleteTestCase = async (testCaseId: string): Promise<void> => {
     try {
       await testDB.deleteTestCase(testCaseId);
-      state.testCases.value = state.testCases.value.filter((tc: TestCase) => tc.id !== testCaseId);
-      state.testRuns.value = state.testRuns.value.filter((run: TestRun) => run.testCaseId !== testCaseId);
+      state.testCases.value = state.testCases.value.filter(
+        (tc: TestCase) => tc.id !== testCaseId,
+      );
+      state.testRuns.value = state.testRuns.value.filter(
+        (run: TestRun) => run.testCaseId !== testCaseId,
+      );
       if (state.currentTestCase.value?.id === testCaseId) {
         state.currentTestCase.value = null;
       }
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to delete test case';
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to delete test case";
       throw err;
     }
   };
@@ -239,41 +269,54 @@ export function useTestManagement() {
       state.testRuns.value = [testRun, ...state.testRuns.value];
       return testRun;
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to create test run';
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to create test run";
       throw err;
     }
   };
 
-  const updateTestRun = async (runId: string, updates: Partial<TestRun>): Promise<void> => {
+  const updateTestRun = async (
+    runId: string,
+    updates: Partial<TestRun>,
+  ): Promise<void> => {
     try {
       const updatedRun = await testDB.updateTestRun(runId, updates);
       if (updatedRun) {
-        const index = state.testRuns.value.findIndex((run: TestRun) => run.id === runId);
+        const index = state.testRuns.value.findIndex(
+          (run: TestRun) => run.id === runId,
+        );
         if (index !== -1) {
           state.testRuns.value[index] = updatedRun;
         }
       }
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to update test run';
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to update test run";
       throw err;
     }
   };
 
   const getTestCaseRuns = (testCaseId: string): TestRun[] => {
-    return state.testRuns.value.filter((run: TestRun) => run.testCaseId === testCaseId);
+    return state.testRuns.value.filter(
+      (run: TestRun) => run.testCaseId === testCaseId,
+    );
   };
 
   // ==================== IMPORT/EXPORT OPERATIONS ====================
 
-  const exportProject = async (projectId: string, includeRuns = false): Promise<string> => {
+  const exportProject = async (
+    projectId: string,
+    includeRuns = false,
+  ): Promise<string> => {
     try {
       const exportData = await testDB.exportProject(projectId, includeRuns);
       if (!exportData) {
-        throw new Error('Project not found');
+        throw new Error("Project not found");
       }
       return JSON.stringify(exportData, null, JSON_INDENT_SPACES);
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to export project';
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to export project";
       throw err;
     }
   };
@@ -285,7 +328,8 @@ export function useTestManagement() {
       await loadProjects();
       return result;
     } catch (err) {
-      state.error.value = err instanceof Error ? err.message : 'Failed to import project';
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to import project";
       throw err;
     }
   };

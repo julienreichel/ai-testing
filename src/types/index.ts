@@ -40,8 +40,8 @@ export interface TestRunResult {
 }
 
 // Re-export domain-specific types
-export * from './rules';
-export * from './testManagement';
+export * from "./rules";
+export * from "./testManagement";
 
 export interface NavigationItem {
   name: string;
