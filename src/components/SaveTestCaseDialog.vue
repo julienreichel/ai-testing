@@ -39,50 +39,18 @@
 
       <!-- Project Selection -->
       <div class="form-group">
-        <label for="projectSelection"
-          >{{ $t("testManagement.project") }} *</label
-        >
-        <div class="project-selection-wrapper">
-          <select
-            id="projectSelection"
-            v-model="selectedProjectMode"
-            class="project-mode-select"
-            @change="onProjectModeChange"
-          >
-            <option value="">{{ $t("testManagement.chooseOption") }}</option>
-            <option v-if="availableProjects.length > 0" value="existing">
-              {{ $t("testManagement.useExistingProject") }}
-            </option>
-            <option value="new">
-              {{ $t("testManagement.createNewProject") }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Existing Project Selection -->
-      <div v-if="selectedProjectMode === 'existing'" class="form-group">
-        <label for="existingProject">{{
-          $t("testManagement.selectExistingProject")
-        }}</label>
-        <select
-          id="existingProject"
-          v-model="selectedProjectId"
-          class="project-select"
-        >
-          <option value="">{{ $t("testManagement.chooseProject") }}</option>
-          <option
-            v-for="project in availableProjects"
-            :key="project.id"
-            :value="project.id"
-          >
-            {{ project.name }}
-          </option>
-        </select>
+        <base-input-field
+          v-model="selectedProjectOption"
+          :label="`${$t('testManagement.project')} *`"
+          :placeholder="$t('testManagement.chooseProject')"
+          type="select"
+          :options="projectOptions"
+          @update:model-value="onProjectSelectionChange"
+        />
       </div>
 
       <!-- New Project Creation -->
-      <div v-if="selectedProjectMode === 'new'" class="new-project-section">
+      <div v-if="isCreatingNewProject" class="new-project-section">
         <div class="form-group">
           <label for="newProjectName"
             >{{ $t("testManagement.projectName") }} *</label
@@ -170,14 +138,36 @@ const testManager = useTestManagement();
 // Form state
 const testCaseName = ref("");
 const testCaseDescription = ref("");
-const selectedProjectMode = ref<"existing" | "new" | "">("");
-const selectedProjectId = ref("");
+const selectedProjectOption = ref<string>("");
 const newProjectName = ref("");
 const newProjectDescription = ref("");
 const isSaving = ref(false);
 
+// Special value to identify when creating a new project
+const CREATE_NEW_PROJECT_VALUE = "__create_new__";
+
 // Computed properties
 const availableProjects = computed(() => testManager.projectTree.value || []);
+
+const projectOptions = computed(() => {
+  const options = availableProjects.value.map(project => ({
+    label: project.name,
+    value: project.id,
+  }));
+
+  // Add "Create new project" option at the end
+  options.push({
+    label: `+ Create New Project`,
+    value: CREATE_NEW_PROJECT_VALUE,
+  });
+
+  return options;
+});
+
+const isCreatingNewProject = computed(() =>
+  selectedProjectOption.value === CREATE_NEW_PROJECT_VALUE
+);
+
 const hasRules = computed(() => props.rules.length > 0);
 const rulesCount = computed(() =>
   props.rules.reduce((count, ruleSet) => count + ruleSet.rules.length, 0),
@@ -193,19 +183,20 @@ const promptPreview = computed(() => {
 const canSave = computed(() => {
   const hasTestCaseName = testCaseName.value.trim() !== "";
   const hasValidProject =
-    (selectedProjectMode.value === "existing" &&
-      selectedProjectId.value !== "") ||
-    (selectedProjectMode.value === "new" && newProjectName.value.trim() !== "");
+    (selectedProjectOption.value !== "" && selectedProjectOption.value !== CREATE_NEW_PROJECT_VALUE) ||
+    (isCreatingNewProject.value && newProjectName.value.trim() !== "");
 
   return hasTestCaseName && hasValidProject;
 });
 
 // Methods
-const onProjectModeChange = (): void => {
-  // Reset project-specific selections when mode changes
-  selectedProjectId.value = "";
-  newProjectName.value = "";
-  newProjectDescription.value = "";
+const onProjectSelectionChange = (value: string | number): void => {
+  selectedProjectOption.value = String(value);
+  // Reset new project fields when switching away from create new
+  if (selectedProjectOption.value !== CREATE_NEW_PROJECT_VALUE) {
+    newProjectName.value = "";
+    newProjectDescription.value = "";
+  }
 };
 
 const handleSave = async (): Promise<void> => {
@@ -214,10 +205,10 @@ const handleSave = async (): Promise<void> => {
   try {
     isSaving.value = true;
 
-    let projectId = selectedProjectId.value;
+    let projectId = selectedProjectOption.value;
 
     // Create new project if needed
-    if (selectedProjectMode.value === "new") {
+    if (isCreatingNewProject.value) {
       const newProject = await testManager.createProject({
         name: newProjectName.value.trim(),
         description: newProjectDescription.value.trim() || undefined,
@@ -226,7 +217,7 @@ const handleSave = async (): Promise<void> => {
     }
 
     // Ensure we have a project selected
-    if (projectId) {
+    if (projectId && projectId !== CREATE_NEW_PROJECT_VALUE) {
       await testManager.selectProject(projectId);
     }
 
@@ -276,8 +267,7 @@ const handleCancel = (): void => {
 const resetForm = (): void => {
   testCaseName.value = "";
   testCaseDescription.value = "";
-  selectedProjectMode.value = "";
-  selectedProjectId.value = "";
+  selectedProjectOption.value = "";
   newProjectName.value = "";
   newProjectDescription.value = "";
 };
@@ -311,26 +301,7 @@ watch(
   font-size: 0.875rem;
 }
 
-.project-selection-wrapper {
-  margin-bottom: 0.5rem;
-}
 
-.project-mode-select,
-.project-select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  background: white;
-}
-
-.project-mode-select:focus,
-.project-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
 
 .new-project-section {
   background: #f9fafb;
