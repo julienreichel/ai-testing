@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { usePromptRunner } from "../../src/composables/usePromptRunner";
-import type { ProviderRequest, ProviderResponse } from "../../src/types/providers";
+import type {
+  ProviderRequest,
+  ProviderResponse,
+} from "../../src/types/providers";
 
 // Mock the providers store
 const mockProvider = {
@@ -9,7 +12,10 @@ const mockProvider = {
 };
 
 vi.mock("../../src/store/providers", () => ({
-  useProvidersStore: (): { validProviders: unknown[]; activeProviders: unknown[] } => ({
+  useProvidersStore: (): {
+    validProviders: unknown[];
+    activeProviders: unknown[];
+  } => ({
     validProviders: [mockProvider],
     activeProviders: [mockProvider],
   }),
@@ -72,11 +78,13 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
 
       // User sees successful execution results
       expect(state.value.isRunning).toBe(false);
-      expect(state.value.result).toEqual(expect.objectContaining({
-        content: "Hello! I'm doing well, thank you for asking.",
-        model: expect.any(String),
-        usage: expect.any(Object),
-      }));
+      expect(state.value.result).toEqual(
+        expect.objectContaining({
+          content: "Hello! I'm doing well, thank you for asking.",
+          model: expect.any(String),
+          usage: expect.any(Object),
+        }),
+      );
       expect(state.value.error).toBeNull();
     });
 
@@ -109,11 +117,13 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
       await runPrompt("test-provider", mockRequest);
 
       // User sees execution metadata including timing
-      expect(state.value.result?.metadata).toEqual(expect.objectContaining({
-        latency: expect.any(Number),
-        provider: "test-provider",
-        timestamp: expect.any(Date),
-      }));
+      expect(state.value.result?.metadata).toEqual(
+        expect.objectContaining({
+          latency: expect.any(Number),
+          provider: "test-provider",
+          timestamp: expect.any(Date),
+        }),
+      );
     });
   });
 
@@ -126,7 +136,9 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
 
       // User sees helpful error message
       expect(state.value.isRunning).toBe(false);
-      expect(state.value.error).toContain("Provider non-existent-provider not found");
+      expect(state.value.error).toContain(
+        "Provider non-existent-provider not found",
+      );
       expect(state.value.result).toBeNull();
     });
 
@@ -157,7 +169,9 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
 
   describe("When user wants to control execution", () => {
     it("should prevent multiple simultaneous executions", async () => {
-      mockProvider.call.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+      mockProvider.call.mockImplementation(
+        () => new Promise((resolve) => setTimeout(resolve, 100)),
+      );
 
       const { runPrompt, state } = usePromptRunner();
 
@@ -176,9 +190,12 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
 
     it("should allow user to cancel running execution", async () => {
       let rejectPromise: (reason?: Error) => void = () => {};
-      mockProvider.call.mockImplementation(() => new Promise((_, reject) => {
-        rejectPromise = reject;
-      }));
+      mockProvider.call.mockImplementation(
+        () =>
+          new Promise((_, reject) => {
+            rejectPromise = reject;
+          }),
+      );
 
       const { runPrompt, cancelRun, state } = usePromptRunner();
 
@@ -190,7 +207,11 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
       cancelRun();
 
       // Simulate abort error
-      rejectPromise(Object.assign(new Error("The operation was aborted"), { name: "AbortError" }));
+      rejectPromise(
+        Object.assign(new Error("The operation was aborted"), {
+          name: "AbortError",
+        }),
+      );
 
       await runPromise;
 
@@ -208,7 +229,12 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
         model: "test-model",
         usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
         cost: { inputCost: 0.001, outputCost: 0.001, totalCost: 0.002 },
-        metadata: { latency: 10, requestId: "prev-123", provider: "test", timestamp: new Date() },
+        metadata: {
+          latency: 10,
+          requestId: "prev-123",
+          provider: "test",
+          timestamp: new Date(),
+        },
       };
       state.value.error = "Previous error";
 
@@ -244,7 +270,12 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
         model: "test-model",
         usage: { inputTokens: 5, outputTokens: 5, totalTokens: 10 },
         cost: { inputCost: 0.001, outputCost: 0.001, totalCost: 0.002 },
-        metadata: { latency: 50, requestId: "test-789", provider: "test-provider", timestamp: new Date() },
+        metadata: {
+          latency: 50,
+          requestId: "test-789",
+          provider: "test-provider",
+          timestamp: new Date(),
+        },
       });
 
       await runPromise;
@@ -265,7 +296,12 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
         model: "test-model",
         usage: { inputTokens: 3, outputTokens: 5, totalTokens: 8 },
         cost: { inputCost: 0.001, outputCost: 0.001, totalCost: 0.002 },
-        metadata: { latency: 25, requestId: "success-123", provider: "test-provider", timestamp: new Date() },
+        metadata: {
+          latency: 25,
+          requestId: "success-123",
+          provider: "test-provider",
+          timestamp: new Date(),
+        },
       });
 
       // User runs new prompt
@@ -277,7 +313,8 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
     });
 
     it("should provide all necessary state for user interface", () => {
-      const { state, canRun, runPrompt, cancelRun, clearResults } = usePromptRunner();
+      const { state, canRun, runPrompt, cancelRun, clearResults } =
+        usePromptRunner();
 
       // User interface has access to all needed functionality
       expect(state.value).toHaveProperty("isRunning");
@@ -299,7 +336,12 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
         model: "test-model",
         usage: { inputTokens: 8, outputTokens: 12, totalTokens: 20 },
         cost: { inputCost: 0.001, outputCost: 0.002, totalCost: 0.003 },
-        metadata: { latency: 75, requestId: "provider-456", provider: "test-provider", timestamp: new Date() },
+        metadata: {
+          latency: 75,
+          requestId: "provider-456",
+          provider: "test-provider",
+          timestamp: new Date(),
+        },
       });
 
       const { canRun, runPrompt, state } = usePromptRunner();

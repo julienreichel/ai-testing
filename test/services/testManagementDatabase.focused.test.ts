@@ -5,29 +5,34 @@
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { testDB } from "../../src/services/testManagementDatabase";
-import type { Project, TestCase, TestRun, ExportProject } from "../../src/types/testManagement";
-
-
+import type {
+  Project,
+  TestCase,
+  TestRun,
+  ExportProject,
+} from "../../src/types/testManagement";
 
 // Mock the entire IndexedDB layer to focus on business logic
 vi.mock("idb", () => ({
-  openDB: vi.fn(() => Promise.resolve({
-    add: vi.fn(),
-    get: vi.fn(),
-    getAll: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-    transaction: vi.fn(() => ({
-      objectStore: vi.fn(() => ({
-        add: vi.fn(),
-        get: vi.fn(),
-        put: vi.fn(),
-        delete: vi.fn(),
-        openCursor: vi.fn(() => Promise.resolve(null)),
+  openDB: vi.fn(() =>
+    Promise.resolve({
+      add: vi.fn(),
+      get: vi.fn(),
+      getAll: vi.fn(),
+      put: vi.fn(),
+      delete: vi.fn(),
+      transaction: vi.fn(() => ({
+        objectStore: vi.fn(() => ({
+          add: vi.fn(),
+          get: vi.fn(),
+          put: vi.fn(),
+          delete: vi.fn(),
+          openCursor: vi.fn(() => Promise.resolve(null)),
+        })),
       })),
-    })),
-    getAllFromIndex: vi.fn(() => Promise.resolve([])),
-  })),
+      getAllFromIndex: vi.fn(() => Promise.resolve([])),
+    }),
+  ),
 }));
 
 describe("TestManagementDatabase - Critical Import/Export Behaviors", () => {
@@ -139,7 +144,9 @@ describe("TestManagementDatabase - Critical Import/Export Behaviors", () => {
     it("should handle the complete export workflow", async () => {
       // Arrange: User has a complete project to export
       testDB.getProject = vi.fn().mockResolvedValue(sampleProject);
-      testDB.getTestCasesByProject = vi.fn().mockResolvedValue([sampleTestCase]);
+      testDB.getTestCasesByProject = vi
+        .fn()
+        .mockResolvedValue([sampleTestCase]);
       testDB.getTestRunsByProject = vi.fn().mockResolvedValue([sampleTestRun]);
 
       // Act: User exports their project with all data
@@ -184,11 +191,11 @@ describe("TestManagementDatabase - Critical Import/Export Behaviors", () => {
       expect(testDB.createProject).toHaveBeenCalledWith(sampleProject);
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(testDB.createTestCase).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "test-456" })
+        expect.objectContaining({ id: "test-456" }),
       );
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(testDB.createTestRun).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "run-789" })
+        expect.objectContaining({ id: "run-789" }),
       );
     });
 
@@ -226,7 +233,10 @@ describe("TestManagementDatabase - Critical Import/Export Behaviors", () => {
         description: sampleProject.description,
       });
       // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(testDB.updateTestCase).toHaveBeenCalledWith("test-456", expect.any(Object));
+      expect(testDB.updateTestCase).toHaveBeenCalledWith(
+        "test-456",
+        expect.any(Object),
+      );
     });
 
     it("should provide helpful error messages when imports fail", async () => {
@@ -238,14 +248,18 @@ describe("TestManagementDatabase - Critical Import/Export Behaviors", () => {
       };
 
       testDB.getProject = vi.fn().mockResolvedValue(undefined);
-      testDB.createProject = vi.fn().mockRejectedValue(new Error("Storage quota exceeded"));
+      testDB.createProject = vi
+        .fn()
+        .mockRejectedValue(new Error("Storage quota exceeded"));
 
       // Act: User attempts problematic import
       const result = await testDB.importProject(importData);
 
       // Assert: User gets clear error information
       expect(result.success).toBe(false);
-      expect(result.errors).toContain("Failed to import project: Storage quota exceeded");
+      expect(result.errors).toContain(
+        "Failed to import project: Storage quota exceeded",
+      );
       expect(result.imported.projects).toBe(0);
     });
   });
@@ -283,16 +297,27 @@ describe("TestManagementDatabase - Critical Import/Export Behaviors", () => {
       testDB.createTestCase = vi.fn().mockResolvedValue(testCaseId);
 
       // Act: System processes related data
-      const projectResult = await testDB.createProject({ id: projectId, name: "Test" });
-      const testResult = await testDB.createTestCase({ id: testCaseId, projectId, name: "Test Case", prompt: "Test Case", rules: [] });
+      const projectResult = await testDB.createProject({
+        id: projectId,
+        name: "Test",
+      });
+      const testResult = await testDB.createTestCase({
+        id: testCaseId,
+        projectId,
+        name: "Test Case",
+        prompt: "Test Case",
+        rules: [],
+      });
 
       // Assert: Relationships are maintained
       expect(projectResult).toBe(projectId);
       expect(testResult).toBe(testCaseId);
       // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(testDB.createTestCase).toHaveBeenCalledWith(expect.objectContaining({
-        projectId: projectId
-      }));
+      expect(testDB.createTestCase).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectId: projectId,
+        }),
+      );
     });
   });
 
@@ -321,7 +346,7 @@ describe("TestManagementDatabase - Critical Import/Export Behaviors", () => {
       // Verify test case maintains project relationship
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(testDB.createTestCase).toHaveBeenCalledWith(
-        expect.objectContaining({ projectId: "project-123" })
+        expect.objectContaining({ projectId: "project-123" }),
       );
 
       // Verify test run maintains both relationships
@@ -329,8 +354,8 @@ describe("TestManagementDatabase - Critical Import/Export Behaviors", () => {
       expect(testDB.createTestRun).toHaveBeenCalledWith(
         expect.objectContaining({
           testCaseId: "test-456",
-          projectId: "project-123"
-        })
+          projectId: "project-123",
+        }),
       );
     });
   });

@@ -61,7 +61,7 @@ const emit = defineEmits<{
 
 // Make sure attributes can be inherited by the dialog div
 defineOptions({
-  inheritAttrs: false
+  inheritAttrs: false,
 });
 
 const BASE_36 = 36;

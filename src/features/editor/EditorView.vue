@@ -169,7 +169,6 @@ const runPrompt = async (): Promise<void> => {
 
   await promptRunner.runPrompt(providerSelection.value.providerId, request);
 
-
   // Run rule validation if we have a successful result
   const result = promptRunner.state.value.result;
   if (result && result.content && validationRules.value.rules.length > 0) {

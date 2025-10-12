@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { useTestManagementState } from "../../src/composables/useTestManagementState";
-import type { Project, TestCase, TestRun } from "../../src/types/testManagement";
+import type {
+  Project,
+  TestCase,
+  TestRun,
+} from "../../src/types/testManagement";
 
 describe("useTestManagementState - User State Management Behavior", () => {
   describe("When user accesses test management state", () => {
@@ -147,7 +151,9 @@ describe("useTestManagementState - User State Management Behavior", () => {
 
       // User interface reflects selection
       expect(state.currentTestCase.value?.id).toBe("test-1");
-      expect(state.currentTestCase.value?.prompt).toBe("What is the meaning of life?");
+      expect(state.currentTestCase.value?.prompt).toBe(
+        "What is the meaning of life?",
+      );
     });
 
     it("should provide filtered test cases by project for user", () => {
@@ -171,8 +177,12 @@ describe("useTestManagementState - User State Management Behavior", () => {
       expect(state.testCases.value).toHaveLength(2);
 
       // Test cases maintain their project associations
-      const proj1Cases = state.testCases.value.filter(tc => tc.projectId === "proj-1");
-      const proj2Cases = state.testCases.value.filter(tc => tc.projectId === "proj-2");
+      const proj1Cases = state.testCases.value.filter(
+        (tc) => tc.projectId === "proj-1",
+      );
+      const proj2Cases = state.testCases.value.filter(
+        (tc) => tc.projectId === "proj-2",
+      );
 
       expect(proj1Cases).toHaveLength(1);
       expect(proj2Cases).toHaveLength(1);
@@ -220,7 +230,9 @@ describe("useTestManagementState - User State Management Behavior", () => {
       expect(state.testRuns.value).toHaveLength(1);
       expect(state.testRuns.value[0]?.modelProvider).toBe("openai");
       expect(state.testRuns.value[0]?.status).toBe("completed");
-      expect(state.testRuns.value[0]?.evaluationResults?.overallPass).toBe(true);
+      expect(state.testRuns.value[0]?.evaluationResults?.overallPass).toBe(
+        true,
+      );
     });
 
     it("should provide detailed test run information for user analysis", () => {
@@ -251,9 +263,15 @@ describe("useTestManagementState - User State Management Behavior", () => {
       state.testRuns.value = [mockTestRun, runningTest, failedTest];
 
       // User can monitor different execution states
-      const completedRuns = state.testRuns.value.filter(r => r.status === "completed");
-      const runningRuns = state.testRuns.value.filter(r => r.status === "running");
-      const failedRuns = state.testRuns.value.filter(r => r.status === "failed");
+      const completedRuns = state.testRuns.value.filter(
+        (r) => r.status === "completed",
+      );
+      const runningRuns = state.testRuns.value.filter(
+        (r) => r.status === "running",
+      );
+      const failedRuns = state.testRuns.value.filter(
+        (r) => r.status === "failed",
+      );
 
       expect(completedRuns).toHaveLength(1);
       expect(runningRuns).toHaveLength(1);
@@ -315,7 +333,9 @@ describe("useTestManagementState - User State Management Behavior", () => {
       expect(state.projectTree.value).toHaveLength(1);
       expect(state.projectTree.value[0]?.name).toBe("User Project 1");
       expect(state.projectTree.value[0]?.children).toHaveLength(1);
-      expect(state.projectTree.value[0]?.children?.[0]?.name).toBe("User Test Case 1");
+      expect(state.projectTree.value[0]?.children?.[0]?.name).toBe(
+        "User Test Case 1",
+      );
     });
   });
 
@@ -361,9 +381,15 @@ describe("useTestManagementState - User State Management Behavior", () => {
       state.testRuns.value = [testRun];
 
       // User data maintains proper relationships
-      expect(state.testCases.value[0]?.projectId).toBe(state.projects.value[0]?.id);
-      expect(state.testRuns.value[0]?.projectId).toBe(state.projects.value[0]?.id);
-      expect(state.testRuns.value[0]?.testCaseId).toBe(state.testCases.value[0]?.id);
+      expect(state.testCases.value[0]?.projectId).toBe(
+        state.projects.value[0]?.id,
+      );
+      expect(state.testRuns.value[0]?.projectId).toBe(
+        state.projects.value[0]?.id,
+      );
+      expect(state.testRuns.value[0]?.testCaseId).toBe(
+        state.testCases.value[0]?.id,
+      );
     });
 
     it("should provide type-safe state access for user operations", () => {
@@ -377,10 +403,14 @@ describe("useTestManagementState - User State Management Behavior", () => {
 
       // State properties are properly typed
       expect(typeof state.isLoading.value).toBe("boolean");
-      expect(state.error.value === null || typeof state.error.value === "string").toBe(true);
+      expect(
+        state.error.value === null || typeof state.error.value === "string",
+      ).toBe(true);
       // User sees current project stats when a project is selected
-      expect(state.currentProjectStats.value === null ||
-             typeof state.currentProjectStats.value.testCaseCount === "number").toBe(true);
+      expect(
+        state.currentProjectStats.value === null ||
+          typeof state.currentProjectStats.value.testCaseCount === "number",
+      ).toBe(true);
     });
   });
 });

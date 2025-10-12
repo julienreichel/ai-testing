@@ -105,7 +105,9 @@ class TestManagementDatabase {
    * Create a new project
    */
   async createProject(
-    data: Omit<Project, "createdAt" | "updatedAt"> | Omit<Project, "id" | "createdAt" | "updatedAt">,
+    data:
+      | Omit<Project, "createdAt" | "updatedAt">
+      | Omit<Project, "id" | "createdAt" | "updatedAt">,
   ): Promise<Project> {
     const db = await this.ensureDB();
     const now = new Date();
@@ -221,7 +223,9 @@ class TestManagementDatabase {
    * Create a new test case
    */
   async createTestCase(
-    data: Omit<TestCase, "createdAt" | "updatedAt"> | Omit<TestCase, "id" | "createdAt" | "updatedAt">,
+    data:
+      | Omit<TestCase, "createdAt" | "updatedAt">
+      | Omit<TestCase, "id" | "createdAt" | "updatedAt">,
   ): Promise<TestCase> {
     const db = await this.ensureDB();
     const now = new Date();
@@ -533,7 +537,9 @@ class TestManagementDatabase {
     for (const run of runs) {
       try {
         // Check if the test case ID from the run still exists
-        const testCaseExists = originalTestCases.some(tc => tc.id === run.testCaseId);
+        const testCaseExists = originalTestCases.some(
+          (tc) => tc.id === run.testCaseId,
+        );
 
         if (testCaseExists) {
           // Check if run with same ID already exists

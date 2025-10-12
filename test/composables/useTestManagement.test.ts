@@ -30,7 +30,9 @@ vi.mock("../../src/services/testManagementDatabase", () => ({
 import { useTestManagement } from "../../src/composables/useTestManagement";
 
 // Get reference to mocked testDB
-const { testDB: mockTestDB } = await vi.importMock("../../src/services/testManagementDatabase") as {
+const { testDB: mockTestDB } = (await vi.importMock(
+  "../../src/services/testManagementDatabase",
+)) as {
   testDB: {
     init: ReturnType<typeof vi.fn>;
     getProjects: ReturnType<typeof vi.fn>;
@@ -61,13 +63,15 @@ describe("useTestManagement - User Experience with Actual Composable", () => {
 
   it("should initialize database and load projects for user", async () => {
     // Arrange - Fresh system startup
-    const mockProjects = [{
-      id: "project-1",
-      name: "User Project 1",
-      description: "User's test project",
-      createdAt: new Date("2024-01-01T00:00:00Z"),
-      updatedAt: new Date("2024-01-01T00:00:00Z"),
-    }];
+    const mockProjects = [
+      {
+        id: "project-1",
+        name: "User Project 1",
+        description: "User's test project",
+        createdAt: new Date("2024-01-01T00:00:00Z"),
+        updatedAt: new Date("2024-01-01T00:00:00Z"),
+      },
+    ];
     mockTestDB.getProjects.mockResolvedValue(mockProjects);
 
     const management = useTestManagement();
@@ -116,7 +120,7 @@ describe("useTestManagement - User Experience with Actual Composable", () => {
 
     // Act & Assert - User sees clear error message
     await expect(
-      management.createProject({ name: "Duplicate Project" })
+      management.createProject({ name: "Duplicate Project" }),
     ).rejects.toThrow("Project name already exists");
     // User sees error state updated (actual behavior from composable)
     expect(management.error.value).toBeTruthy();
@@ -128,17 +132,29 @@ describe("useTestManagement - User Experience with Actual Composable", () => {
 
     // Act - Check available methods
     const methods = [
-      'initialize', 'clearError', 'loadProjects', 'createProject',
-      'selectProject', 'updateProject', 'deleteProject', 'createTestCase',
-      'selectTestCase', 'updateTestCase', 'deleteTestCase', 'createTestRun',
-      'updateTestRun', 'getTestCaseRuns', 'exportProject', 'importProject'
+      "initialize",
+      "clearError",
+      "loadProjects",
+      "createProject",
+      "selectProject",
+      "updateProject",
+      "deleteProject",
+      "createTestCase",
+      "selectTestCase",
+      "updateTestCase",
+      "deleteTestCase",
+      "createTestRun",
+      "updateTestRun",
+      "getTestCaseRuns",
+      "exportProject",
+      "importProject",
     ];
 
     // Assert - User has access to all necessary operations
-    methods.forEach(method => {
+    methods.forEach((method) => {
       expect(management).toHaveProperty(method);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(typeof (management as any)[method]).toBe('function');
+      expect(typeof (management as any)[method]).toBe("function");
     });
   });
 });

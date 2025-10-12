@@ -1,1 +1,1 @@
-export { default as TestExportImport } from './TestExportImport.vue';
+export { default as TestExportImport } from "./TestExportImport.vue";

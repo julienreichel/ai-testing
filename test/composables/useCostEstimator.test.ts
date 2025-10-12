@@ -5,7 +5,12 @@ import type { CostEstimatorParams } from "../../src/composables/useCostEstimator
 
 // Mock the providers store
 vi.mock("../../src/store/providers", () => ({
-  useProvidersStore: (): { getProviderPricing: (providerId: string, model: string) => { inputTokensPer1K: number; outputTokensPer1K: number } | null } => ({
+  useProvidersStore: (): {
+    getProviderPricing: (
+      providerId: string,
+      model: string,
+    ) => { inputTokensPer1K: number; outputTokensPer1K: number } | null;
+  } => ({
     getProviderPricing: vi.fn().mockReturnValue({
       inputTokensPer1K: 0.001,
       outputTokensPer1K: 0.002,
@@ -40,7 +45,9 @@ describe("useCostEstimator - User Cost Estimation Behavior", () => {
       expect(estimate.totalCost).toBe(estimate.inputCost + estimate.outputCost);
       expect(estimate.inputTokens).toBeGreaterThan(0);
       expect(estimate.estimatedOutputTokens).toBe(150); // matches maxTokens
-      expect(estimate.totalTokens).toBe(estimate.inputTokens + estimate.estimatedOutputTokens);
+      expect(estimate.totalTokens).toBe(
+        estimate.inputTokens + estimate.estimatedOutputTokens,
+      );
     });
 
     it("should show user-friendly formatted cost display", () => {
@@ -72,15 +79,17 @@ describe("useCostEstimator - User Cost Estimation Behavior", () => {
 
       const longInput = useCostEstimator({
         ...mockParams,
-        userPrompt: ref("This is a much longer prompt that should cost more to process because it contains significantly more text and will require more tokens to represent properly."),
+        userPrompt: ref(
+          "This is a much longer prompt that should cost more to process because it contains significantly more text and will require more tokens to represent properly.",
+        ),
       });
 
       // User sees higher costs for longer inputs
       expect(longInput.costEstimate.value.inputCost).toBeGreaterThan(
-        shortInput.costEstimate.value.inputCost
+        shortInput.costEstimate.value.inputCost,
       );
       expect(longInput.costEstimate.value.inputTokens).toBeGreaterThan(
-        shortInput.costEstimate.value.inputTokens
+        shortInput.costEstimate.value.inputTokens,
       );
     });
 
@@ -113,11 +122,11 @@ describe("useCostEstimator - User Cost Estimation Behavior", () => {
 
       // User sees cost increase with higher token limits
       expect(highTokens.costEstimate.value.outputCost).toBeGreaterThan(
-        lowTokens.costEstimate.value.outputCost
+        lowTokens.costEstimate.value.outputCost,
       );
-      expect(highTokens.costEstimate.value.estimatedOutputTokens).toBeGreaterThan(
-        lowTokens.costEstimate.value.estimatedOutputTokens
-      );
+      expect(
+        highTokens.costEstimate.value.estimatedOutputTokens,
+      ).toBeGreaterThan(lowTokens.costEstimate.value.estimatedOutputTokens);
     });
 
     it("should use reasonable defaults when max tokens not specified", () => {
@@ -138,7 +147,8 @@ describe("useCostEstimator - User Cost Estimation Behavior", () => {
       const initialCost = costEstimate.value.totalCost;
 
       // User types more text
-      mockParams.userPrompt.value = "This is a much longer prompt that will cost more";
+      mockParams.userPrompt.value =
+        "This is a much longer prompt that will cost more";
 
       // User sees updated cost immediately
       expect(costEstimate.value.totalCost).toBeGreaterThan(initialCost);
@@ -176,7 +186,9 @@ describe("useCostEstimator - User Cost Estimation Behavior", () => {
 
       // User gets predictable token counting (4 chars per token)
       const userTokensFromPrompt = Math.ceil(4 / 4); // Should be 1 token
-      expect(costEstimate.value.inputTokens).toBeGreaterThanOrEqual(userTokensFromPrompt);
+      expect(costEstimate.value.inputTokens).toBeGreaterThanOrEqual(
+        userTokensFromPrompt,
+      );
     });
   });
 
