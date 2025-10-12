@@ -2,48 +2,15 @@ import { mount } from "@vue/test-utils";
 import { describe, it, expect } from "vitest";
 import { createRouter, createWebHistory } from "vue-router";
 import { createPinia } from "pinia";
-import { createI18n } from "vue-i18n";
 import DashboardView from "../../../src/features/dashboard/DashboardView.vue";
+import { createTestI18n } from "../../utils/i18n";
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [{ path: "/dashboard", component: DashboardView }],
 });
 
-const i18n = createI18n({
-  legacy: false,
-  locale: "en",
-  messages: {
-    en: {
-      dashboard: {
-        title: "Dashboard",
-        subtitle: "Monitor your AI testing environment and manage providers",
-        activeProviders: "Active Providers",
-        totalTests: "Total Tests",
-        recentRuns: "Recent Runs",
-        outOf: "out of {total}",
-        testCasesReady: "ready to run",
-        last24Hours: "last 24 hours",
-        quickActions: "Quick Actions",
-        createTest: "Create Test Case",
-        createTestDescription: "Design new test scenarios for your AI models",
-        viewResults: "View Results",
-        viewResultsDescription: "Analyze test run results and performance metrics",
-      },
-      testManagement: {
-        title: "Test Management",
-        export: "Export",
-        import: "Import",
-        exportProject: "Export Project",
-        importProject: "Import Project",
-      },
-      common: {
-        export: "Export",
-        import: "Import",
-      },
-    },
-  },
-});
+const i18n = createTestI18n();
 
 describe("DashboardView", () => {
   it("should render dashboard title", () => {
