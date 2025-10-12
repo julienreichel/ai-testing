@@ -68,11 +68,11 @@ const calculateConsistency = (results: BatchRunResult[]): number => {
 
   const passCount = passResults.reduce((sum: number, val) => sum + val, 0);
   const passRate = passCount / passResults.length;
-  
+
   const variance = passResults.reduce((sum: number, val) => {
     return sum + Math.pow(val - passRate, POWER_OF_TWO);
   }, 0) / passResults.length;
-  
+
   const consistencyScore = Math.max(0, (1 - variance) * PERCENTAGE_MULTIPLIER);
   return Math.round(consistencyScore);
 };
@@ -87,7 +87,7 @@ export function useBatchAnalytics(results: BatchRunResult[]): {
     const durations = completed
       .map(r => r.duration)
       .filter((d): d is number => d !== undefined);
-    
+
     const costs = completed
       .map(r => r.cost)
       .filter((c): c is number => c !== undefined);

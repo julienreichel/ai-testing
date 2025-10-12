@@ -170,7 +170,7 @@ export class OpenAIProviderAdapter extends BaseProviderAdapter {
       model: request.model,
       messages,
       temperature: request.temperature ?? DEFAULT_TEMPERATURE,
-      max_tokens: request.maxTokens ?? DEFAULT_MAX_TOKENS,
+      max_completion_tokens: request.maxTokens ?? DEFAULT_MAX_TOKENS,
     };
 
     const controller = new AbortController();

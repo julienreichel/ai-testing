@@ -1,29 +1,29 @@
 <template>
-  <BaseCard class="batch-runner">
+  <base-card class="batch-runner">
     <template #header>
-      <div class="flex items-center justify-between">
-        <h3 class="text-lg font-medium">{{ $t("batch.runner.title") }}</h3>
-        <div class="flex items-center space-x-2">
-          <BaseBadge
+      <div class="header-container">
+        <h3>{{ $t("batch.runner.title") }}</h3>
+        <div class="badge-container">
+          <base-badge
             v-if="batchRunner.state.isRunning"
             variant="info"
           >
             {{ $t("batch.runner.status.running") }}
-          </BaseBadge>
-          <BaseBadge
+          </base-badge>
+          <base-badge
             v-else-if="batchRunner.state.completedRuns > 0"
             :variant="batchRunner.statistics.value.passRate >= 80 ? 'success' : 'warning'"
           >
             {{ Math.round(batchRunner.statistics.value.passRate) }}% {{ $t("batch.runner.passRate") }}
-          </BaseBadge>
+          </base-badge>
         </div>
       </div>
     </template>
 
     <!-- Configuration Section -->
-    <div class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <BaseInputField
+    <div class="content-container">
+      <div class="config-grid">
+        <base-input-field
           v-model="config.runCount"
           :label="$t('batch.config.runCount')"
           type="number"
@@ -32,7 +32,7 @@
           :disabled="batchRunner.state.isRunning"
         />
 
-        <BaseInputField
+        <base-input-field
           v-model="config.maxRetries"
           :label="$t('batch.config.maxRetries')"
           type="number"
@@ -41,7 +41,7 @@
           :disabled="batchRunner.state.isRunning"
         />
 
-        <BaseInputField
+        <base-input-field
           v-model="config.delayMs"
           :label="$t('batch.config.delayMs')"
           type="number"
@@ -52,8 +52,8 @@
       </div>
 
       <!-- Progress Section -->
-      <div v-if="batchRunner.state.totalRuns > 0" class="space-y-4">
-        <div class="flex items-center justify-between text-sm text-gray-600">
+      <div v-if="batchRunner.state.totalRuns > 0" class="progress-section">
+        <div class="progress-header">
           <span>{{ $t("batch.progress.completed", {
             completed: batchRunner.state.completedRuns,
             total: batchRunner.state.totalRuns
@@ -61,42 +61,42 @@
           <span>{{ batchRunner.progress }}%</span>
         </div>
 
-        <div class="w-full bg-gray-200 rounded-full h-2">
+        <div class="progress-bar-container">
           <div
-            class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            class="progress-bar"
             :style="{ width: `${batchRunner.progress}%` }"
           ></div>
         </div>
 
         <!-- Real-time Statistics -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div class="text-center">
-            <div class="font-semibold text-green-600">{{ batchRunner.statistics.value.passedRuns }}</div>
-            <div class="text-gray-500">{{ $t("batch.stats.passed") }}</div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value stat-success">{{ batchRunner.statistics.value.passedRuns }}</div>
+            <div class="stat-label">{{ $t("batch.stats.passed") }}</div>
           </div>
-          <div class="text-center">
-            <div class="font-semibold text-red-600">{{ batchRunner.statistics.value.failedRuns }}</div>
-            <div class="text-gray-500">{{ $t("batch.stats.failed") }}</div>
+          <div class="stat-item">
+            <div class="stat-value stat-error">{{ batchRunner.statistics.value.failedRuns }}</div>
+            <div class="stat-label">{{ $t("batch.stats.failed") }}</div>
           </div>
-          <div class="text-center">
-            <div class="font-semibold text-blue-600">{{ Math.round(batchRunner.statistics.value.avgDuration) }}ms</div>
-            <div class="text-gray-500">{{ $t("batch.stats.avgLatency") }}</div>
+          <div class="stat-item">
+            <div class="stat-value stat-info">{{ Math.round(batchRunner.statistics.value.avgDuration) }}ms</div>
+            <div class="stat-label">{{ $t("batch.stats.avgLatency") }}</div>
           </div>
-          <div class="text-center">
-            <div class="font-semibold text-purple-600">${{ batchRunner.statistics.value.totalCost.toFixed(4) }}</div>
-            <div class="text-gray-500">{{ $t("batch.stats.totalCost") }}</div>
+          <div class="stat-item">
+            <div class="stat-value stat-purple">${{ batchRunner.statistics.value.totalCost.toFixed(4) }}</div>
+            <div class="stat-label">{{ $t("batch.stats.totalCost") }}</div>
           </div>
         </div>
       </div>
 
       <!-- Error Messages -->
-      <div v-if="batchRunner.state.errors.length > 0" class="space-y-2">
-        <h4 class="text-sm font-medium text-red-600">{{ $t("batch.errors.title") }}</h4>
-        <div class="max-h-32 overflow-y-auto space-y-1">
+      <div v-if="batchRunner.state.errors.length > 0" class="error-section">
+        <h4 class="error-title">{{ $t("batch.errors.title") }}</h4>
+        <div class="error-list">
           <div
             v-for="(error, index) in batchRunner.state.errors"
             :key="index"
-            class="text-xs text-red-600 bg-red-50 p-2 rounded"
+            class="error-item"
           >
             {{ error }}
           </div>
@@ -104,44 +104,46 @@
       </div>
 
       <!-- Control Buttons -->
-      <div class="flex items-center justify-between">
-        <div class="flex space-x-2">
-          <BaseButton
+      <div class="controls-container">
+        <div class="controls-left">
+          <base-button
             v-if="!batchRunner.state.isRunning"
             variant="primary"
             :disabled="!canStart"
             @click="startBatch"
           >
             ▶ {{ $t("batch.actions.start") }}
-          </BaseButton>
+          </base-button>
 
-          <BaseButton
+          <base-button
             v-if="batchRunner.state.isRunning"
             variant="danger"
             @click="cancelBatch"
           >
             ⏹ {{ $t("batch.actions.cancel") }}
-          </BaseButton>
+          </base-button>
 
-          <BaseButton
+          <base-button
             v-if="batchRunner.state.completedRuns > 0 && !batchRunner.state.isRunning"
             variant="outline"
             @click="resetBatch"
           >
             ↻ {{ $t("batch.actions.reset") }}
-          </BaseButton>
+          </base-button>
         </div>
 
-        <BaseButton
-          v-if="batchRunner.state.completedRuns > 0"
-          variant="outline"
-          @click="$emit('export-results', batchRunner.state.results)"
-        >
-          ↓ {{ $t("batch.actions.export") }}
-        </BaseButton>
+        <div class="controls-right">
+          <base-button
+            v-if="batchRunner.state.completedRuns > 0"
+            variant="outline"
+            @click="$emit('export-results', batchRunner.state.results)"
+          >
+            ↓ {{ $t("batch.actions.export") }}
+          </base-button>
+        </div>
       </div>
     </div>
-  </BaseCard>
+  </base-card>
 </template>
 
 <script setup lang="ts">
@@ -156,6 +158,7 @@ import BaseBadge from "./ui/BaseBadge.vue";
 interface Props {
   testCase: TestCase;
   providerId: string;
+  model: string;
   disabled?: boolean;
 }
 
@@ -173,7 +176,7 @@ const emit = defineEmits<Emits>();
 const batchRunner = useBatchRunner();
 
 // Configuration state
-const config = ref<Omit<BatchRunConfig, "testCase" | "providerId">>({
+const config = ref<Omit<BatchRunConfig, "testCase" | "providerId" | "model">>({
   runCount: 10,
   maxRetries: 2,
   delayMs: 1000,
@@ -184,6 +187,7 @@ const canStart = computed(() => {
   return !props.disabled &&
          props.testCase &&
          props.providerId &&
+         props.model &&
          config.value.runCount > 0 &&
          !batchRunner.state.isRunning;
 });
@@ -195,6 +199,7 @@ const startBatch = async (): Promise<void> => {
   const batchConfig: BatchRunConfig = {
     testCase: props.testCase,
     providerId: props.providerId,
+    model: props.model,
     ...config.value,
   };
 
@@ -232,6 +237,158 @@ watch(
 .batch-runner {
   max-width: 56rem;
   margin: 0 auto;
+  color: #000;
+}
+
+/* Header Styles */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge-container {
+  display: flex;
+  align-items: center;
+}
+
+/* Content Layout */
+.content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .config-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* Progress Section */
+.progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 0.5rem;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #2563eb;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+/* Statistics Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.stat-success {
+  color: #059669;
+}
+
+.stat-error {
+  color: #dc2626;
+}
+
+.stat-info {
+  color: #2563eb;
+}
+
+.stat-purple {
+  color: #7c3aed;
+}
+
+.stat-label {
+  color: #6b7280;
+}
+
+/* Error Section */
+.error-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.error-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #dc2626;
+  margin: 0;
+}
+
+.error-list {
+  max-height: 8rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.error-item {
+  font-size: 0.75rem;
+  color: #dc2626;
+  background-color: #fef2f2;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+/* Controls */
+.controls-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.controls-left {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.controls-right {
+  display: flex;
 }
 </style>
 

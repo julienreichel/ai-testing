@@ -5,6 +5,9 @@
 
 import { reactive, computed, type ComputedRef } from "vue";
 import type { TestCase } from "../types/testManagement";
+import type { ProviderRequest } from "../types/providers";
+import { useProvidersStore } from "../store/providers";
+import { useRulesEngine } from "./useRulesEngine";
 
 // Constants to avoid magic numbers
 const PERCENTAGE_MULTIPLIER = 100;
@@ -14,20 +17,13 @@ const EXPONENTIAL_BASE = 2;
 const MAX_RETRY_DELAY_MS = 30000;
 const DEFAULT_RETRY_DELAY_MS = 1000;
 
-// Mock simulation constants
-const MIN_SIMULATION_DELAY = 500;
-const MAX_SIMULATION_DELAY = 1000;
-const MIN_PROMPT_TOKENS = 10;
-const MAX_PROMPT_TOKENS_RANGE = 50;
-const MIN_COMPLETION_TOKENS = 20;
-const MAX_COMPLETION_TOKENS_RANGE = 80;
-const MOCK_COST_PER_TOKEN = 0.001;
-const MOCK_PASS_RATE = 0.9;
+
 
 // Configuration for batch runs
 export interface BatchRunConfig {
   testCase: TestCase;
   providerId: string;
+  model: string;
   runCount: number;
   maxRetries: number;
   delayMs: number;
@@ -82,34 +78,34 @@ const createBatchStatistics = (results: BatchRunResult[]): BatchStatistics => {
   const completed = results.filter(r => r.status === "completed");
   const failed = results.filter(r => r.status === "failed");
   const passed = completed.filter(r => r.passed === true);
-  
+
   const durations = completed
     .map(r => r.duration)
     .filter((d): d is number => d !== undefined)
     .sort((a, b) => a - b);
-  
+
   const tokens = completed
     .map(r => r.tokenUsage?.totalTokens)
     .filter((t): t is number => t !== undefined);
-  
+
   const costs = completed
     .map(r => r.cost)
     .filter((c): c is number => c !== undefined);
 
-  const avgDuration = durations.length > 0 
-    ? durations.reduce((sum, d) => sum + d, 0) / durations.length 
+  const avgDuration = durations.length > 0
+    ? durations.reduce((sum, d) => sum + d, 0) / durations.length
     : 0;
 
-  const p50Duration = durations.length > 0 
+  const p50Duration = durations.length > 0
     ? durations[Math.floor(durations.length * MEDIAN_PERCENTILE)] || 0
     : 0;
 
-  const p90Duration = durations.length > 0 
+  const p90Duration = durations.length > 0
     ? durations[Math.floor(durations.length * P90_PERCENTILE)] || 0
     : 0;
 
-  const avgTokens = tokens.length > 0 
-    ? tokens.reduce((sum, t) => sum + t, 0) / tokens.length 
+  const avgTokens = tokens.length > 0
+    ? tokens.reduce((sum, t) => sum + t, 0) / tokens.length
     : 0;
 
   const totalCost = costs.reduce((sum, c) => sum + c, 0);
@@ -146,8 +142,10 @@ const executeSingleRun = async (params: {
   config: BatchRunConfig;
   runIndex: number;
   isCancelled: () => boolean;
+  providersStore: ReturnType<typeof useProvidersStore>;
+  rulesEngine: ReturnType<typeof useRulesEngine>;
 }): Promise<BatchRunResult> => {
-  const { config, runIndex, isCancelled } = params;
+  const { config, runIndex, isCancelled, providersStore, rulesEngine } = params;
   const result: BatchRunResult = {
     id: `${config.testCase.id}-${runIndex}-${Date.now()}`,
     runIndex,
@@ -171,31 +169,64 @@ const executeSingleRun = async (params: {
         result.retryCount = attempt;
       }
 
-      // TODO: Replace with actual provider integration
-      // Simulate API call for now
-      const simulationDelay = MIN_SIMULATION_DELAY + Math.random() * MAX_SIMULATION_DELAY;
-      await sleep(simulationDelay);
-      
+      // Get the provider
+      const provider = providersStore.activeProviders.find(
+        (p) => p.getId() === config.providerId
+      );
+      if (!provider) {
+        throw new Error(`Provider ${config.providerId} not found or not active`);
+      }
+
+      // Validate that the specified model is available for this provider
+      const models = provider.getModels();
+      const selectedModel = models.find(m => m.id === config.model);
+      if (!selectedModel) {
+        throw new Error(`Model '${config.model}' not available for provider ${config.providerId}`);
+      }
+
+      // Create the provider request
+      const providerRequest: ProviderRequest = {
+        model: config.model,
+        messages: [
+          { role: "user", content: config.testCase.prompt }
+        ],
+        temperature: 0.7,
+        maxTokens: 150,
+      };
+
+      // Execute the actual request
+      const response = await provider.call(providerRequest);
+
       result.endTime = new Date();
       result.duration = result.endTime.getTime() - result.startTime.getTime();
-      result.response = `Mock response for run ${runIndex}`;
+      result.response = response.content;
       result.tokenUsage = {
-        promptTokens: MIN_PROMPT_TOKENS + Math.floor(Math.random() * MAX_PROMPT_TOKENS_RANGE),
-        completionTokens: MIN_COMPLETION_TOKENS + Math.floor(Math.random() * MAX_COMPLETION_TOKENS_RANGE),
-        totalTokens: 0,
+        promptTokens: response.usage.inputTokens,
+        completionTokens: response.usage.outputTokens,
+        totalTokens: response.usage.totalTokens,
       };
-      result.tokenUsage.totalTokens = result.tokenUsage.promptTokens + result.tokenUsage.completionTokens;
-      result.cost = result.tokenUsage.totalTokens * MOCK_COST_PER_TOKEN;
+      result.cost = response.cost.totalCost;
 
-      // Mock rule validation
-      result.passed = Math.random() < MOCK_PASS_RATE;
+      // Validate against test case rules
+      if (config.testCase.rules && config.testCase.rules.length > 0) {
+        const ruleSetResults = rulesEngine.validateRuleSets(
+          config.testCase.rules,
+          response.content
+        );
+
+        const overallResult = rulesEngine.getOverallResult(ruleSetResults);
+        result.passed = overallResult.pass;
+      } else {
+        // If no rules defined, consider it passed
+        result.passed = true;
+      }
+
       result.status = "completed";
-      
       return result;
 
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
-      
+
       if (attempt === config.maxRetries) {
         result.status = "failed";
         result.error = lastError.message;
@@ -217,6 +248,10 @@ export function useBatchRunner(): {
   cancelBatch: () => void;
   resetBatch: () => void;
 } {
+  // Initialize dependencies
+  const providersStore = useProvidersStore();
+  const rulesEngine = useRulesEngine();
+
   const state = reactive<BatchRunState>({
     isRunning: false,
     isCancelled: false,
@@ -257,6 +292,8 @@ export function useBatchRunner(): {
           config,
           runIndex: i,
           isCancelled: () => state.isCancelled,
+          providersStore,
+          rulesEngine,
         });
         state.results.push(result);
         state.completedRuns++;

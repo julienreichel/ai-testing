@@ -69,6 +69,7 @@
         <batch-runner
           :test-case="testCaseForBatch"
           :provider-id="providerSelection.providerId"
+          :model="providerSelection.model"
           :disabled="!canRunBatch"
           @batch-started="onBatchStarted"
           @batch-completed="onBatchCompleted"
@@ -286,12 +287,12 @@ const onBatchCancelled = (): void => {
 const onExportResults = (results: BatchRunResult[]): void => {
   console.log("Exporting batch results", results);
   // TODO: Implement CSV export or similar
-  const csvContent = "data:text/csv;charset=utf-8," + 
+  const csvContent = "data:text/csv;charset=utf-8," +
     "Run,Status,Duration,Cost,Passed,Response\n" +
-    results.map(r => 
+    results.map(r =>
       `${r.runIndex},${r.status},${r.duration || 0},${r.cost || 0},${r.passed},${r.response?.replace(/,/g, ';') || ''}`
     ).join("\n");
-  
+
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");
   link.setAttribute("href", encodedUri);
