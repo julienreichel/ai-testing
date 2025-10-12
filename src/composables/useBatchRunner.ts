@@ -16,6 +16,7 @@ const P90_PERCENTILE = 0.9;
 const EXPONENTIAL_BASE = 2;
 const MAX_RETRY_DELAY_MS = 30000;
 const DEFAULT_RETRY_DELAY_MS = 1000;
+const UI_UPDATE_DELAY_MS = 10;
 
 
 
@@ -76,8 +77,10 @@ interface BatchRunState {
 
 const createBatchStatistics = (results: BatchRunResult[]): BatchStatistics => {
   const completed = results.filter(r => r.status === "completed");
-  const failed = results.filter(r => r.status === "failed");
+  const technicallyFailed = results.filter(r => r.status === "failed");
   const passed = completed.filter(r => r.passed === true);
+  const validationFailed = completed.filter(r => r.passed === false);
+  const totalFailed = technicallyFailed.length + validationFailed.length;
 
   const durations = completed
     .map(r => r.duration)
@@ -114,7 +117,7 @@ const createBatchStatistics = (results: BatchRunResult[]): BatchStatistics => {
   return {
     totalRuns: results.length,
     completedRuns: completed.length,
-    failedRuns: failed.length,
+    failedRuns: totalFailed,
     passedRuns: passed.length,
     passRate: completed.length > 0 ? (passed.length / completed.length) * PERCENTAGE_MULTIPLIER : 0,
     avgDuration,
@@ -123,7 +126,7 @@ const createBatchStatistics = (results: BatchRunResult[]): BatchStatistics => {
     avgTokens,
     totalCost,
     avgCost,
-    errorRate: results.length > 0 ? (failed.length / results.length) * PERCENTAGE_MULTIPLIER : 0,
+    errorRate: results.length > 0 ? (totalFailed / results.length) * PERCENTAGE_MULTIPLIER : 0,
   };
 };
 
@@ -301,6 +304,9 @@ export function useBatchRunner(): {
         if (result.status === "failed" && result.error) {
           state.errors.push(`Run ${i}: ${result.error}`);
         }
+
+        // Allow Vue reactivity to update the UI
+        await new Promise(resolve => setTimeout(resolve, UI_UPDATE_DELAY_MS));
       }
     } finally {
       state.isRunning = false;

@@ -64,7 +64,7 @@
         <div class="progress-bar-container">
           <div
             class="progress-bar"
-            :style="{ width: `${batchRunner.progress}%` }"
+            :style="progressBarStyle"
           ></div>
         </div>
 
@@ -179,7 +179,7 @@ const batchRunner = useBatchRunner();
 const config = ref<Omit<BatchRunConfig, "testCase" | "providerId" | "model">>({
   runCount: 10,
   maxRetries: 2,
-  delayMs: 1000,
+  delayMs: 100,
 });
 
 // Computed properties
@@ -191,6 +191,10 @@ const canStart = computed(() => {
          config.value.runCount > 0 &&
          !batchRunner.state.isRunning;
 });
+
+const progressBarStyle = computed(() => ({
+  width: `${batchRunner.progress.value}%`
+}));
 
 // Methods
 const startBatch = async (): Promise<void> => {
