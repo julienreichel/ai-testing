@@ -196,6 +196,7 @@ function validateLengthRule(
   };
 }
 
+// eslint-disable-next-line max-lines-per-function
 export function useRulesEngine(): RulesEngineComposable {
   const { t } = useI18n();
   const stringValidator = createStringRuleValidator(t);
