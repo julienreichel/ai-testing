@@ -105,12 +105,12 @@ class TestManagementDatabase {
    * Create a new project
    */
   async createProject(
-    data: Omit<Project, "id" | "createdAt" | "updatedAt">,
+    data: Omit<Project, "createdAt" | "updatedAt"> | Omit<Project, "id" | "createdAt" | "updatedAt">,
   ): Promise<Project> {
     const db = await this.ensureDB();
     const now = new Date();
     const project: Project = {
-      id: this.generateId(),
+      id: "id" in data ? data.id : this.generateId(),
       ...data,
       createdAt: now,
       updatedAt: now,
@@ -221,12 +221,12 @@ class TestManagementDatabase {
    * Create a new test case
    */
   async createTestCase(
-    data: Omit<TestCase, "id" | "createdAt" | "updatedAt">,
+    data: Omit<TestCase, "createdAt" | "updatedAt"> | Omit<TestCase, "id" | "createdAt" | "updatedAt">,
   ): Promise<TestCase> {
     const db = await this.ensureDB();
     const now = new Date();
     const testCase: TestCase = {
-      id: this.generateId(),
+      id: "id" in data ? data.id : this.generateId(),
       ...data,
       createdAt: now,
       updatedAt: now,
@@ -318,11 +318,11 @@ class TestManagementDatabase {
    * Create a new test run
    */
   async createTestRun(
-    data: Omit<TestRun, "id" | "createdAt">,
+    data: Omit<TestRun, "createdAt"> | Omit<TestRun, "id" | "createdAt">,
   ): Promise<TestRun> {
     const db = await this.ensureDB();
     const testRun: TestRun = {
-      id: this.generateId(),
+      id: "id" in data ? data.id : this.generateId(),
       ...data,
       createdAt: new Date(),
     };
@@ -447,26 +447,50 @@ class TestManagementDatabase {
     };
 
     try {
-      // Import project (generate new ID to avoid conflicts)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, ...projectDataWithoutId } = data.project;
-      const projectData = {
-        ...projectDataWithoutId,
-        name: `${data.project.name} (Imported)`,
-      };
-      const newProject = await this.createProject(projectData);
-      result.imported.projects = 1;
+      // Check if project with the same ID already exists
+      const existingProject = await this.getProject(data.project.id);
+      let targetProject: Project;
+
+      if (existingProject) {
+        // Update existing project
+        const updatedProject = await this.updateProject(data.project.id, {
+          name: data.project.name,
+          description: data.project.description,
+        });
+        if (!updatedProject) {
+          throw new Error("Failed to update existing project");
+        }
+        targetProject = updatedProject;
+        result.imported.projects = 1;
+      } else {
+        // Create new project with original ID preserved
+        targetProject = await this.createProject(data.project);
+        result.imported.projects = 1;
+      }
 
       // Import test cases
       for (const testCase of data.testCases) {
         try {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { id: testCaseId, ...testCaseDataWithoutId } = testCase;
-          const testCaseData = {
-            ...testCaseDataWithoutId,
-            projectId: newProject.id,
-          };
-          await this.createTestCase(testCaseData);
+          // Check if test case with the same ID already exists
+          const existingTestCase = await this.getTestCase(testCase.id);
+
+          if (existingTestCase) {
+            // Update existing test case
+            await this.updateTestCase(testCase.id, {
+              name: testCase.name,
+              description: testCase.description,
+              prompt: testCase.prompt,
+              rules: testCase.rules,
+              projectId: targetProject.id,
+            });
+          } else {
+            // Create new test case with original ID preserved
+            const testCaseData = {
+              ...testCase,
+              projectId: targetProject.id,
+            };
+            await this.createTestCase(testCaseData);
+          }
           result.imported.testCases++;
         } catch (error) {
           const errorMessage =
@@ -482,7 +506,7 @@ class TestManagementDatabase {
         await this.importTestRuns(
           data.runs,
           data.testCases,
-          newProject.id,
+          targetProject.id,
           result,
         );
       }
@@ -503,31 +527,43 @@ class TestManagementDatabase {
   private async importTestRuns(
     runs: TestRun[],
     originalTestCases: TestCase[],
-    newProjectId: string,
+    projectId: string,
     result: ImportResult,
   ): Promise<void> {
-    const newTestCases = await this.getTestCasesByProject(newProjectId);
-    const testCaseMapping = new Map<string, string>();
-
-    // Create mapping from old test case IDs to new ones
-    originalTestCases.forEach((oldCase, index) => {
-      if (newTestCases[index]) {
-        testCaseMapping.set(oldCase.id, newTestCases[index].id);
-      }
-    });
-
     for (const run of runs) {
       try {
-        const newTestCaseId = testCaseMapping.get(run.testCaseId);
-        if (newTestCaseId) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { id: runId, ...runDataWithoutId } = run;
-          const runData = {
-            ...runDataWithoutId,
-            projectId: newProjectId,
-            testCaseId: newTestCaseId,
-          };
-          await this.createTestRun(runData);
+        // Check if the test case ID from the run still exists
+        const testCaseExists = originalTestCases.some(tc => tc.id === run.testCaseId);
+
+        if (testCaseExists) {
+          // Check if run with same ID already exists
+          const existingRun = await this.getTestRun(run.id);
+
+          if (existingRun) {
+            // Update existing run
+            await this.updateTestRun(run.id, {
+              testCaseId: run.testCaseId,
+              projectId: projectId,
+              modelProvider: run.modelProvider,
+              modelName: run.modelName,
+              modelConfig: run.modelConfig,
+              prompt: run.prompt,
+              response: run.response,
+              tokens: run.tokens,
+              evaluationResults: run.evaluationResults,
+              executionTime: run.executionTime,
+              status: run.status,
+              error: run.error,
+              metadata: run.metadata,
+            });
+          } else {
+            // Create new run with original ID preserved
+            const runData = {
+              ...run,
+              projectId: projectId,
+            };
+            await this.createTestRun(runData);
+          }
           result.imported.runs++;
         }
       } catch (error) {

@@ -42,13 +42,6 @@
           </select>
         </div>
 
-        <div class="export-options">
-          <label class="checkbox-label">
-            <input v-model="includeRuns" type="checkbox" />
-            {{ $t("testManagement.includeTestRuns") }}
-          </label>
-        </div>
-
         <div class="dialog-actions">
           <base-button
             variant="primary"
@@ -151,7 +144,6 @@ const showImportDialog = ref(false);
 
 // Export state
 const selectedProjectId = ref("");
-const includeRuns = ref(false);
 const isExporting = ref(false);
 
 // Import state
@@ -167,32 +159,18 @@ const showStatusMessage = ref(false);
 
 // Computed properties
 const { projectTree, isLoading } = testManager;
-const canExport = computed(() => {
-  console.log("Checking canExport:", projectTree.value.length > 0, "Projects:", projectTree.value);
-  return projectTree.value.length > 0;
-});
+const canExport = computed(() => projectTree.value.length > 0);
 
 // Methods
 const exportProject = async (): Promise<void> => {
-  console.log("Export button clicked");
-  console.log("Selected project ID:", selectedProjectId.value);
-  console.log("Available projects:", projectTree.value);
-
-  if (!selectedProjectId.value) {
-    console.log("No project selected, returning early");
-    return;
-  }
+  if (!selectedProjectId.value) return;
 
   try {
     isExporting.value = true;
-    console.log("Starting export...");
     const exportData = await testManager.exportProject(
       selectedProjectId.value,
-      includeRuns.value,
-    );
-    console.log("Export data received:", exportData);
-
-    // Create download
+      false,
+    );    // Create download
     const blob = new Blob([exportData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
