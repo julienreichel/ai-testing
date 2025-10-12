@@ -150,7 +150,6 @@ export const useProvidersStore = defineStore("providers", () => {
       const testRequest: ProviderRequest = {
         model: firstModel.id,
         messages: [{ role: "user", content: "Hello" }],
-        temperature: 0.1,
         maxTokens: 5,
       };
 

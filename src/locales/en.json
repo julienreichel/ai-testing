@@ -148,7 +148,39 @@
   },
   "runs": {
     "title": "Test Runs",
-    "description": "View test run results and history"
+    "description": "View test run results and history",
+    "tabs": {
+      "batchRuns": "Batch Runs",
+      "individualRuns": "Individual Runs"
+    },
+    "individualRuns": {
+      "title": "Individual Test Runs",
+      "description": "View and manage individual test executions and their detailed results."
+    },
+    "filter": {
+      "project": "Filter by Project",
+      "allProjects": "All Projects",
+      "search": "Search test name, provider, or model...",
+      "noResults": "No results found for your search"
+    },
+    "batchHistory": {
+      "title": "Batch Run History",
+      "empty": "No batch runs found. Run some batch tests to see them here.",
+      "details": "Details",
+      "individualResults": "Individual Results"
+    },
+    "table": {
+      "runIndex": "Run #",
+      "status": "Status",
+      "duration": "Duration",
+      "cost": "Cost",
+      "passed": "Passed",
+      "testName": "Test Name",
+      "provider": "Provider & Model",
+      "passRate": "Pass Rate",
+      "date": "Date",
+      "actions": "Actions"
+    }
   },
   "common": {
     "cancel": "Cancel",
@@ -174,7 +206,13 @@
     "clear": "Clear",
     "retry": "Retry",
     "export": "Export",
-    "import": "Import"
+    "import": "Import",
+    "refresh": "Refresh",
+    "viewDetails": "View Details",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "comingSoon": "Coming Soon"
   },
   "rules": {
     "title": "Validation Rules",
@@ -344,6 +382,8 @@
     "stats": {
       "passed": "Passed",
       "failed": "Failed",
+      "passRate": "Pass Rate",
+      "provider": "Provider",
       "avgLatency": "Avg Latency",
       "totalCost": "Total Cost"
     },
@@ -355,6 +395,27 @@
       "cancel": "Cancel",
       "reset": "Reset",
       "export": "Export Results"
+    },
+    "charts": {
+      "passRate": {
+        "title": "Pass Rate Distribution"
+      },
+      "latency": {
+        "title": "Response Time Distribution"
+      },
+      "cost": {
+        "title": "Cost Analysis"
+      },
+      "timeline": {
+        "title": "Progress Timeline"
+      },
+      "summary": {
+        "title": "Summary Statistics",
+        "passRate": "Pass Rate",
+        "p50Latency": "Median Latency",
+        "p90Latency": "90th Percentile Latency",
+        "totalCost": "Total Cost"
+      }
     }
   }
 }

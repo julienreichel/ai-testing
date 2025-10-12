@@ -8,6 +8,7 @@ import type { TestCase } from "../types/testManagement";
 import type { ProviderRequest } from "../types/providers";
 import { useProvidersStore } from "../store/providers";
 import { useRulesEngine } from "./useRulesEngine";
+import { useBatchRunPersistence } from "./useBatchRunPersistence";
 
 // Constants to avoid magic numbers
 const PERCENTAGE_MULTIPLIER = 100;
@@ -17,6 +18,7 @@ const EXPONENTIAL_BASE = 2;
 const MAX_RETRY_DELAY_MS = 30000;
 const DEFAULT_RETRY_DELAY_MS = 1000;
 const UI_UPDATE_DELAY_MS = 10;
+const PROGRESS_UPDATE_INTERVAL = 5;
 
 
 
@@ -141,6 +143,43 @@ const calculateRetryDelay = (retryCount: number): number => {
   return Math.min(delay, MAX_RETRY_DELAY_MS);
 };
 
+const updatePersistenceProgress = async (
+  batchPersistence: ReturnType<typeof useBatchRunPersistence>,
+  batchSession: unknown,
+  results: BatchRunResult[]
+): Promise<void> => {
+  if (!batchSession) return;
+
+  try {
+    await batchPersistence.updateBatchRunProgress(
+      results,
+      createBatchStatistics(results)
+    );
+  } catch (error) {
+    console.warn("Failed to update batch run progress:", error);
+  }
+};
+
+const completePersistenceSession = async (
+  batchPersistence: ReturnType<typeof useBatchRunPersistence>,
+  batchSession: unknown,
+  results: BatchRunResult[],
+  isCancelled: boolean
+): Promise<void> => {
+  if (!batchSession) return;
+
+  try {
+    const finalStatus = isCancelled ? "cancelled" : "completed";
+    await batchPersistence.completeBatchRun(
+      results,
+      createBatchStatistics(results),
+      finalStatus
+    );
+  } catch (error) {
+    console.warn("Failed to complete batch run in database:", error);
+  }
+};
+
 const executeSingleRun = async (params: {
   config: BatchRunConfig;
   runIndex: number;
@@ -254,6 +293,7 @@ export function useBatchRunner(): {
   // Initialize dependencies
   const providersStore = useProvidersStore();
   const rulesEngine = useRulesEngine();
+  const batchPersistence = useBatchRunPersistence();
 
   const state = reactive<BatchRunState>({
     isRunning: false,
@@ -283,6 +323,19 @@ export function useBatchRunner(): {
     state.errors = [];
     state.startTime = new Date();
 
+    // Save batch run start to database
+    let batchSession = null;
+    try {
+      batchSession = await batchPersistence.saveBatchRunStart(
+        config,
+        config.testCase.id,
+        config.testCase.projectId || "default"
+      );
+    } catch (error) {
+      console.warn("Failed to save batch run to database:", error);
+      // Continue without persistence
+    }
+
     try {
       for (let i = 0; i < config.runCount; i++) {
         if (state.isCancelled) break;
@@ -307,7 +360,15 @@ export function useBatchRunner(): {
 
         // Allow Vue reactivity to update the UI
         await new Promise(resolve => setTimeout(resolve, UI_UPDATE_DELAY_MS));
+
+        // Update persistence with progress (every few runs to avoid too many DB writes)
+        if (i % PROGRESS_UPDATE_INTERVAL === 0 || i === config.runCount - 1) {
+          await updatePersistenceProgress(batchPersistence, batchSession, state.results);
+        }
       }
+
+      // Complete batch run in database
+      await completePersistenceSession(batchPersistence, batchSession, state.results, state.isCancelled);
     } finally {
       state.isRunning = false;
       state.endTime = new Date();

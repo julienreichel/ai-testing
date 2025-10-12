@@ -8,7 +8,6 @@ import type {
   ProviderError,
 } from "../types/providers";
 
-const DEFAULT_TEMPERATURE = 0.7;
 const DEFAULT_MAX_TOKENS = 1000;
 /**
  * OpenAI Provider Adapter
@@ -169,7 +168,7 @@ export class OpenAIProviderAdapter extends BaseProviderAdapter {
     const body = {
       model: request.model,
       messages,
-      temperature: request.temperature ?? DEFAULT_TEMPERATURE,
+      temperature: request.temperature ?? undefined,
       max_completion_tokens: request.maxTokens ?? DEFAULT_MAX_TOKENS,
     };
 

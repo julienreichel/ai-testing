@@ -7,11 +7,47 @@ import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import type {
   Project,
   TestCase,
-  TestRun,
   QueryOptions,
   ExportProject,
   ImportResult,
 } from "../types/testManagement";
+import type { BatchRunResult, BatchRunConfig, BatchStatistics } from "../composables/useBatchRunner";
+
+// Batch run persistence types - optimized for comparison analysis
+export interface BatchRunSession {
+  id: string;
+  testCaseId: string;
+  projectId: string;
+
+  // Configuration for easy comparison
+  config: BatchRunConfig;
+
+  // Snapshot of the test case at run time for historical analysis
+  testCaseSnapshot: {
+    name: string;
+    prompt: string;
+    rules: unknown[]; // Simplified for storage
+  };
+
+  // All individual run results
+  results: BatchRunResult[];
+
+  // Aggregated statistics for quick comparison
+  statistics: BatchStatistics;
+
+  // Execution metadata
+  status: "running" | "completed" | "cancelled" | "failed";
+  startTime: Date;
+  endTime?: Date;
+  duration?: number; // Total execution time in ms
+
+  // Comparison tags for easier filtering
+  tags: string[]; // e.g., ["prompt-v1", "gpt-4", "production-test"]
+
+  // Audit trail
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // Database schema definition
 interface TestManagementDB extends DBSchema {
@@ -34,15 +70,17 @@ interface TestManagementDB extends DBSchema {
       "by-name": string;
     };
   };
-  testRuns: {
+  batchRuns: {
     key: string;
-    value: TestRun;
+    value: BatchRunSession;
     indexes: {
       "by-testcase": string;
       "by-project": string;
       "by-created": Date;
       "by-status": string;
+      "by-updated": Date;
       "by-model": string;
+      "by-provider": string;
     };
   };
 }
@@ -58,33 +96,49 @@ class TestManagementDatabase {
    */
   async init(): Promise<void> {
     this.db = await openDB<TestManagementDB>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        // Projects store
-        const projectStore = db.createObjectStore("projects", {
-          keyPath: "id",
-        });
-        projectStore.createIndex("by-created", "createdAt");
-        projectStore.createIndex("by-updated", "updatedAt");
-        projectStore.createIndex("by-name", "name");
+      upgrade(db, oldVersion, newVersion, _transaction) {
+        console.log(`Upgrading database from version ${oldVersion} to ${newVersion}`);
 
-        // Test Cases store
-        const testCaseStore = db.createObjectStore("testCases", {
-          keyPath: "id",
-        });
-        testCaseStore.createIndex("by-project", "projectId");
-        testCaseStore.createIndex("by-created", "createdAt");
-        testCaseStore.createIndex("by-updated", "updatedAt");
-        testCaseStore.createIndex("by-name", "name");
+        const CURRENT_VERSION = 2;
 
-        // Test Runs store
-        const testRunStore = db.createObjectStore("testRuns", {
-          keyPath: "id",
-        });
-        testRunStore.createIndex("by-testcase", "testCaseId");
-        testRunStore.createIndex("by-project", "projectId");
-        testRunStore.createIndex("by-created", "createdAt");
-        testRunStore.createIndex("by-status", "status");
-        testRunStore.createIndex("by-model", "modelProvider");
+        // Version 1 -> 2: Remove testRuns, add batchRuns
+        if (oldVersion < 1) {
+          // Fresh installation - create all stores
+
+          // Projects store
+          const projectStore = db.createObjectStore("projects", {
+            keyPath: "id",
+          });
+          projectStore.createIndex("by-created", "createdAt");
+          projectStore.createIndex("by-updated", "updatedAt");
+          projectStore.createIndex("by-name", "name");
+
+          // Test Cases store
+          const testCaseStore = db.createObjectStore("testCases", {
+            keyPath: "id",
+          });
+          testCaseStore.createIndex("by-project", "projectId");
+          testCaseStore.createIndex("by-created", "createdAt");
+          testCaseStore.createIndex("by-updated", "updatedAt");
+          testCaseStore.createIndex("by-name", "name");
+        }
+
+        if (oldVersion < CURRENT_VERSION) {
+          // Add batchRuns store (main focus)
+          if (!db.objectStoreNames.contains("batchRuns")) {
+            const batchRunStore = db.createObjectStore("batchRuns", {
+              keyPath: "id",
+            });
+            batchRunStore.createIndex("by-testcase", "testCaseId");
+            batchRunStore.createIndex("by-project", "projectId");
+            batchRunStore.createIndex("by-created", "createdAt");
+            batchRunStore.createIndex("by-status", "status");
+            batchRunStore.createIndex("by-updated", "updatedAt");
+            batchRunStore.createIndex("by-model", "config.model");
+            batchRunStore.createIndex("by-provider", "config.providerId");
+            console.log("Created batchRuns store with indexes");
+          }
+        }
       },
     });
   }
@@ -183,7 +237,7 @@ class TestManagementDatabase {
   async deleteProject(id: string): Promise<boolean> {
     const db = await this.ensureDB();
     const tx = db.transaction(
-      ["projects", "testCases", "testRuns"],
+      ["projects", "testCases", "batchRuns"],
       "readwrite",
     );
 
@@ -200,13 +254,13 @@ class TestManagementDatabase {
         await tx.objectStore("testCases").delete(testCase.id);
       }
 
-      // Delete all test runs in project
-      const testRuns = await tx
-        .objectStore("testRuns")
+      // Delete all batch runs in project
+      const batchRuns = await tx
+        .objectStore("batchRuns")
         .index("by-project")
         .getAll(id);
-      for (const testRun of testRuns) {
-        await tx.objectStore("testRuns").delete(testRun.id);
+      for (const batchRun of batchRuns) {
+        await tx.objectStore("batchRuns").delete(batchRun.id);
       }
 
       await tx.done;
@@ -289,23 +343,23 @@ class TestManagementDatabase {
   }
 
   /**
-   * Delete test case and all associated runs
+   * Delete test case and all associated batch runs
    */
   async deleteTestCase(id: string): Promise<boolean> {
     const db = await this.ensureDB();
-    const tx = db.transaction(["testCases", "testRuns"], "readwrite");
+    const tx = db.transaction(["testCases", "batchRuns"], "readwrite");
 
     try {
       // Delete test case
       await tx.objectStore("testCases").delete(id);
 
-      // Delete all test runs for this test case
-      const testRuns = await tx
-        .objectStore("testRuns")
+      // Delete all batch runs for this test case
+      const batchRuns = await tx
+        .objectStore("batchRuns")
         .index("by-testcase")
         .getAll(id);
-      for (const testRun of testRuns) {
-        await tx.objectStore("testRuns").delete(testRun.id);
+      for (const batchRun of batchRuns) {
+        await tx.objectStore("batchRuns").delete(batchRun.id);
       }
 
       await tx.done;
@@ -316,110 +370,17 @@ class TestManagementDatabase {
     }
   }
 
-  // ==================== TEST RUN OPERATIONS ====================
-
-  /**
-   * Create a new test run
-   */
-  async createTestRun(
-    data: Omit<TestRun, "createdAt"> | Omit<TestRun, "id" | "createdAt">,
-  ): Promise<TestRun> {
-    const db = await this.ensureDB();
-    const testRun: TestRun = {
-      id: "id" in data ? data.id : this.generateId(),
-      ...data,
-      createdAt: new Date(),
-    };
-
-    await db.add("testRuns", testRun);
-    return testRun;
-  }
-
-  /**
-   * Get test run by ID
-   */
-  async getTestRun(id: string): Promise<TestRun | undefined> {
-    const db = await this.ensureDB();
-    return db.get("testRuns", id);
-  }
-
-  /**
-   * Get test runs by test case
-   */
-  async getTestRunsByTestCase(
-    testCaseId: string,
-    options: QueryOptions = {},
-  ): Promise<TestRun[]> {
-    const db = await this.ensureDB();
-    const results = await db.getAllFromIndex(
-      "testRuns",
-      "by-testcase",
-      testCaseId,
-    );
-    return this.sortResults(results, options);
-  }
-
-  /**
-   * Get test runs by project
-   */
-  async getTestRunsByProject(
-    projectId: string,
-    options: QueryOptions = {},
-  ): Promise<TestRun[]> {
-    const db = await this.ensureDB();
-    const results = await db.getAllFromIndex(
-      "testRuns",
-      "by-project",
-      projectId,
-    );
-    return this.sortResults(results, options);
-  }
-
-  /**
-   * Update test run
-   */
-  async updateTestRun(
-    id: string,
-    updates: Partial<Omit<TestRun, "id" | "createdAt">>,
-  ): Promise<TestRun | null> {
-    const db = await this.ensureDB();
-    const existing = await db.get("testRuns", id);
-
-    if (!existing) {
-      return null;
-    }
-
-    const updated: TestRun = {
-      ...existing,
-      ...updates,
-    };
-
-    await db.put("testRuns", updated);
-    return updated;
-  }
-
-  /**
-   * Delete test run
-   */
-  async deleteTestRun(id: string): Promise<boolean> {
-    const db = await this.ensureDB();
-    try {
-      await db.delete("testRuns", id);
-      return true;
-    } catch (error) {
-      console.error("Error deleting test run:", error);
-      return false;
-    }
-  }
+  // ==================== BATCH RUN OPERATIONS ====================
+  // Note: Individual test runs are stored within BatchRunSession.results[]
+  // This simplifies the schema and focuses on batch comparisons
 
   // ==================== IMPORT/EXPORT OPERATIONS ====================
 
   /**
-   * Export project with all test cases and runs
+   * Export project with all test cases and batch runs
    */
   async exportProject(
     projectId: string,
-    includeRuns = false,
   ): Promise<ExportProject | null> {
     const project = await this.getProject(projectId);
     if (!project) {
@@ -427,7 +388,9 @@ class TestManagementDatabase {
     }
 
     const testCases = await this.getTestCasesByProject(projectId);
-    const runs = includeRuns ? await this.getTestRunsByProject(projectId) : [];
+    // Note: Individual test runs are now stored within batch runs
+    // We keep the runs array empty for backward compatibility
+    const runs: never[] = [];
 
     return {
       project,
@@ -505,15 +468,8 @@ class TestManagementDatabase {
         }
       }
 
-      // Import runs if provided
-      if (data.runs) {
-        await this.importTestRuns(
-          data.runs,
-          data.testCases,
-          targetProject.id,
-          result,
-        );
-      }
+      // Note: Individual test runs are now stored within batch runs
+      // Legacy runs data is ignored for simplified schema
 
       result.success = true;
     } catch (error) {
@@ -525,60 +481,7 @@ class TestManagementDatabase {
     return result;
   }
 
-  /**
-   * Import test runs (extracted to reduce nesting complexity)
-   */
-  private async importTestRuns(
-    runs: TestRun[],
-    originalTestCases: TestCase[],
-    projectId: string,
-    result: ImportResult,
-  ): Promise<void> {
-    for (const run of runs) {
-      try {
-        // Check if the test case ID from the run still exists
-        const testCaseExists = originalTestCases.some(
-          (tc) => tc.id === run.testCaseId,
-        );
 
-        if (testCaseExists) {
-          // Check if run with same ID already exists
-          const existingRun = await this.getTestRun(run.id);
-
-          if (existingRun) {
-            // Update existing run
-            await this.updateTestRun(run.id, {
-              testCaseId: run.testCaseId,
-              projectId: projectId,
-              modelProvider: run.modelProvider,
-              modelName: run.modelName,
-              modelConfig: run.modelConfig,
-              prompt: run.prompt,
-              response: run.response,
-              tokens: run.tokens,
-              evaluationResults: run.evaluationResults,
-              executionTime: run.executionTime,
-              status: run.status,
-              error: run.error,
-              metadata: run.metadata,
-            });
-          } else {
-            // Create new run with original ID preserved
-            const runData = {
-              ...run,
-              projectId: projectId,
-            };
-            await this.createTestRun(runData);
-          }
-          result.imported.runs++;
-        }
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        result.errors.push(`Failed to import test run: ${errorMessage}`);
-      }
-    }
-  }
 
   // ==================== UTILITY METHODS ====================
 
@@ -624,6 +527,168 @@ class TestManagementDatabase {
 
       return options.sortOrder === "desc" ? -comparison : comparison;
     });
+  }
+
+  // =============================================
+  // BATCH RUN OPERATIONS
+  // =============================================
+
+  /**
+   * Create a new batch run session
+   */
+  async createBatchRun(
+    config: BatchRunConfig,
+    testCaseId: string,
+    projectId: string,
+    tags: string[] = []
+  ): Promise<BatchRunSession> {
+    const db = await this.ensureDB();
+    const now = new Date();
+
+    // Get test case for snapshot
+    const testCase = await this.getTestCase(testCaseId);
+    if (!testCase) {
+      throw new Error(`Test case with ID ${testCaseId} not found`);
+    }
+
+    // Create a serializable version of the config
+    const serializableConfig = {
+      ...config,
+      testCase: {
+        ...config.testCase,
+        rules: JSON.parse(JSON.stringify(config.testCase.rules)), // Remove functions
+      },
+    };
+
+    const batchRun: BatchRunSession = {
+      id: crypto.randomUUID(),
+      testCaseId,
+      projectId,
+      config: serializableConfig,
+      testCaseSnapshot: {
+        name: testCase.name,
+        prompt: testCase.prompt,
+        rules: JSON.parse(JSON.stringify(testCase.rules)), // Deep clone to remove functions
+      },
+      results: [],
+      statistics: {
+        totalRuns: 0,
+        completedRuns: 0,
+        failedRuns: 0,
+        passedRuns: 0,
+        passRate: 0,
+        avgDuration: 0,
+        p50Duration: 0,
+        p90Duration: 0,
+        avgTokens: 0,
+        totalCost: 0,
+        avgCost: 0,
+        errorRate: 0,
+      },
+      status: "running",
+      startTime: now,
+      tags,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await db.add("batchRuns", batchRun);
+    return batchRun;
+  }
+
+  /**
+   * Update batch run session
+   */
+  async updateBatchRun(
+    id: string,
+    updates: Partial<Pick<BatchRunSession, "results" | "statistics" | "status" | "endTime">>
+  ): Promise<BatchRunSession> {
+    const db = await this.ensureDB();
+    const existing = await db.get("batchRuns", id);
+
+    if (!existing) {
+      throw new Error(`Batch run with ID ${id} not found`);
+    }
+
+    // Serialize the updates to remove any non-cloneable data
+    const serializableUpdates = JSON.parse(JSON.stringify(updates));
+
+    const updated: BatchRunSession = {
+      ...existing,
+      ...serializableUpdates,
+      updatedAt: new Date(),
+    };
+
+    await db.put("batchRuns", updated);
+    return updated;
+  }
+
+  /**
+   * Get batch run by ID
+   */
+  async getBatchRun(id: string): Promise<BatchRunSession | undefined> {
+    const db = await this.ensureDB();
+    return db.get("batchRuns", id);
+  }
+
+  /**
+   * Get all batch runs for a test case
+   */
+  async getBatchRunsByTestCase(testCaseId: string): Promise<BatchRunSession[]> {
+    const db = await this.ensureDB();
+    return db.getAllFromIndex("batchRuns", "by-testcase", testCaseId);
+  }
+
+  /**
+   * Get all batch runs for a project
+   */
+  async getBatchRunsByProject(projectId: string): Promise<BatchRunSession[]> {
+    const db = await this.ensureDB();
+    return db.getAllFromIndex("batchRuns", "by-project", projectId);
+  }
+
+  /**
+   * Get recent batch runs with optional filters
+   */
+  async getRecentBatchRuns(
+    limit = 10,
+    projectId?: string
+  ): Promise<BatchRunSession[]> {
+    const db = await this.ensureDB();
+
+    let batchRuns: BatchRunSession[];
+
+    if (projectId) {
+      batchRuns = await db.getAllFromIndex("batchRuns", "by-project", projectId);
+    } else {
+      batchRuns = await db.getAll("batchRuns");
+    }
+
+    return batchRuns
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit);
+  }
+
+  /**
+   * Delete a batch run
+   */
+  async deleteBatchRun(id: string): Promise<void> {
+    const db = await this.ensureDB();
+    await db.delete("batchRuns", id);
+  }
+
+  /**
+   * Delete all batch runs for a test case
+   */
+  async deleteBatchRunsByTestCase(testCaseId: string): Promise<void> {
+    const db = await this.ensureDB();
+    const batchRuns = await db.getAllFromIndex("batchRuns", "by-testcase", testCaseId);
+
+    const tx = db.transaction("batchRuns", "readwrite");
+    await Promise.all([
+      ...batchRuns.map(batchRun => tx.store.delete(batchRun.id)),
+      tx.done,
+    ]);
   }
 }
 
