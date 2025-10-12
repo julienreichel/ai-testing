@@ -138,7 +138,9 @@
     "totalTokens": "Total Tokens",
     "cost": "Cost",
     "noResults": "No Results",
-    "runPromptToSeeResults": "Run a prompt to see results here"
+    "runPromptToSeeResults": "Run a prompt to see results here",
+    "showBatch": "Show Batch Runner",
+    "hideBatch": "Hide Batch Runner"
   },
   "tests": {
     "title": "Test Cases",
@@ -322,5 +324,37 @@
     "rulesCount": "{count} validation rules configured",
     "updateTestCase": "Update Test Case",
     "saveAsNewTestCase": "Save as New Test Case"
+  },
+  "batch": {
+    "runner": {
+      "title": "Batch Runner",
+      "status": {
+        "running": "Running"
+      },
+      "passRate": "Pass Rate"
+    },
+    "config": {
+      "runCount": "Number of Runs",
+      "maxRetries": "Max Retries",
+      "delayMs": "Delay Between Runs (ms)"
+    },
+    "progress": {
+      "completed": "{completed} of {total} completed"
+    },
+    "stats": {
+      "passed": "Passed",
+      "failed": "Failed",
+      "avgLatency": "Avg Latency",
+      "totalCost": "Total Cost"
+    },
+    "errors": {
+      "title": "Errors"
+    },
+    "actions": {
+      "start": "Start Batch",
+      "cancel": "Cancel",
+      "reset": "Reset",
+      "export": "Export Results"
+    }
   }
 }

@@ -53,7 +53,28 @@
           >
             {{ $t("promptEditor.clear") }}
           </base-button>
+
+          <base-button
+            variant="primary"
+            :disabled="!canRunBatch"
+            @click="toggleBatchRunner"
+          >
+            {{ showBatchRunner ? $t("promptEditor.hideBatch") : $t("promptEditor.showBatch") }}
+          </base-button>
         </div>
+      </div>
+
+      <!-- Batch Runner Section -->
+      <div v-if="showBatchRunner" class="batch-runner-section">
+        <batch-runner
+          :test-case="testCaseForBatch"
+          :provider-id="providerSelection.providerId"
+          :disabled="!canRunBatch"
+          @batch-started="onBatchStarted"
+          @batch-completed="onBatchCompleted"
+          @batch-cancelled="onBatchCancelled"
+          @export-results="onExportResults"
+        />
       </div>
 
       <!-- Results Section -->
@@ -91,11 +112,14 @@ import { BaseButton, BaseInputField } from "../../components/ui";
 import { ProviderSelector, ResultsDisplay } from "./components";
 import RulesEditorCompact from "./components/RulesEditorCompact.vue";
 import SaveTestCaseDialog from "./components/SaveTestCaseDialog.vue";
+import BatchRunner from "../../components/BatchRunner.vue";
 import { useRulesUtils } from "../../composables/useRulesUtils";
 import { useRulesEngine } from "../../composables/useRulesEngine";
 import { testDB } from "../../services/testManagementDatabase";
 import type { ProviderSelection } from "./components/ProviderSelector.vue";
 import type { RuleSet, RuleSetResult } from "../../types/rules";
+import type { TestCase } from "../../types/testManagement";
+import type { BatchRunResult } from "../../composables/useBatchRunner";
 
 interface PromptData {
   userPrompt: string;
@@ -127,6 +151,9 @@ const validationResult = ref<RuleSetResult | null>(null);
 // Dialog state
 const showSaveDialog = ref(false);
 
+// Batch runner state
+const showBatchRunner = ref(false);
+
 // Current test case state (for update functionality)
 const currentTestCaseId = ref<string | null>(null);
 const isUpdateMode = computed(() => !!currentTestCaseId.value);
@@ -143,6 +170,28 @@ const canRunPrompt = computed(() => {
     providerSelection.value.model &&
     promptData.value.userPrompt.trim() !== ""
   );
+});
+
+const canRunBatch = computed(() => {
+  return (
+    canRunPrompt.value &&
+    validationRules.value.rules.length > 0 &&
+    !promptRunner.state.value.isRunning
+  );
+});
+
+const testCaseForBatch = computed((): TestCase => {
+  return {
+    id: currentTestCaseId.value || crypto.randomUUID(),
+    projectId: "editor-batch",
+    name: "Editor Batch Test",
+    description: "Batch test created from editor",
+    prompt: promptData.value.userPrompt,
+    rules: validationRules.value.rules.length > 0 ? [validationRules.value] : [],
+    tags: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
 });
 
 // Methods
@@ -214,6 +263,42 @@ const onTestCaseSaved = (testCaseId: string): void => {
       });
     }
   }, NOTIFICATION_DELAY);
+};
+
+// Batch runner methods
+const toggleBatchRunner = (): void => {
+  showBatchRunner.value = !showBatchRunner.value;
+};
+
+const onBatchStarted = (): void => {
+  console.log("Batch execution started");
+};
+
+const onBatchCompleted = (results: BatchRunResult[]): void => {
+  console.log("Batch execution completed", results);
+  // Could show a success notification here
+};
+
+const onBatchCancelled = (): void => {
+  console.log("Batch execution cancelled");
+};
+
+const onExportResults = (results: BatchRunResult[]): void => {
+  console.log("Exporting batch results", results);
+  // TODO: Implement CSV export or similar
+  const csvContent = "data:text/csv;charset=utf-8," + 
+    "Run,Status,Duration,Cost,Passed,Response\n" +
+    results.map(r => 
+      `${r.runIndex},${r.status},${r.duration || 0},${r.cost || 0},${r.passed},${r.response?.replace(/,/g, ';') || ''}`
+    ).join("\n");
+  
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "batch_results.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
 
 // Initialize providers and handle test case prefilling on mount
@@ -308,6 +393,13 @@ onMounted(async () => {
   border-radius: 8px;
   padding: 1.5rem;
   color: #000;
+}
+
+.batch-runner-section {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
 }
 
 .results-section {
