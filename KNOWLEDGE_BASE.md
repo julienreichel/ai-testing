@@ -76,6 +76,18 @@ We have successfully built a **production-ready application** with complete core
 - **✅ Conflict resolution** for duplicate imports and data integrity
 - **✅ Dashboard integration** with quick actions and project overview
 
+### Batch Runs & Statistics 📋 **PLANNED**
+
+- **📋 Multiple test execution** to assess prompt reliability and consistency
+- **📋 Statistical analysis** with comprehensive metrics:
+  - pass/fail ratio across multiple runs
+  - grade distribution (if AI evaluator enabled)
+  - average tokens, cost, and latency analysis
+  - confidence intervals and reliability scoring
+- **📋 Batch export capabilities** in JSON and CSV formats
+- **📋 Performance trending** over time with historical analysis
+- **📋 A/B testing support** for comparing different prompt variations
+
 ### Data Persistence & Import/Export ✅ **IMPLEMENTED**
 
 - **✅ IndexedDB integration** for offline-first data storage
@@ -84,7 +96,7 @@ We have successfully built a **production-ready application** with complete core
 - **✅ Data integrity** with referential relationship maintenance
 - **✅ JSON format** for easy backup, sharing, and version control
 
-### AI-Based Evaluation (Phase 2)
+### AI-Based Evaluation 📋 **PLANNED**
 
 - Use another model to grade or validate outputs automatically.
 - Modes: **binary judgment**, **numeric grading**, or **rule evaluation**.
@@ -167,7 +179,7 @@ We have successfully built a **production-ready application** with complete core
 | **6. Production Ready** | ✅  | Complete core functionality integration           | Full-featured AI testing application     |
 | **7. Multi-Provider** |   🔄   | Expand provider support (Mistral, LeChat)         | Enhanced provider registry               |
 | **8. AI Evaluator**   |   📋   | Model-based judgment/grading                      | Structured JSON evaluation               |
-| **9. Advanced Features** | 📋 | Batch statistics, advanced analytics              | Statistical reporting, performance metrics |
+| **9. Batch & Statistics** | 📋 | Multiple runs and statistical analysis           | Pass rates, performance metrics, trending |
 | **10. Enhancements**  |   📋   | PWA, reports, theming, advanced i18n              | Long-term improvements                   |
 
 **Legend**: ✅ Complete | 🔄 In Progress | 📋 Planned
@@ -248,8 +260,12 @@ We have successfully built a **production-ready application** with complete core
 ### 🔄 **Enhancement Phase (In Progress)**
 
 - **🔄 Additional provider support** (Mistral, LeChat, other providers)
-- **🔄 Advanced analytics** and batch testing statistics
 - **🔄 Performance optimizations** and user experience improvements
+
+### 📋 **Next Major Features (Planned)**
+
+- **📋 Batch runs and statistical analysis** with reliability metrics and performance trending
+- **📋 Advanced analytics dashboard** with comprehensive reporting and insights
 
 ### 📋 **Future Advanced Features**
 
