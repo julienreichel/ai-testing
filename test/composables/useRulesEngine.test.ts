@@ -1,15 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
 import { useRulesEngine } from "../../src/composables/useRulesEngine";
 import { useRulesUtils } from "../../src/composables/useRulesUtils";
-import type {
-  StringRule,
-  RegexRule,
-  LengthRule,
-} from "../../src/types/rules";
+import type { StringRule, RegexRule, LengthRule } from "../../src/types/rules";
 
 // Mock i18n
 vi.mock("vue-i18n", () => ({
-  useI18n: (): { t: (key: string, params?: Record<string, unknown>) => string } => ({
+  useI18n: (): {
+    t: (key: string, params?: Record<string, unknown>) => string;
+  } => ({
     t: (key: string, params?: Record<string, unknown>): string => {
       // Simplified mock translations for testing
       const translations: Record<string, string> = {
@@ -18,29 +16,40 @@ vi.mock("vue-i18n", () => ({
         "rules.validation.contains.pass": 'Text contains "{value}"',
         "rules.validation.contains.fail": 'Text does not contain "{value}"',
         "rules.validation.startsWith.pass": 'Text starts with "{value}"',
-        "rules.validation.startsWith.fail": 'Text does not start with "{value}"',
+        "rules.validation.startsWith.fail":
+          'Text does not start with "{value}"',
         "rules.validation.endsWith.pass": 'Text ends with "{value}"',
         "rules.validation.endsWith.fail": 'Text does not end with "{value}"',
-        "rules.validation.regex.pass": 'Text matches pattern /{pattern}/{flags}',
-        "rules.validation.regex.fail": 'Text does not match pattern /{pattern}/{flags}',
-        "rules.validation.regex.invalidPattern": 'Invalid regex pattern: {error}',
-        "rules.validation.length.withinRange": 'Length {length} is within range {min}-{max}',
-        "rules.validation.length.outsideRange": 'Length {length} is not within range {min}-{max}',
-        "rules.validation.length.atLeastMin": 'Length {length} is at least {min}',
-        "rules.validation.length.belowMin": 'Length {length} is less than minimum {min}',
-        "rules.validation.length.atMostMax": 'Length {length} is at most {max}',
-        "rules.validation.length.exceedsMax": 'Length {length} exceeds maximum {max}',
-        "rules.validation.length.lengthIs": 'Length is {length}',
-        "rules.validation.ruleSet.allPassed": 'All {total} rules passed',
-        "rules.validation.ruleSet.noRules": 'All 0 rules passed',
-        "rules.validation.ruleSet.somePassedAnd": '{passed}/{total} rules passed (requires all)',
-        "rules.validation.ruleSet.somePassedOr": '{passed}/{total} rules passed (requires at least one)',
+        "rules.validation.regex.pass":
+          "Text matches pattern /{pattern}/{flags}",
+        "rules.validation.regex.fail":
+          "Text does not match pattern /{pattern}/{flags}",
+        "rules.validation.regex.invalidPattern":
+          "Invalid regex pattern: {error}",
+        "rules.validation.length.withinRange":
+          "Length {length} is within range {min}-{max}",
+        "rules.validation.length.outsideRange":
+          "Length {length} is not within range {min}-{max}",
+        "rules.validation.length.atLeastMin":
+          "Length {length} is at least {min}",
+        "rules.validation.length.belowMin":
+          "Length {length} is less than minimum {min}",
+        "rules.validation.length.atMostMax": "Length {length} is at most {max}",
+        "rules.validation.length.exceedsMax":
+          "Length {length} exceeds maximum {max}",
+        "rules.validation.length.lengthIs": "Length is {length}",
+        "rules.validation.ruleSet.allPassed": "All {total} rules passed",
+        "rules.validation.ruleSet.noRules": "All 0 rules passed",
+        "rules.validation.ruleSet.somePassedAnd":
+          "{passed}/{total} rules passed (requires all)",
+        "rules.validation.ruleSet.somePassedOr":
+          "{passed}/{total} rules passed (requires at least one)",
       };
 
       let result = translations[key] || key;
       if (params) {
         Object.entries(params).forEach(([param, value]) => {
-          result = result.replace(new RegExp(`{${param}}`, 'g'), String(value));
+          result = result.replace(new RegExp(`{${param}}`, "g"), String(value));
         });
       }
       return result;
@@ -137,11 +146,13 @@ describe("useRulesEngine", () => {
 
         const passingResult = rulesEngine.validateRule(rule, "Hello 123 world");
         expect(passingResult.pass).toBe(true);
-        expect(passingResult.message).toBe('Text matches pattern /\\d+/g');
+        expect(passingResult.message).toBe("Text matches pattern /\\d+/g");
 
         const failingResult = rulesEngine.validateRule(rule, "Hello world");
         expect(failingResult.pass).toBe(false);
-        expect(failingResult.message).toBe('Text does not match pattern /\\d+/g');
+        expect(failingResult.message).toBe(
+          "Text does not match pattern /\\d+/g",
+        );
       });
 
       it("should handle invalid regex patterns", () => {
@@ -205,7 +216,9 @@ describe("useRulesEngine", () => {
           "This is a very long string",
         );
         expect(failingResult.pass).toBe(false);
-        expect(failingResult.message).toBe("Length 26 is not within range 0-10");
+        expect(failingResult.message).toBe(
+          "Length 26 is not within range 0-10",
+        );
       });
     });
   });
@@ -285,7 +298,10 @@ describe("useRulesEngine", () => {
       rule2.max = 5;
       ruleSet2.rules = [rule2];
 
-      const results = rulesEngine.validateRuleSets([ruleSet1, ruleSet2], "Hello");
+      const results = rulesEngine.validateRuleSets(
+        [ruleSet1, ruleSet2],
+        "Hello",
+      );
 
       expect(results).toHaveLength(2);
       expect(results[0]?.pass).toBe(true);

@@ -106,7 +106,7 @@ export function useRulesUtils(): RulesUtilsComposable {
     "startsWith",
     "endsWith",
     "regex",
-    "length"
+    "length",
   ];
 
   // I18n-related functions
@@ -119,7 +119,10 @@ export function useRulesUtils(): RulesUtilsComposable {
   };
 
   const getRuleTypeDescriptions = (): Record<RuleType, string> => {
-    const descriptions: Record<RuleType, string> = {} as Record<RuleType, string>;
+    const descriptions: Record<RuleType, string> = {} as Record<
+      RuleType,
+      string
+    >;
     RULE_TYPES.forEach((type) => {
       descriptions[type] = t(`rules.types.${type}.description`);
     });
@@ -132,10 +135,11 @@ export function useRulesUtils(): RulesUtilsComposable {
 
   const getRuleTypeDescription = (type: RuleType): string => {
     return t(`rules.types.${type}.description`);
-  };  // Pure utility functions using helper functions
+  }; // Pure utility functions using helper functions
   const generateId = (): string => createUniqueId();
 
-  const createRule = (type: RuleType): Rule => createRuleByType(type, generateId);
+  const createRule = (type: RuleType): Rule =>
+    createRuleByType(type, generateId);
 
   /**
    * Create a new rule set
@@ -163,7 +167,7 @@ export function useRulesUtils(): RulesUtilsComposable {
   const cloneRuleSet = (ruleSet: RuleSet): RuleSet => {
     const cloned = structuredClone(ruleSet);
     cloned.id = generateId();
-    cloned.rules = cloned.rules.map(rule => cloneRule(rule));
+    cloned.rules = cloned.rules.map((rule) => cloneRule(rule));
     return cloned;
   };
 

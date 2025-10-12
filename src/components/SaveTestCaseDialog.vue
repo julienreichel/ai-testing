@@ -5,7 +5,11 @@
 <template>
   <base-dialog
     :model-value="modelValue"
-    :title="props.isUpdateMode ? $t('testManagement.updateTestCase') : $t('testManagement.saveTestCase')"
+    :title="
+      props.isUpdateMode
+        ? $t('testManagement.updateTestCase')
+        : $t('testManagement.saveTestCase')
+    "
     size="md"
     @update:model-value="$emit('update:modelValue', $event)"
   >
@@ -102,7 +106,7 @@
             :loading="isSaving && saveMode === 'update'"
             @click="handleSave('update')"
           >
-            {{ $t('testManagement.updateTestCase') }}
+            {{ $t("testManagement.updateTestCase") }}
           </base-button>
           <base-button
             variant="outline"
@@ -110,7 +114,7 @@
             :loading="isSaving && saveMode === 'create'"
             @click="handleSave('create')"
           >
-            {{ $t('testManagement.saveAsNewTestCase') }}
+            {{ $t("testManagement.saveAsNewTestCase") }}
           </base-button>
         </template>
         <template v-else>
@@ -167,7 +171,7 @@ const selectedProjectOption = ref<string>("");
 const newProjectName = ref("");
 const newProjectDescription = ref("");
 const isSaving = ref(false);
-const saveMode = ref<'update' | 'create'>('create');
+const saveMode = ref<"update" | "create">("create");
 
 // Special value to identify when creating a new project
 const CREATE_NEW_PROJECT_VALUE = "__create_new__";
@@ -176,7 +180,7 @@ const CREATE_NEW_PROJECT_VALUE = "__create_new__";
 const availableProjects = computed(() => testManager.projectTree.value || []);
 
 const projectOptions = computed(() => {
-  const options = availableProjects.value.map(project => ({
+  const options = availableProjects.value.map((project) => ({
     label: project.name,
     value: project.id,
   }));
@@ -190,8 +194,8 @@ const projectOptions = computed(() => {
   return options;
 });
 
-const isCreatingNewProject = computed(() =>
-  selectedProjectOption.value === CREATE_NEW_PROJECT_VALUE
+const isCreatingNewProject = computed(
+  () => selectedProjectOption.value === CREATE_NEW_PROJECT_VALUE,
 );
 
 const hasRules = computed(() => props.rules.length > 0);
@@ -209,27 +213,32 @@ const promptPreview = computed(() => {
 const canSave = computed(() => {
   const hasTestCaseName = testCaseName.value.trim() !== "";
   const hasValidProject =
-    (selectedProjectOption.value !== "" && selectedProjectOption.value !== CREATE_NEW_PROJECT_VALUE) ||
+    (selectedProjectOption.value !== "" &&
+      selectedProjectOption.value !== CREATE_NEW_PROJECT_VALUE) ||
     (isCreatingNewProject.value && newProjectName.value.trim() !== "");
 
   return hasTestCaseName && hasValidProject;
 });
 
 // Load existing test case data when in update mode
-watch(() => [props.modelValue, props.existingTestCaseId, props.isUpdateMode], async ([isOpen, testCaseId, isUpdate]) => {
-  if (isOpen && isUpdate && testCaseId && typeof testCaseId === 'string') {
-    try {
-      const testCase = await testDB.getTestCase(testCaseId);
-      if (testCase) {
-        testCaseName.value = testCase.name;
-        testCaseDescription.value = testCase.description || '';
-        // Note: project and rules are already handled by EditorView prefilling
+watch(
+  () => [props.modelValue, props.existingTestCaseId, props.isUpdateMode],
+  async ([isOpen, testCaseId, isUpdate]) => {
+    if (isOpen && isUpdate && testCaseId && typeof testCaseId === "string") {
+      try {
+        const testCase = await testDB.getTestCase(testCaseId);
+        if (testCase) {
+          testCaseName.value = testCase.name;
+          testCaseDescription.value = testCase.description || "";
+          // Note: project and rules are already handled by EditorView prefilling
+        }
+      } catch (error) {
+        console.error("Failed to load test case for dialog:", error);
       }
-    } catch (error) {
-      console.error('Failed to load test case for dialog:', error);
     }
-  }
-}, { immediate: true });
+  },
+  { immediate: true },
+);
 
 // Methods
 const onProjectSelectionChange = (value: string | number): void => {
@@ -241,7 +250,9 @@ const onProjectSelectionChange = (value: string | number): void => {
   }
 };
 
-const handleSave = async (mode: 'update' | 'create' = 'create'): Promise<void> => {
+const handleSave = async (
+  mode: "update" | "create" = "create",
+): Promise<void> => {
   if (!canSave.value) return;
 
   try {
@@ -276,7 +287,7 @@ const handleSave = async (mode: 'update' | 'create' = 'create'): Promise<void> =
     };
 
     let testCaseId: string;
-    if (mode === 'update' && props.existingTestCaseId) {
+    if (mode === "update" && props.existingTestCaseId) {
       // Update existing test case
       await testManager.updateTestCase(props.existingTestCaseId, testCaseData);
       testCaseId = props.existingTestCaseId;
@@ -351,8 +362,6 @@ watch(
   color: #374151;
   font-size: 0.875rem;
 }
-
-
 
 .new-project-section {
   background: #f9fafb;

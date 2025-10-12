@@ -314,10 +314,10 @@ onMounted(async () => {
     validationRules.value = {
       id: firstRuleSet.id || crypto.randomUUID(),
       rules: firstRuleSet.rules || [],
-      aggregation: firstRuleSet.aggregation || 'AND',
+      aggregation: firstRuleSet.aggregation || "AND",
     };
   } catch (error) {
-    console.error('Failed to load test case for prefilling:', error);
+    console.error("Failed to load test case for prefilling:", error);
   }
 });
 </script>

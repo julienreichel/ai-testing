@@ -8,16 +8,10 @@
           <p>{{ $t("tests.description") }}</p>
         </div>
         <div class="header-actions">
-          <base-button
-            variant="outline"
-            @click="openEditor"
-          >
+          <base-button variant="outline" @click="openEditor">
             + {{ $t("testManagement.addTestCase") }}
           </base-button>
-          <base-button
-            variant="primary"
-            @click="showCreateProject = true"
-          >
+          <base-button variant="primary" @click="showCreateProject = true">
             + {{ $t("testManagement.createProject") }}
           </base-button>
         </div>
@@ -43,21 +37,17 @@
           <div class="detail-title">
             <h2>{{ selectedTestCase.name }}</h2>
             <div class="detail-actions">
-              <base-button
-                variant="outline"
-                @click="openTestCaseInEditor()"
-              >
+              <base-button variant="outline" @click="openTestCaseInEditor()">
                 Open in Editor
               </base-button>
-              <base-button
-                variant="danger"
-                @click="confirmDeleteTestCase"
-              >
+              <base-button variant="danger" @click="confirmDeleteTestCase">
                 Delete
               </base-button>
             </div>
           </div>
-          <p v-if="selectedTestCase.description">{{ selectedTestCase.description }}</p>
+          <p v-if="selectedTestCase.description">
+            {{ selectedTestCase.description }}
+          </p>
         </template>
 
         <div class="test-case-content">
@@ -152,8 +142,13 @@
                 <h3>{{ project.name }}</h3>
                 <p v-if="project.description">{{ project.description }}</p>
                 <div class="project-stats">
-                  <span class="stat">{{ getProjectTestCases(project.id).length }} test cases</span>
-                  <span class="stat">{{ getProjectTotalRuns(project.id) }} runs</span>
+                  <span class="stat"
+                    >{{ getProjectTestCases(project.id).length }} test
+                    cases</span
+                  >
+                  <span class="stat"
+                    >{{ getProjectTotalRuns(project.id) }} runs</span
+                  >
                 </div>
               </div>
               <div class="project-actions">
@@ -169,7 +164,10 @@
           </template>
 
           <!-- Test Cases in Project -->
-          <div v-if="getProjectTestCases(project.id).length > 0" class="test-cases-grid">
+          <div
+            v-if="getProjectTestCases(project.id).length > 0"
+            class="test-cases-grid"
+          >
             <base-card
               v-for="testCase in getProjectTestCases(project.id)"
               :key="testCase.id"
@@ -185,20 +183,25 @@
                 <div class="test-case-line-1">
                   <div class="test-case-main-info">
                     <h4 class="test-case-name">{{ testCase.name }}</h4>
-                    <span class="run-count">{{ testCase.metadata?.runCount || 0 }} runs</span>
+                    <span class="run-count"
+                      >{{ testCase.metadata?.runCount || 0 }} runs</span
+                    >
                   </div>
                 </div>
 
                 <!-- Second line: Prompt and rules inline -->
                 <div class="test-case-line-2">
-                  <span class="test-case-prompt">{{ truncateText(testCase.prompt, 120) }}</span>
+                  <span class="test-case-prompt">{{
+                    truncateText(testCase.prompt, 120)
+                  }}</span>
                   <span v-if="testCase.rules?.length" class="test-case-rules">
                     {{ getTotalRulesCount(testCase.rules) }} rules
                   </span>
                 </div>
               </div>
             </base-card>
-          </div>          <!-- Empty Project State -->
+          </div>
+          <!-- Empty Project State -->
           <base-empty-state
             v-else
             title="No Test Cases Yet"
@@ -246,10 +249,7 @@
           >
             Create Project
           </base-button>
-          <base-button
-            variant="outline"
-            @click="cancelCreateProject"
-          >
+          <base-button variant="outline" @click="cancelCreateProject">
             Cancel
           </base-button>
         </div>
@@ -257,7 +257,7 @@
     </base-dialog>
 
     <!-- Delete Confirmation Dialog -->
-        <!-- Delete Project Dialog -->
+    <!-- Delete Project Dialog -->
     <base-dialog
       v-model="showDeleteProjectDialog"
       title="Delete Project"
@@ -265,8 +265,10 @@
     >
       <div>
         <p v-if="projectToDelete">
-          Are you sure you want to delete "<strong>{{ projectToDelete.name }}</strong>"?
-          This will also delete all test cases in this project.
+          Are you sure you want to delete "<strong>{{
+            projectToDelete.name
+          }}</strong
+          >"? This will also delete all test cases in this project.
         </p>
 
         <div class="dialog-actions">
@@ -296,8 +298,10 @@
     >
       <div>
         <p v-if="testCaseToDelete">
-          Are you sure you want to delete "<strong>{{ testCaseToDelete.name }}</strong>"?
-          This action cannot be undone.
+          Are you sure you want to delete "<strong>{{
+            testCaseToDelete.name
+          }}</strong
+          >"? This action cannot be undone.
         </p>
 
         <div class="dialog-actions">
@@ -326,7 +330,14 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useTestManagement } from "../../composables/useTestManagement";
 import { testDB } from "../../services/testManagementDatabase";
-import { BaseButton, BaseInputField, BaseDialog, BaseSpinner, BaseCard, BaseEmptyState } from "../../components/ui";
+import {
+  BaseButton,
+  BaseInputField,
+  BaseDialog,
+  BaseSpinner,
+  BaseCard,
+  BaseEmptyState,
+} from "../../components/ui";
 import type { Rule } from "../../types/rules";
 import type { Project, TestCase } from "../../types/testManagement";
 
@@ -357,16 +368,16 @@ const allTestCases = ref<TestCase[]>([]);
 // Helper functions
 const formatRuleDetails = (rule: Rule): string => {
   switch (rule.type) {
-    case 'equals':
-    case 'contains':
-    case 'startsWith':
-    case 'endsWith':
+    case "equals":
+    case "contains":
+    case "startsWith":
+    case "endsWith":
       return `${rule.type} "${rule.value}"`;
-    case 'regex':
-      return `matches /${rule.pattern}/${rule.flags || ''}`;
-    case 'length': {
-      const min = rule.min ? `≥ ${rule.min}` : '';
-      const max = rule.max ? `≤ ${rule.max}` : '';
+    case "regex":
+      return `matches /${rule.pattern}/${rule.flags || ""}`;
+    case "length": {
+      const min = rule.min ? `≥ ${rule.min}` : "";
+      const max = rule.max ? `≤ ${rule.max}` : "";
       return `length ${min} ${max}`.trim();
     }
     default:
@@ -376,7 +387,7 @@ const formatRuleDetails = (rule: Rule): string => {
 
 const truncateText = (text: string, maxLength: number): string => {
   if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength) + '...';
+  return text.substring(0, maxLength) + "...";
 };
 
 const getTotalRulesCount = (ruleSets: { rules?: Rule[] }[]): number => {
@@ -388,15 +399,18 @@ const getTotalRulesCount = (ruleSets: { rules?: Rule[] }[]): number => {
 // Project and test case management
 const getProjectTestCases = (projectId: string): TestCase[] => {
   // Get test cases from our local allTestCases array for this project
-  return allTestCases.value.filter(tc => tc.projectId === projectId);
+  return allTestCases.value.filter((tc) => tc.projectId === projectId);
 };
 
 const getProjectTotalRuns = (projectId: string): number => {
   const testCases = getProjectTestCases(projectId);
   return testCases.reduce((total: number, tc) => {
-    const runCount = tc.metadata && typeof tc.metadata === 'object' && 'runCount' in tc.metadata
-      ? (tc.metadata as { runCount?: number }).runCount || 0
-      : 0;
+    const runCount =
+      tc.metadata &&
+      typeof tc.metadata === "object" &&
+      "runCount" in tc.metadata
+        ? (tc.metadata as { runCount?: number }).runCount || 0
+        : 0;
     return total + runCount;
   }, 0);
 };
@@ -407,7 +421,7 @@ const selectTestCase = (testCase: TestCase): void => {
 
 // Navigation functions
 const openEditor = (): void => {
-  void router.push('/editor');
+  void router.push("/editor");
 };
 
 const openTestCaseInEditor = (testCase?: TestCase): void => {
@@ -416,10 +430,10 @@ const openTestCaseInEditor = (testCase?: TestCase): void => {
 
   // Navigate to editor with only test case ID for prefilling
   void router.push({
-    path: '/editor',
+    path: "/editor",
     query: {
       testCaseId: targetTestCase.id,
-    }
+    },
   });
 };
 
@@ -437,7 +451,7 @@ const createProject = async (): Promise<void> => {
     // Reset form and close dialog
     cancelCreateProject();
   } catch (err) {
-    console.error('Failed to create project:', err);
+    console.error("Failed to create project:", err);
   } finally {
     isCreatingProject.value = false;
   }
@@ -479,7 +493,7 @@ const performDelete = async (): Promise<void> => {
       showDeleteTestCaseDialog.value = false;
     }
   } catch (error) {
-    console.error('Failed to delete item:', error);
+    console.error("Failed to delete item:", error);
   } finally {
     isDeleting.value = false;
   }
@@ -506,10 +520,15 @@ const loadAllTestCases = async (): Promise<void> => {
         sortBy: "updatedAt",
         sortOrder: "desc",
       });
-      console.log(`Loaded ${projectTestCases.length} test cases for project "${project.name}"`);
+      console.log(
+        `Loaded ${projectTestCases.length} test cases for project "${project.name}"`,
+      );
       allCases.push(...projectTestCases);
     } catch (err) {
-      console.error(`Failed to load test cases for project ${project.id}:`, err);
+      console.error(
+        `Failed to load test cases for project ${project.id}:`,
+        err,
+      );
     }
   }
 
@@ -523,7 +542,7 @@ const loadData = async (): Promise<void> => {
     await testManager.loadProjects();
     await loadAllTestCases();
   } catch (err) {
-    console.error('Failed to load data:', err);
+    console.error("Failed to load data:", err);
   }
 };
 
@@ -761,7 +780,7 @@ onMounted(async () => {
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   padding: 1rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-size: 0.875rem;
   color: #374151;
   white-space: pre-wrap;
@@ -815,7 +834,7 @@ onMounted(async () => {
 
 .rule-details {
   color: #374151;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
 }
 
 /* Form styles */

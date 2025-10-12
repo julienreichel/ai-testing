@@ -4,7 +4,9 @@ import type { StringRule, RegexRule, LengthRule } from "../../src/types/rules";
 
 // Mock i18n
 vi.mock("vue-i18n", () => ({
-  useI18n: (): { t: (key: string, params?: Record<string, unknown>) => string } => ({
+  useI18n: (): {
+    t: (key: string, params?: Record<string, unknown>) => string;
+  } => ({
     t: (key: string): string => key,
   }),
 }));

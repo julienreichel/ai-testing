@@ -18,13 +18,18 @@ interface RulesEngineComposable {
   validateRule: (rule: Rule, input: string) => RuleResult;
   validateRuleSet: (ruleSet: RuleSet, input: string) => RuleSetResult;
   validateRuleSets: (ruleSets: RuleSet[], input: string) => RuleSetResult[];
-  getOverallResult: (results: RuleSetResult[]) => { pass: boolean; message: string };
+  getOverallResult: (results: RuleSetResult[]) => {
+    pass: boolean;
+    message: string;
+  };
 }
 
 /**
  * String rule validation helper
  */
-function createStringRuleValidator(t: (key: string, params?: Record<string, unknown>) => string): {
+function createStringRuleValidator(
+  t: (key: string, params?: Record<string, unknown>) => string,
+): {
   equals: (rule: StringRule, input: string) => RuleResult;
   contains: (rule: StringRule, input: string) => RuleResult;
   startsWith: (rule: StringRule, input: string) => RuleResult;
@@ -32,8 +37,10 @@ function createStringRuleValidator(t: (key: string, params?: Record<string, unkn
 } {
   return {
     equals: (rule: StringRule, input: string): RuleResult => {
-      const comparison = rule.caseSensitive !== false ? input : input.toLowerCase();
-      const target = rule.caseSensitive !== false ? rule.value : rule.value.toLowerCase();
+      const comparison =
+        rule.caseSensitive !== false ? input : input.toLowerCase();
+      const target =
+        rule.caseSensitive !== false ? rule.value : rule.value.toLowerCase();
       const pass = comparison === target;
 
       return {
@@ -41,14 +48,19 @@ function createStringRuleValidator(t: (key: string, params?: Record<string, unkn
         pass,
         message: pass
           ? t("rules.validation.equals.pass", { value: rule.value })
-          : t("rules.validation.equals.fail", { expected: rule.value, actual: input }),
+          : t("rules.validation.equals.fail", {
+              expected: rule.value,
+              actual: input,
+            }),
         actualValue: input,
         expectedValue: rule.value,
       };
     },
     contains: (rule: StringRule, input: string): RuleResult => {
-      const comparison = rule.caseSensitive !== false ? input : input.toLowerCase();
-      const target = rule.caseSensitive !== false ? rule.value : rule.value.toLowerCase();
+      const comparison =
+        rule.caseSensitive !== false ? input : input.toLowerCase();
+      const target =
+        rule.caseSensitive !== false ? rule.value : rule.value.toLowerCase();
       const pass = comparison.includes(target);
 
       return {
@@ -62,8 +74,10 @@ function createStringRuleValidator(t: (key: string, params?: Record<string, unkn
       };
     },
     startsWith: (rule: StringRule, input: string): RuleResult => {
-      const comparison = rule.caseSensitive !== false ? input : input.toLowerCase();
-      const target = rule.caseSensitive !== false ? rule.value : rule.value.toLowerCase();
+      const comparison =
+        rule.caseSensitive !== false ? input : input.toLowerCase();
+      const target =
+        rule.caseSensitive !== false ? rule.value : rule.value.toLowerCase();
       const pass = comparison.startsWith(target);
 
       return {
@@ -77,8 +91,10 @@ function createStringRuleValidator(t: (key: string, params?: Record<string, unkn
       };
     },
     endsWith: (rule: StringRule, input: string): RuleResult => {
-      const comparison = rule.caseSensitive !== false ? input : input.toLowerCase();
-      const target = rule.caseSensitive !== false ? rule.value : rule.value.toLowerCase();
+      const comparison =
+        rule.caseSensitive !== false ? input : input.toLowerCase();
+      const target =
+        rule.caseSensitive !== false ? rule.value : rule.value.toLowerCase();
       const pass = comparison.endsWith(target);
 
       return {
@@ -97,7 +113,11 @@ function createStringRuleValidator(t: (key: string, params?: Record<string, unkn
 /**
  * Regex rule validation helper
  */
-function validateRegexRule(rule: RegexRule, input: string, t: (key: string, params?: Record<string, unknown>) => string): RuleResult {
+function validateRegexRule(
+  rule: RegexRule,
+  input: string,
+  t: (key: string, params?: Record<string, unknown>) => string,
+): RuleResult {
   try {
     const regex = new RegExp(rule.pattern, rule.flags || "");
     const pass = regex.test(input);
@@ -113,11 +133,14 @@ function validateRegexRule(rule: RegexRule, input: string, t: (key: string, para
       expectedValue: `/${rule.pattern}/${flags}`,
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return {
       ruleId: rule.id,
       pass: false,
-      message: t("rules.validation.regex.invalidPattern", { error: errorMessage }),
+      message: t("rules.validation.regex.invalidPattern", {
+        error: errorMessage,
+      }),
       actualValue: input,
       expectedValue: rule.pattern,
     };
@@ -127,7 +150,11 @@ function validateRegexRule(rule: RegexRule, input: string, t: (key: string, para
 /**
  * Length rule validation helper
  */
-function validateLengthRule(rule: LengthRule, input: string, t: (key: string, params?: Record<string, unknown>) => string): RuleResult {
+function validateLengthRule(
+  rule: LengthRule,
+  input: string,
+  t: (key: string, params?: Record<string, unknown>) => string,
+): RuleResult {
   const length = input.length;
   const { min, max } = rule;
 
@@ -211,11 +238,17 @@ export function useRulesEngine(): RulesEngineComposable {
       pass = passedCount === totalCount;
       message = pass
         ? t("rules.validation.ruleSet.allPassed", { total: totalCount })
-        : t("rules.validation.ruleSet.somePassedAnd", { passed: passedCount, total: totalCount });
+        : t("rules.validation.ruleSet.somePassedAnd", {
+            passed: passedCount,
+            total: totalCount,
+          });
     } else {
       pass = passedCount > 0;
       message = pass
-        ? t("rules.validation.ruleSet.somePassedOr", { passed: passedCount, total: totalCount })
+        ? t("rules.validation.ruleSet.somePassedOr", {
+            passed: passedCount,
+            total: totalCount,
+          })
         : t("rules.validation.ruleSet.nonePassedOr");
     }
 
@@ -230,11 +263,16 @@ export function useRulesEngine(): RulesEngineComposable {
     };
   };
 
-  const validateRuleSets = (ruleSets: RuleSet[], input: string): RuleSetResult[] => {
+  const validateRuleSets = (
+    ruleSets: RuleSet[],
+    input: string,
+  ): RuleSetResult[] => {
     return ruleSets.map((ruleSet) => validateRuleSet(ruleSet, input));
   };
 
-  const getOverallResult = (results: RuleSetResult[]): { pass: boolean; message: string } => {
+  const getOverallResult = (
+    results: RuleSetResult[],
+  ): { pass: boolean; message: string } => {
     const nonEmptyResults = results.filter((result) => result.totalCount > 0);
 
     if (nonEmptyResults.length === 0) {
@@ -244,15 +282,22 @@ export function useRulesEngine(): RulesEngineComposable {
       };
     }
 
-    const passedRuleSets = nonEmptyResults.filter((result) => result.pass).length;
+    const passedRuleSets = nonEmptyResults.filter(
+      (result) => result.pass,
+    ).length;
     const totalRuleSets = nonEmptyResults.length;
 
     return {
       pass: passedRuleSets === totalRuleSets,
       message:
         passedRuleSets === totalRuleSets
-          ? t("rules.validation.ruleSet.overallAllPassed", { total: totalRuleSets })
-          : t("rules.validation.ruleSet.overallSomePassed", { passed: passedRuleSets, total: totalRuleSets }),
+          ? t("rules.validation.ruleSet.overallAllPassed", {
+              total: totalRuleSets,
+            })
+          : t("rules.validation.ruleSet.overallSomePassed", {
+              passed: passedRuleSets,
+              total: totalRuleSets,
+            }),
     };
   };
 
