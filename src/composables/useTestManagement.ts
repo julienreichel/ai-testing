@@ -3,7 +3,7 @@
  * Clean implementation with proper type safety
  */
 
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import { useTestManagementState } from "./useTestManagementState";
 import { testDB } from "../services/testManagementDatabase";
 import type {
@@ -333,11 +333,6 @@ export function useTestManagement() {
       throw err;
     }
   };
-
-  // Initialize on mount
-  onMounted(() => {
-    void initialize().catch(console.error);
-  });
 
   // ==================== RETURN API ====================
 

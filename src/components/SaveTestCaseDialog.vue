@@ -137,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useTestManagement } from "../composables/useTestManagement";
 import { testDB } from "../services/testManagementDatabase";
 import { BaseDialog, BaseButton, BaseInputField } from "./ui";
@@ -163,6 +163,11 @@ const emit = defineEmits<Emits>();
 
 // Test Management composable
 const testManager = useTestManagement();
+
+// Initialize test manager
+onMounted(() => {
+  void testManager.initialize().catch(console.error);
+});
 
 // Form state
 const testCaseName = ref("");

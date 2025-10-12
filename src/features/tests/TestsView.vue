@@ -510,8 +510,6 @@ const cancelDelete = (): void => {
 const loadAllTestCases = async (): Promise<void> => {
   const allCases: TestCase[] = [];
 
-  console.log(`Loading test cases for ${projects.value.length} projects...`);
-
   // Load test cases for each project
   for (const project of projects.value) {
     try {
@@ -520,9 +518,6 @@ const loadAllTestCases = async (): Promise<void> => {
         sortBy: "updatedAt",
         sortOrder: "desc",
       });
-      console.log(
-        `Loaded ${projectTestCases.length} test cases for project "${project.name}"`,
-      );
       allCases.push(...projectTestCases);
     } catch (err) {
       console.error(
@@ -532,13 +527,13 @@ const loadAllTestCases = async (): Promise<void> => {
     }
   }
 
-  console.log(`Total test cases loaded: ${allCases.length}`);
   allTestCases.value = allCases;
 };
 
 // Data loading
 const loadData = async (): Promise<void> => {
   try {
+    await testManager.initialize();
     await testManager.loadProjects();
     await loadAllTestCases();
   } catch (err) {

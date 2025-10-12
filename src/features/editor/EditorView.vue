@@ -96,7 +96,6 @@ import { useRulesEngine } from "../../composables/useRulesEngine";
 import { testDB } from "../../services/testManagementDatabase";
 import type { ProviderSelection } from "./components/ProviderSelector.vue";
 import type { RuleSet, RuleSetResult } from "../../types/rules";
-import type { ProviderResponse } from "../../types/providers";
 
 interface PromptData {
   userPrompt: string;
@@ -154,8 +153,6 @@ const updateUserPrompt = (value: string | number): void => {
 const runPrompt = async (): Promise<void> => {
   if (!canRunPrompt.value) return;
 
-  const startTime = performance.now();
-
   const messages = [
     {
       role: "user" as const,
@@ -172,8 +169,6 @@ const runPrompt = async (): Promise<void> => {
 
   await promptRunner.runPrompt(providerSelection.value.providerId, request);
 
-  const endTime = performance.now();
-  const executionTime = endTime - startTime;
 
   // Run rule validation if we have a successful result
   const result = promptRunner.state.value.result;
@@ -182,73 +177,8 @@ const runPrompt = async (): Promise<void> => {
       validationRules.value,
       result.content,
     );
-
-    // Create a test run if we have validation results and a current test case
-    if (validationResult.value) {
-      await createTestRunFromValidation(
-        result,
-        validationResult.value,
-        executionTime,
-      );
-    }
   } else {
     validationResult.value = null;
-  }
-};
-
-const createTestRunFromValidation = async (
-  result: ProviderResponse,
-  validation: RuleSetResult,
-  executionTime: number,
-): Promise<void> => {
-  try {
-    // Import test management composable
-    const { useTestManagement } = await import(
-      "../../composables/useTestManagement"
-    );
-    const testManager = useTestManagement();
-
-    // Only create test run if we have a current project and test case
-    if (
-      !testManager.currentProject.value ||
-      !testManager.currentTestCase.value
-    ) {
-      console.log(
-        "No current project or test case - skipping test run creation",
-      );
-      return;
-    }
-
-    const testRunData = {
-      projectId: testManager.currentProject.value.id,
-      testCaseId: testManager.currentTestCase.value.id,
-      modelProvider: providerSelection.value.providerId,
-      modelName: providerSelection.value.model,
-      prompt: promptData.value.userPrompt,
-      response: result.content,
-      executionTime,
-      status: "completed" as const,
-      modelConfig: {
-        temperature: promptData.value.temperature,
-        maxTokens: promptData.value.maxTokens,
-      },
-      tokens: {
-        promptTokens: result.usage.inputTokens,
-        completionTokens: result.usage.outputTokens,
-        totalTokens: result.usage.totalTokens,
-      },
-      evaluationResults: {
-        overallPass: validation.pass,
-        message: validation.message,
-        ruleSetResults: [validation],
-      },
-    };
-
-    const testRun = await testManager.createTestRun(testRunData);
-    console.log("Test run created successfully:", testRun);
-  } catch (error) {
-    console.error("Failed to create test run:", error);
-    // Don't throw - this shouldn't break the main prompt execution flow
   }
 };
 

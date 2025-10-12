@@ -1,7 +1,8 @@
 <template>
   <Teleport to="body">
-    <div v-if="modelValue" class="dialog-overlay" @click="handleOverlayClick">
+    <div v-if="isOpen" class="dialog-overlay" @click="handleOverlayClick">
       <div
+        v-bind="$attrs"
         :class="dialogClasses"
         @click.stop
         role="dialog"
@@ -35,10 +36,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from "vue";
+import { computed, onMounted, onUnmounted, watch } from "vue";
 
 export interface BaseDialogProps {
-  modelValue: boolean;
   title?: string;
   size?: "sm" | "md" | "lg" | "xl";
   closable?: boolean;
@@ -52,10 +52,17 @@ const props = withDefaults(defineProps<BaseDialogProps>(), {
   closeOnOverlay: true,
 });
 
+// Use defineModel for v-model binding
+const isOpen = defineModel<boolean>({ default: false });
+
 const emit = defineEmits<{
-  "update:modelValue": [value: boolean];
   close: [];
 }>();
+
+// Make sure attributes can be inherited by the dialog div
+defineOptions({
+  inheritAttrs: false
+});
 
 const BASE_36 = 36;
 const SUBSTRING_START = 2;
@@ -69,7 +76,7 @@ const titleId = computed(
 const dialogClasses = computed(() => ["dialog", `dialog-${props.size}`]);
 
 const handleClose = (): void => {
-  emit("update:modelValue", false);
+  isOpen.value = false;
   emit("close");
 };
 
@@ -85,13 +92,22 @@ const handleEscapeKey = (event: KeyboardEvent): void => {
   }
 };
 
+// Watch for dialog open/close to handle body overflow
+watch(isOpen, (newValue) => {
+  if (newValue) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+  }
+});
+
 onMounted(() => {
   document.addEventListener("keydown", handleEscapeKey);
-  document.body.style.overflow = "hidden";
 });
 
 onUnmounted(() => {
   document.removeEventListener("keydown", handleEscapeKey);
+  // Ensure body overflow is reset when component unmounts
   document.body.style.overflow = "";
 });
 </script>
