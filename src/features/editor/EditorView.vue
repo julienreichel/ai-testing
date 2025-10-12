@@ -91,8 +91,8 @@ import { BaseButton, BaseInputField } from "../../components/ui";
 import { ProviderSelector, ResultsDisplay } from "./components";
 import RulesEditorCompact from "./components/RulesEditorCompact.vue";
 import SaveTestCaseDialog from "../../components/SaveTestCaseDialog.vue";
-import { createRuleSet } from "../../utils/rulesUtils";
-import { RuleEngine } from "../../utils/rulesEngine";
+import { useRulesUtils } from "../../composables/useRulesUtils";
+import { useRulesEngine } from "../../composables/useRulesEngine";
 import { testDB } from "../../services/testManagementDatabase";
 import type { ProviderSelection } from "./components/ProviderSelector.vue";
 import type { RuleSet, RuleSetResult } from "../../types/rules";
@@ -107,6 +107,7 @@ interface PromptData {
 const router = useRouter();
 const route = useRoute();
 const providersStore = useProvidersStore();
+const { createRuleSet } = useRulesUtils();
 
 // Component state
 const providerSelection = ref<ProviderSelection>({
@@ -133,6 +134,7 @@ const isUpdateMode = computed(() => !!currentTestCaseId.value);
 
 // Composables
 const promptRunner = usePromptRunner();
+const rulesEngine = useRulesEngine();
 
 // Computed properties
 const canRunPrompt = computed(() => {
@@ -176,17 +178,19 @@ const runPrompt = async (): Promise<void> => {
   // Run rule validation if we have a successful result
   const result = promptRunner.state.value.result;
   if (result && result.content && validationRules.value.rules.length > 0) {
-    validationResult.value = RuleEngine.validateRuleSet(
+    validationResult.value = rulesEngine.validateRuleSet(
       validationRules.value,
       result.content,
     );
 
     // Create a test run if we have validation results and a current test case
-    await createTestRunFromValidation(
-      result,
-      validationResult.value,
-      executionTime,
-    );
+    if (validationResult.value) {
+      await createTestRunFromValidation(
+        result,
+        validationResult.value,
+        executionTime,
+      );
+    }
   } else {
     validationResult.value = null;
   }

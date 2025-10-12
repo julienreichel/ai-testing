@@ -10,6 +10,10 @@ export { useCostEstimator } from "./useCostEstimator";
 // Test Management composables
 export { useTestManagement } from "./useTestManagement";
 export { useTestManagementState } from "./useTestManagementState";
+
+// Rules Engine composables
+export { useRulesEngine } from "./useRulesEngine";
+export { useRulesUtils } from "./useRulesUtils";
 export type {
   CreateProjectData,
   CreateTestCaseData,

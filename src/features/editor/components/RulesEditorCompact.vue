@@ -45,7 +45,7 @@
             class="rule-type-select"
           >
             <option
-              v-for="option in RULE_TYPE_OPTIONS"
+              v-for="option in getRuleTypeOptions()"
               :key="option.value"
               :value="option.value"
             >
@@ -167,12 +167,9 @@ import type {
   RegexRule,
   LengthRule,
 } from "../../../types/rules";
-import {
-  createRuleSet,
-  createRule,
-  RULE_TYPE_OPTIONS,
-} from "../../../utils/rulesUtils";
-import { RuleEngine } from "../../../utils/rulesEngine";
+// All utility functions now come from the composable
+import { useRulesEngine } from "../../../composables/useRulesEngine";
+import { useRulesUtils } from "../../../composables/useRulesUtils";
 import BaseButton from "../../../components/ui/BaseButton.vue";
 
 interface Props {
@@ -183,9 +180,17 @@ const props = withDefaults(defineProps<Props>(), {
   testData: "",
 });
 
+// Composables
+const rulesEngine = useRulesEngine();
+const { getRuleTypeOptions, getRuleTypeLabel, createRule } = useRulesUtils();
+
 // Use defineModel for two-way binding
 const ruleSet = defineModel<RuleSet>("ruleSet", {
-  default: () => createRuleSet(),
+  default: () => ({
+    id: "",
+    rules: [],
+    aggregation: "AND" as const,
+  }),
 });
 
 const testResult = ref<{
@@ -260,14 +265,12 @@ function testRules(): void {
     return;
   }
 
-  const result = RuleEngine.validateRuleSet(ruleSet.value, props.testData);
+  const result = rulesEngine.validateRuleSet(ruleSet.value, props.testData);
   const details: Array<{ passed: boolean; message: string }> = [];
 
   ruleSet.value.rules.forEach((rule: Rule, index: number) => {
-    const ruleResult = RuleEngine.validateRule(rule, props.testData);
-    const ruleTypeLabel =
-      RULE_TYPE_OPTIONS.find((opt) => opt.value === rule.type)?.label ||
-      rule.type;
+    const ruleResult = rulesEngine.validateRule(rule, props.testData);
+    const ruleTypeLabel = getRuleTypeLabel(rule.type);
 
     details.push({
       passed: ruleResult.pass,

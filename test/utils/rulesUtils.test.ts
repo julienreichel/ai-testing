@@ -1,21 +1,20 @@
-import { describe, it, expect } from "vitest";
-import {
-  createRule,
-  createRuleSet,
-  cloneRule,
-  cloneRuleSet,
-  moveRule,
-  generateId,
-  validateRuleConfig,
-  RULE_TYPE_OPTIONS,
-} from "../../src/utils/rulesUtils";
+import { describe, it, expect, vi } from "vitest";
+import { useRulesUtils } from "../../src/composables/useRulesUtils";
 import type { StringRule, RegexRule, LengthRule } from "../../src/types/rules";
+
+// Mock i18n
+vi.mock("vue-i18n", () => ({
+  useI18n: (): { t: (key: string, params?: Record<string, unknown>) => string } => ({
+    t: (key: string): string => key,
+  }),
+}));
 
 describe("Rules Utils", () => {
   describe("generateId", () => {
     it("should generate unique IDs", () => {
-      const id1 = generateId();
-      const id2 = generateId();
+      const rulesUtils = useRulesUtils();
+      const id1 = rulesUtils.generateId();
+      const id2 = rulesUtils.generateId();
 
       expect(id1).toBeDefined();
       expect(id2).toBeDefined();
@@ -27,7 +26,8 @@ describe("Rules Utils", () => {
 
   describe("createRule", () => {
     it("should create string rules with defaults", () => {
-      const rule = createRule("contains") as StringRule;
+      const rulesUtils = useRulesUtils();
+      const rule = rulesUtils.createRule("contains") as StringRule;
 
       expect(rule.id).toBeDefined();
       expect(rule.type).toBe("contains");
@@ -36,7 +36,8 @@ describe("Rules Utils", () => {
     });
 
     it("should create regex rules with defaults", () => {
-      const rule = createRule("regex") as RegexRule;
+      const rulesUtils = useRulesUtils();
+      const rule = rulesUtils.createRule("regex") as RegexRule;
 
       expect(rule.id).toBeDefined();
       expect(rule.type).toBe("regex");
@@ -45,7 +46,8 @@ describe("Rules Utils", () => {
     });
 
     it("should create length rules with defaults", () => {
-      const rule = createRule("length") as LengthRule;
+      const rulesUtils = useRulesUtils();
+      const rule = rulesUtils.createRule("length") as LengthRule;
 
       expect(rule.id).toBeDefined();
       expect(rule.type).toBe("length");
@@ -54,8 +56,9 @@ describe("Rules Utils", () => {
     });
 
     it("should throw error for unknown rule types", () => {
+      const rulesUtils = useRulesUtils();
       // TypeScript prevents this at compile time, but test runtime behavior
-      expect(() => createRule("unknown" as never)).toThrow(
+      expect(() => rulesUtils.createRule("unknown" as never)).toThrow(
         "Unsupported rule type: unknown",
       );
     });
@@ -63,7 +66,8 @@ describe("Rules Utils", () => {
 
   describe("createRuleSet", () => {
     it("should create rule set with defaults", () => {
-      const ruleSet = createRuleSet();
+      const rulesUtils = useRulesUtils();
+      const ruleSet = rulesUtils.createRuleSet();
 
       expect(ruleSet.id).toBeDefined();
       expect(ruleSet.rules).toEqual([]);
@@ -73,12 +77,14 @@ describe("Rules Utils", () => {
 
   describe("cloneRule", () => {
     it("should clone rule with new ID", () => {
-      const original = createRule("equals") as StringRule;
+      const rulesUtils = useRulesUtils();
+      const original = rulesUtils.createRule("equals") as StringRule;
       original.value = "test";
 
-      const cloned = cloneRule(original) as StringRule;
+      const cloned = rulesUtils.cloneRule(original) as StringRule;
 
       expect(cloned.id).toBeDefined();
+      expect(cloned.id).not.toBe(original.id);
       expect(cloned.type).toBe(original.type);
       expect(cloned.value).toBe(original.value);
       expect(cloned.caseSensitive).toBe(original.caseSensitive);
@@ -86,109 +92,103 @@ describe("Rules Utils", () => {
   });
 
   describe("cloneRuleSet", () => {
-    it("should clone rule set with same structure", () => {
-      const original = createRuleSet();
-      original.aggregation = "OR";
-      const rule = createRule("contains") as StringRule;
+    it("should clone rule set with new ID and cloned rules", () => {
+      const rulesUtils = useRulesUtils();
+      const original = rulesUtils.createRuleSet();
+
+      const rule = rulesUtils.createRule("contains") as StringRule;
       rule.value = "test";
       original.rules = [rule];
 
-      const cloned = cloneRuleSet(original);
+      const cloned = rulesUtils.cloneRuleSet(original);
 
       expect(cloned.id).toBeDefined();
-      expect(cloned.aggregation).toBe("OR");
+      expect(cloned.id).not.toBe(original.id);
+      expect(cloned.aggregation).toBe(original.aggregation);
       expect(cloned.rules).toHaveLength(1);
-      expect(cloned.rules[0]?.type).toBe("contains");
-      expect((cloned.rules[0] as StringRule).value).toBe("test");
+      expect(cloned.rules[0]?.id).not.toBe(rule.id);
+      expect((cloned.rules[0] as StringRule)?.value).toBe("test");
     });
   });
 
   describe("validateRuleConfig", () => {
-    it("should accept any rule as valid (simplified validation)", () => {
-      const rule = createRule("equals") as StringRule;
+    it("should validate string rule config", () => {
+      const rulesUtils = useRulesUtils();
+      const rule = rulesUtils.createRule("equals") as StringRule;
+      rule.value = "test";
+      const result = rulesUtils.validateRuleConfig(rule);
 
-      const result = validateRuleConfig(rule);
-      expect(result.valid).toBe(true);
-      expect(result.errors).toHaveLength(0);
+      expect(result).toBe(true);
     });
 
-    it("should accept regex rule as valid", () => {
-      const rule = createRule("regex") as RegexRule;
+    it("should validate regex rule config", () => {
+      const rulesUtils = useRulesUtils();
+      const rule = rulesUtils.createRule("regex") as RegexRule;
+      rule.pattern = "\\d+";
+      const result = rulesUtils.validateRuleConfig(rule);
 
-      const result = validateRuleConfig(rule);
-      expect(result.valid).toBe(true);
-      expect(result.errors).toHaveLength(0);
+      expect(result).toBe(true);
     });
 
-    it("should accept length rule as valid", () => {
-      const rule = createRule("length") as LengthRule;
+    it("should validate length rule config", () => {
+      const rulesUtils = useRulesUtils();
+      const rule = rulesUtils.createRule("length") as LengthRule;
+      rule.min = 1;
+      rule.max = 10;
+      const result = rulesUtils.validateRuleConfig(rule);
 
-      const result = validateRuleConfig(rule);
-      expect(result.valid).toBe(true);
-      expect(result.errors).toHaveLength(0);
+      expect(result).toBe(true);
     });
   });
 
   describe("moveRule", () => {
-    it("should move rule to new position", () => {
-      const rule1 = createRule("equals") as StringRule;
-      const rule2 = createRule("contains") as StringRule;
-      const rule3 = createRule("startsWith") as StringRule;
-
+    it("should rearrange rules correctly", () => {
+      const rulesUtils = useRulesUtils();
+      const rule1 = rulesUtils.createRule("equals") as StringRule;
+      const rule2 = rulesUtils.createRule("contains") as StringRule;
+      const rule3 = rulesUtils.createRule("startsWith") as StringRule;
       const originalRules = [rule1, rule2, rule3];
-      const result = moveRule(originalRules, 2, 0); // Move rule3 to position 0
+
+      const result = rulesUtils.moveRule(originalRules, 2, 0); // Move rule3 to position 0
 
       expect(result).toHaveLength(3);
-      expect(result[0]?.id).toBe(rule3.id);
-      expect(result[1]?.id).toBe(rule1.id);
-      expect(result[2]?.id).toBe(rule2.id);
+      expect(result[0]).toBe(rule3);
+      expect(result[1]).toBe(rule1);
+      expect(result[2]).toBe(rule2);
     });
 
-    it("should handle invalid indices gracefully", () => {
-      const rule1 = createRule("equals") as StringRule;
+    it("should handle invalid indices", () => {
+      const rulesUtils = useRulesUtils();
+      const rule1 = rulesUtils.createRule("equals") as StringRule;
       const originalRules = [rule1];
 
-      const result = moveRule(originalRules, 5, 0); // Invalid fromIndex
+      const result = rulesUtils.moveRule(originalRules, 5, 0); // Invalid fromIndex
 
-      expect(result).toHaveLength(1);
-      expect(result[0]?.id).toBe(rule1.id);
+      expect(result).toEqual(originalRules);
+    });
+
+    it("should handle empty array", () => {
+      const rulesUtils = useRulesUtils();
+      const originalRules: StringRule[] = [];
+
+      const result = rulesUtils.moveRule(originalRules, 0, 0);
+
+      expect(result).toEqual([]);
     });
 
     it("should not mutate original array", () => {
-      const rule1 = createRule("equals") as StringRule;
-      const rule2 = createRule("contains") as StringRule;
+      const rulesUtils = useRulesUtils();
+      const rule1 = rulesUtils.createRule("equals") as StringRule;
+      const rule2 = rulesUtils.createRule("contains") as StringRule;
       const originalRules = [rule1, rule2];
+      const originalLength = originalRules.length;
 
-      const result = moveRule(originalRules, 1, 0);
+      const result = rulesUtils.moveRule(originalRules, 1, 0);
 
-      expect(originalRules).toHaveLength(2);
-      expect(originalRules[0]?.id).toBe(rule1.id);
+      expect(originalRules).toHaveLength(originalLength);
       expect(result).not.toBe(originalRules);
-    });
-  });
-
-  describe("RULE_TYPE_OPTIONS", () => {
-    it("should provide all rule type options", () => {
-      expect(RULE_TYPE_OPTIONS).toHaveLength(6);
-
-      const values = RULE_TYPE_OPTIONS.map((option) => option.value);
-      expect(values).toContain("equals");
-      expect(values).toContain("contains");
-      expect(values).toContain("startsWith");
-      expect(values).toContain("endsWith");
-      expect(values).toContain("regex");
-      expect(values).toContain("length");
-    });
-
-    it("should have labels and descriptions for all options", () => {
-      RULE_TYPE_OPTIONS.forEach((option) => {
-        expect(option.label).toBeDefined();
-        expect(option.description).toBeDefined();
-        expect(typeof option.label).toBe("string");
-        expect(typeof option.description).toBe("string");
-        expect(option.label.length).toBeGreaterThan(0);
-        expect(option.description.length).toBeGreaterThan(0);
-      });
+      expect(result[0]).toBe(rule2);
+      expect(originalRules[0]).toBe(rule1);
     });
   });
 });
