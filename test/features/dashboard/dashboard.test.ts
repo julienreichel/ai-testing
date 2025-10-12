@@ -7,7 +7,10 @@ import i18n from "../../../src/locales";
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [{ path: "/dashboard", component: DashboardView }],
+  routes: [
+    { path: "/", redirect: "/dashboard" },
+    { path: "/dashboard", component: DashboardView },
+  ],
 });
 
 describe("DashboardView", () => {
