@@ -8,6 +8,7 @@
           <p>{{ $t("tests.description") }}</p>
         </div>
         <div class="header-actions">
+          <test-export-import />
           <base-button variant="outline" @click="openEditor">
             + {{ $t("testManagement.addTestCase") }}
           </base-button>
@@ -338,6 +339,7 @@ import {
   BaseCard,
   BaseEmptyState,
 } from "../../components/ui";
+import { TestExportImport } from "./components";
 import type { Rule } from "../../types/rules";
 import type { Project, TestCase } from "../../types/testManagement";
 

@@ -131,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useTestManagement } from "../../../composables/useTestManagement";
 import { BaseButton, BaseDialog } from "../../../components/ui";
 import BaseToast from "../../../components/ui/BaseToast.vue";
@@ -139,6 +139,11 @@ import type { ExportProject } from "../../../types/testManagement";
 
 // Test Management composable
 const testManager = useTestManagement();
+
+// Initialize test management on component mount
+onMounted(async () => {
+  await testManager.initialize();
+});
 
 // Dialog states
 const showExportDialog = ref(false);
@@ -158,22 +163,34 @@ const isImporting = ref(false);
 // Status state
 const statusMessage = ref("");
 const statusType = ref<"success" | "error" | "info">("info");
+const showStatusMessage = ref(false);
 
 // Computed properties
 const { projectTree, isLoading } = testManager;
-const canExport = computed(() => projectTree.value.length > 0);
-const showStatusMessage = computed(() => statusMessage.value !== "");
+const canExport = computed(() => {
+  console.log("Checking canExport:", projectTree.value.length > 0, "Projects:", projectTree.value);
+  return projectTree.value.length > 0;
+});
 
 // Methods
 const exportProject = async (): Promise<void> => {
-  if (!selectedProjectId.value) return;
+  console.log("Export button clicked");
+  console.log("Selected project ID:", selectedProjectId.value);
+  console.log("Available projects:", projectTree.value);
+
+  if (!selectedProjectId.value) {
+    console.log("No project selected, returning early");
+    return;
+  }
 
   try {
     isExporting.value = true;
+    console.log("Starting export...");
     const exportData = await testManager.exportProject(
       selectedProjectId.value,
       includeRuns.value,
     );
+    console.log("Export data received:", exportData);
 
     // Create download
     const blob = new Blob([exportData], { type: "application/json" });
@@ -262,10 +279,12 @@ const showStatus = (
 ): void => {
   statusMessage.value = message;
   statusType.value = type;
+  showStatusMessage.value = true;
 };
 
 const clearStatus = (): void => {
   statusMessage.value = "";
+  showStatusMessage.value = false;
 };
 </script>
 

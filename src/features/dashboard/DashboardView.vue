@@ -47,11 +47,7 @@
         <div class="action-card">
           <h3>{{ $t("testManagement.title") }}</h3>
           <p>Import and export test projects for team collaboration</p>
-          <!-- TODO: Enable when TestExportImport component is ready -->
-          <base-button variant="outline" disabled>
-            {{ $t("testManagement.export") }} /
-            {{ $t("testManagement.import") }}
-          </base-button>
+          <test-export-import />
         </div>
 
         <div class="action-card">
@@ -74,6 +70,7 @@ import { useAppStore } from "../../store";
 import { useProvidersStore } from "../../store/providers";
 import { StatCard } from "./components";
 import { BaseButton } from "../../components/ui";
+import { TestExportImport } from "../tests/components";
 
 const router = useRouter();
 const appStore = useAppStore();
