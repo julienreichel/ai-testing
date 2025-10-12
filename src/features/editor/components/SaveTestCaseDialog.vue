@@ -138,10 +138,10 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
-import { useTestManagement } from "../composables/useTestManagement";
-import { testDB } from "../services/testManagementDatabase";
-import { BaseDialog, BaseButton, BaseInputField } from "./ui";
-import type { RuleSet } from "../types/rules";
+import { useTestManagement } from "../../../composables/useTestManagement";
+import { testDB } from "../../../services/testManagementDatabase";
+import { BaseDialog, BaseButton, BaseInputField } from "../../../components/ui";
+import type { RuleSet } from "../../../types/rules";
 
 const PROMPT_PREVIEW_LENGTH = 100;
 
