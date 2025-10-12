@@ -22,5 +22,16 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+    coverage: {
+      exclude: [
+        "**/index.ts",
+        "**/index.js",
+        "**/*.d.ts",
+        "node_modules/**",
+        "dist/**",
+        "coverage/**",
+        "**/*.config.*",
+      ],
+    },
   },
 });
