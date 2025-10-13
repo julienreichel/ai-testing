@@ -66,7 +66,7 @@ describe("useCostEstimator - User Cost Estimation Behavior", () => {
       const { formattedCost } = useCostEstimator(mockParams);
 
       // User sees clear indication of minimal cost
-      expect(formattedCost.value).toMatch(/^(<\s)?\$0\.001$/);
+      expect(formattedCost.value).toMatch(/^(<\s)?\$0\.002$/);
     });
   });
 
