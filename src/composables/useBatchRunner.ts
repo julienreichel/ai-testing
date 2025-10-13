@@ -20,8 +20,6 @@ const DEFAULT_RETRY_DELAY_MS = 1000;
 const UI_UPDATE_DELAY_MS = 10;
 const PROGRESS_UPDATE_INTERVAL = 5;
 
-
-
 // Configuration for batch runs
 export interface BatchRunConfig {
   testCase: TestCase;
@@ -78,40 +76,44 @@ interface BatchRunState {
 }
 
 const createBatchStatistics = (results: BatchRunResult[]): BatchStatistics => {
-  const completed = results.filter(r => r.status === "completed");
-  const technicallyFailed = results.filter(r => r.status === "failed");
-  const passed = completed.filter(r => r.passed === true);
-  const validationFailed = completed.filter(r => r.passed === false);
+  const completed = results.filter((r) => r.status === "completed");
+  const technicallyFailed = results.filter((r) => r.status === "failed");
+  const passed = completed.filter((r) => r.passed === true);
+  const validationFailed = completed.filter((r) => r.passed === false);
   const totalFailed = technicallyFailed.length + validationFailed.length;
 
   const durations = completed
-    .map(r => r.duration)
+    .map((r) => r.duration)
     .filter((d): d is number => d !== undefined)
     .sort((a, b) => a - b);
 
   const tokens = completed
-    .map(r => r.tokenUsage?.totalTokens)
+    .map((r) => r.tokenUsage?.totalTokens)
     .filter((t): t is number => t !== undefined);
 
   const costs = completed
-    .map(r => r.cost)
+    .map((r) => r.cost)
     .filter((c): c is number => c !== undefined);
 
-  const avgDuration = durations.length > 0
-    ? durations.reduce((sum, d) => sum + d, 0) / durations.length
-    : 0;
+  const avgDuration =
+    durations.length > 0
+      ? durations.reduce((sum, d) => sum + d, 0) / durations.length
+      : 0;
 
-  const p50Duration = durations.length > 0
-    ? durations[Math.floor(durations.length * MEDIAN_PERCENTILE)] || 0
-    : 0;
+  const p50Duration =
+    durations.length > 0
+      ? durations[Math.floor(durations.length * MEDIAN_PERCENTILE)] || 0
+      : 0;
 
-  const p90Duration = durations.length > 0
-    ? durations[Math.floor(durations.length * P90_PERCENTILE)] || 0
-    : 0;
+  const p90Duration =
+    durations.length > 0
+      ? durations[Math.floor(durations.length * P90_PERCENTILE)] || 0
+      : 0;
 
-  const avgTokens = tokens.length > 0
-    ? tokens.reduce((sum, t) => sum + t, 0) / tokens.length
-    : 0;
+  const avgTokens =
+    tokens.length > 0
+      ? tokens.reduce((sum, t) => sum + t, 0) / tokens.length
+      : 0;
 
   const totalCost = costs.reduce((sum, c) => sum + c, 0);
   const avgCost = costs.length > 0 ? totalCost / costs.length : 0;
@@ -121,14 +123,20 @@ const createBatchStatistics = (results: BatchRunResult[]): BatchStatistics => {
     completedRuns: completed.length,
     failedRuns: totalFailed,
     passedRuns: passed.length,
-    passRate: completed.length > 0 ? (passed.length / completed.length) * PERCENTAGE_MULTIPLIER : 0,
+    passRate:
+      completed.length > 0
+        ? (passed.length / completed.length) * PERCENTAGE_MULTIPLIER
+        : 0,
     avgDuration,
     p50Duration,
     p90Duration,
     avgTokens,
     totalCost,
     avgCost,
-    errorRate: results.length > 0 ? (totalFailed / results.length) * PERCENTAGE_MULTIPLIER : 0,
+    errorRate:
+      results.length > 0
+        ? (totalFailed / results.length) * PERCENTAGE_MULTIPLIER
+        : 0,
   };
 };
 
@@ -146,14 +154,14 @@ const calculateRetryDelay = (retryCount: number): number => {
 const updatePersistenceProgress = async (
   batchPersistence: ReturnType<typeof useBatchRunPersistence>,
   batchSession: unknown,
-  results: BatchRunResult[]
+  results: BatchRunResult[],
 ): Promise<void> => {
   if (!batchSession) return;
 
   try {
     await batchPersistence.updateBatchRunProgress(
       results,
-      createBatchStatistics(results)
+      createBatchStatistics(results),
     );
   } catch (error) {
     console.warn("Failed to update batch run progress:", error);
@@ -164,7 +172,7 @@ const completePersistenceSession = async (
   batchPersistence: ReturnType<typeof useBatchRunPersistence>,
   batchSession: unknown,
   results: BatchRunResult[],
-  isCancelled: boolean
+  isCancelled: boolean,
 ): Promise<void> => {
   if (!batchSession) return;
 
@@ -173,7 +181,7 @@ const completePersistenceSession = async (
     await batchPersistence.completeBatchRun(
       results,
       createBatchStatistics(results),
-      finalStatus
+      finalStatus,
     );
   } catch (error) {
     console.warn("Failed to complete batch run in database:", error);
@@ -213,25 +221,27 @@ const executeSingleRun = async (params: {
 
       // Get the provider
       const provider = providersStore.activeProviders.find(
-        (p) => p.getId() === config.providerId
+        (p) => p.getId() === config.providerId,
       );
       if (!provider) {
-        throw new Error(`Provider ${config.providerId} not found or not active`);
+        throw new Error(
+          `Provider ${config.providerId} not found or not active`,
+        );
       }
 
       // Validate that the specified model is available for this provider
       const models = provider.getModels();
-      const selectedModel = models.find(m => m.id === config.model);
+      const selectedModel = models.find((m) => m.id === config.model);
       if (!selectedModel) {
-        throw new Error(`Model '${config.model}' not available for provider ${config.providerId}`);
+        throw new Error(
+          `Model '${config.model}' not available for provider ${config.providerId}`,
+        );
       }
 
       // Create the provider request
       const providerRequest: ProviderRequest = {
         model: config.model,
-        messages: [
-          { role: "user", content: config.testCase.prompt }
-        ],
+        messages: [{ role: "user", content: config.testCase.prompt }],
         temperature: 0.7,
         maxTokens: 150,
       };
@@ -253,7 +263,7 @@ const executeSingleRun = async (params: {
       if (config.testCase.rules && config.testCase.rules.length > 0) {
         const ruleSetResults = rulesEngine.validateRuleSets(
           config.testCase.rules,
-          response.content
+          response.content,
         );
 
         const overallResult = rulesEngine.getOverallResult(ruleSetResults);
@@ -265,7 +275,6 @@ const executeSingleRun = async (params: {
 
       result.status = "completed";
       return result;
-
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
 
@@ -306,7 +315,9 @@ export function useBatchRunner(): {
 
   const progress = computed(() => {
     if (state.totalRuns === 0) return 0;
-    return Math.round((state.completedRuns / state.totalRuns) * PERCENTAGE_MULTIPLIER);
+    return Math.round(
+      (state.completedRuns / state.totalRuns) * PERCENTAGE_MULTIPLIER,
+    );
   });
 
   const statistics = computed((): BatchStatistics => {
@@ -329,7 +340,7 @@ export function useBatchRunner(): {
       batchSession = await batchPersistence.saveBatchRunStart(
         config,
         config.testCase.id,
-        config.testCase.projectId || "default"
+        config.testCase.projectId || "default",
       );
     } catch (error) {
       console.warn("Failed to save batch run to database:", error);
@@ -359,23 +370,30 @@ export function useBatchRunner(): {
         }
 
         // Allow Vue reactivity to update the UI
-        await new Promise(resolve => setTimeout(resolve, UI_UPDATE_DELAY_MS));
+        await new Promise((resolve) => setTimeout(resolve, UI_UPDATE_DELAY_MS));
 
         // Update persistence with progress (every few runs to avoid too many DB writes)
         if (i % PROGRESS_UPDATE_INTERVAL === 0 || i === config.runCount - 1) {
-          await updatePersistenceProgress(batchPersistence, batchSession, state.results);
+          await updatePersistenceProgress(
+            batchPersistence,
+            batchSession,
+            state.results,
+          );
         }
       }
 
       // Complete batch run in database
-      await completePersistenceSession(batchPersistence, batchSession, state.results, state.isCancelled);
+      await completePersistenceSession(
+        batchPersistence,
+        batchSession,
+        state.results,
+        state.isCancelled,
+      );
     } finally {
       state.isRunning = false;
       state.endTime = new Date();
     }
   };
-
-
 
   const cancelBatch = (): void => {
     state.isCancelled = true;

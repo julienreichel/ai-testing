@@ -10,7 +10,7 @@
               type="text"
               :placeholder="$t('runs.filter.search')"
               class="search-input"
-            >
+            />
           </div>
           <div class="project-filter">
             <select
@@ -61,7 +61,10 @@
           @click="toggleProject(group.projectId)"
         >
           <div class="project-info">
-            <span class="expand-icon" :class="{ expanded: isProjectExpanded(group.projectId) }">
+            <span
+              class="expand-icon"
+              :class="{ expanded: isProjectExpanded(group.projectId) }"
+            >
               ▶
             </span>
             <h4 class="project-name">{{ group.projectName }}</h4>
@@ -91,68 +94,77 @@
                 :key="batchRun.id"
                 class="batch-run-row"
               >
-            <td class="test-name-cell">
-              <div class="test-name">
-                {{ getTestCaseName(batchRun) }}
-              </div>
-              <div class="test-meta">
-                {{ batchRun.runCount }} runs • {{ batchRun.status }}
-              </div>
-            </td>
-            <td class="provider-cell">
-              <div class="provider-info">
-                <div class="provider">{{ getProviderName(batchRun.providerId) }}</div>
-                <div class="model">{{ batchRun.model }}</div>
-              </div>
-            </td>
-            <td class="pass-rate-cell">
-              <div class="pass-rate">
-                <span class="rate-value" :class="getPassRateClass(batchRun.statistics.passRate)">
-                  {{ Math.round(batchRun.statistics.passRate) }}%
-                </span>
-                <div class="rate-meta">
-                  {{ batchRun.statistics.passedRuns }}/{{ batchRun.statistics.totalRuns }}
-                </div>
-              </div>
-            </td>
-            <td class="cost-cell">
-              <span class="cost-value">${{ batchRun.statistics.totalCost.toFixed(4) }}</span>
-            </td>
-            <td class="date-cell">
-              <div class="date-info">
-                <div class="date">{{ formatDate(batchRun.createdAt) }}</div>
-                <div class="time">{{ formatTime(batchRun.createdAt) }}</div>
-              </div>
-            </td>
-            <td class="actions-cell">
-              <div class="action-buttons">
-                <base-button
-                  variant="outline"
-                  size="sm"
-                  @click="viewDetails(batchRun)"
-                  :title="$t('common.viewDetails')"
-                >
-                  👁️
-                </base-button>
-                <base-button
-                  variant="outline"
-                  size="sm"
-                  @click="exportResults(batchRun)"
-                  :title="$t('batch.actions.export')"
-                >
-                  📥
-                </base-button>
-                <base-button
-                  variant="danger"
-                  size="sm"
-                  @click="deleteBatchRun(batchRun)"
-                  :title="$t('common.delete')"
-                >
-                  🗑️
-                </base-button>
-              </div>
-            </td>
-          </tr>
+                <td class="test-name-cell">
+                  <div class="test-name">
+                    {{ getTestCaseName(batchRun) }}
+                  </div>
+                  <div class="test-meta">
+                    {{ batchRun.runCount }} runs • {{ batchRun.status }}
+                  </div>
+                </td>
+                <td class="provider-cell">
+                  <div class="provider-info">
+                    <div class="provider">
+                      {{ getProviderName(batchRun.providerId) }}
+                    </div>
+                    <div class="model">{{ batchRun.model }}</div>
+                  </div>
+                </td>
+                <td class="pass-rate-cell">
+                  <div class="pass-rate">
+                    <span
+                      class="rate-value"
+                      :class="getPassRateClass(batchRun.statistics.passRate)"
+                    >
+                      {{ Math.round(batchRun.statistics.passRate) }}%
+                    </span>
+                    <div class="rate-meta">
+                      {{ batchRun.statistics.passedRuns }}/{{
+                        batchRun.statistics.totalRuns
+                      }}
+                    </div>
+                  </div>
+                </td>
+                <td class="cost-cell">
+                  <span class="cost-value"
+                    >${{ batchRun.statistics.totalCost.toFixed(4) }}</span
+                  >
+                </td>
+                <td class="date-cell">
+                  <div class="date-info">
+                    <div class="date">{{ formatDate(batchRun.createdAt) }}</div>
+                    <div class="time">{{ formatTime(batchRun.createdAt) }}</div>
+                  </div>
+                </td>
+                <td class="actions-cell">
+                  <div class="action-buttons">
+                    <base-button
+                      variant="outline"
+                      size="sm"
+                      @click="viewDetails(batchRun)"
+                      :title="$t('common.viewDetails')"
+                    >
+                      👁️
+                    </base-button>
+                    <base-button
+                      variant="outline"
+                      size="sm"
+                      @click="exportResults(batchRun)"
+                      :title="$t('batch.actions.export')"
+                    >
+                      📥
+                    </base-button>
+                    <base-button
+                      variant="danger"
+                      size="sm"
+                      @click="deleteBatchRun(batchRun)"
+                      :title="$t('common.delete')"
+                    >
+                      🗑️
+                    </base-button>
+                  </div>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -160,10 +172,17 @@
     </div>
 
     <!-- Detailed View Modal -->
-    <div v-if="selectedBatchRun" class="batch-run-modal-overlay" @click="closeBatchRunDetails">
+    <div
+      v-if="selectedBatchRun"
+      class="batch-run-modal-overlay"
+      @click="closeBatchRunDetails"
+    >
       <div class="batch-run-modal" @click.stop>
         <div class="modal-header">
-          <h3>{{ getTestCaseName(selectedBatchRun) }} - {{ $t("runs.batchHistory.details") }}</h3>
+          <h3>
+            {{ getTestCaseName(selectedBatchRun) }} -
+            {{ $t("runs.batchHistory.details") }}
+          </h3>
           <base-button variant="outline" @click="closeBatchRunDetails">
             ✕ {{ $t("common.close") }}
           </base-button>
@@ -192,7 +211,10 @@
                   <tr
                     v-for="result in selectedBatchRun.results"
                     :key="result.id"
-                    :class="{ 'failed-run': result.status === 'failed' || result.passed === false }"
+                    :class="{
+                      'failed-run':
+                        result.status === 'failed' || result.passed === false,
+                    }"
                   >
                     <td>{{ result.runIndex + 1 }}</td>
                     <td>
@@ -200,10 +222,20 @@
                         {{ result.status }}
                       </base-badge>
                     </td>
-                    <td>{{ result.duration ? Math.round(result.duration) + 'ms' : '-' }}</td>
-                    <td>{{ result.cost ? '$' + result.cost.toFixed(4) : '-' }}</td>
                     <td>
-                      <base-badge :variant="result.passed ? 'success' : 'danger'">
+                      {{
+                        result.duration
+                          ? Math.round(result.duration) + "ms"
+                          : "-"
+                      }}
+                    </td>
+                    <td>
+                      {{ result.cost ? "$" + result.cost.toFixed(4) : "-" }}
+                    </td>
+                    <td>
+                      <base-badge
+                        :variant="result.passed ? 'success' : 'danger'"
+                      >
                         {{ result.passed ? $t("common.yes") : $t("common.no") }}
                       </base-badge>
                     </td>
@@ -222,7 +254,10 @@
 import { ref, onMounted, computed } from "vue";
 import { useBatchRunPersistence } from "../composables/useBatchRunPersistence";
 import { useProvidersStore } from "../store/providers";
-import { testDB, type BatchRunSession } from "../services/testManagementDatabase";
+import {
+  testDB,
+  type BatchRunSession,
+} from "../services/testManagementDatabase";
 import type { Project } from "../types/testManagement";
 import type { BatchRunResult } from "../composables/useBatchRunner";
 import BaseButton from "./ui/BaseButton.vue";
@@ -268,20 +303,22 @@ const filteredBatchRuns = computed(() => {
     const provider = getProviderName(batchRun.providerId).toLowerCase();
     const model = batchRun.model.toLowerCase();
 
-
-    return testName.includes(term) ||
-           provider.includes(term) ||
-           model.includes(term);
+    return (
+      testName.includes(term) || provider.includes(term) || model.includes(term)
+    );
   });
 });
 
 const groupedBatchRuns = computed(() => {
-  const grouped = new Map<string, { project: Project | null; runs: BatchRunSession[] }>();
+  const grouped = new Map<
+    string,
+    { project: Project | null; runs: BatchRunSession[] }
+  >();
 
   // Group filtered batch runs by project
   filteredBatchRuns.value.forEach((batchRun) => {
     const projectId = batchRun.projectId;
-    const project = projects.value.find(p => p.id === projectId) || null;
+    const project = projects.value.find((p) => p.id === projectId) || null;
 
     if (!grouped.has(projectId)) {
       grouped.set(projectId, { project, runs: [] });
@@ -293,9 +330,11 @@ const groupedBatchRuns = computed(() => {
   return Array.from(grouped.entries())
     .map(([projectId, data]) => ({
       projectId,
-      projectName: data.project?.name || 'Unknown Project',
+      projectName: data.project?.name || "Unknown Project",
       project: data.project,
-      runs: data.runs.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      runs: data.runs.sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+      ),
     }))
     .sort((a, b) => a.projectName.localeCompare(b.projectName));
 });
@@ -319,7 +358,10 @@ const onProjectChange = async (): Promise<void> => {
 const refreshHistory = async (): Promise<void> => {
   isLoading.value = true;
   try {
-    await batchPersistence.loadRecentBatchRuns(selectedProjectId.value || undefined, props.limit);
+    await batchPersistence.loadRecentBatchRuns(
+      selectedProjectId.value || undefined,
+      props.limit,
+    );
 
     // Auto-expand single project, minimize multiple projects by default
     if (hasMultipleProjects.value) {
@@ -350,8 +392,6 @@ const isProjectExpanded = (projectId: string): boolean => {
   return expandedProjects.value.has(projectId);
 };
 
-
-
 const viewDetails = (batchRun: BatchRunSession): void => {
   selectedBatchRun.value = batchRun;
 };
@@ -361,11 +401,15 @@ const closeBatchRunDetails = (): void => {
 };
 
 const exportResults = (batchRun: BatchRunSession): void => {
-  const csvContent = "data:text/csv;charset=utf-8," +
+  const csvContent =
+    "data:text/csv;charset=utf-8," +
     "Run,Status,Duration,Cost,Passed,Response\n" +
-    batchRun.results.map((r: BatchRunResult) =>
-      `${r.runIndex + 1},${r.status},${r.duration || 0},${r.cost || 0},${r.passed},${r.response?.replace(/,/g, ';') || ''}`
-    ).join("\n");
+    batchRun.results
+      .map(
+        (r: BatchRunResult) =>
+          `${r.runIndex + 1},${r.status},${r.duration || 0},${r.cost || 0},${r.passed},${r.response?.replace(/,/g, ";") || ""}`,
+      )
+      .join("\n");
 
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");
@@ -377,7 +421,11 @@ const exportResults = (batchRun: BatchRunSession): void => {
 };
 
 const deleteBatchRun = async (batchRun: BatchRunSession): Promise<void> => {
-  if (!confirm(`Are you sure you want to delete this batch run? This action cannot be undone.`)) {
+  if (
+    !confirm(
+      `Are you sure you want to delete this batch run? This action cannot be undone.`,
+    )
+  ) {
     return;
   }
 
@@ -407,7 +455,10 @@ const getTestCaseName = (batchRun: BatchRunSession): string => {
         testCaseNames.value.set(batchRun.testCaseId, testCase.name);
       }
     } catch (error) {
-      console.warn(`Failed to load test case name for ${batchRun.testCaseId}:`, error);
+      console.warn(
+        `Failed to load test case name for ${batchRun.testCaseId}:`,
+        error,
+      );
     }
   };
 
@@ -446,13 +497,15 @@ const getPassRateClass = (passRate: number): string => {
 };
 
 const getProviderName = (providerId: string): string => {
-  const providerStatus = providersStore.providerStatuses.find(status => status.id === providerId);
+  const providerStatus = providersStore.providerStatuses.find(
+    (status) => status.id === providerId,
+  );
   return providerStatus?.name || providerId;
 };
 
-
-
-const getResultStatusVariant = (result: BatchRunResult): "success" | "danger" | "warning" | "info" => {
+const getResultStatusVariant = (
+  result: BatchRunResult,
+): "success" | "danger" | "warning" | "info" => {
   if (result.status === "completed") {
     return result.passed ? "success" : "warning";
   }
@@ -517,7 +570,9 @@ onMounted(async () => {
   font-size: 0.875rem;
   cursor: pointer;
   min-width: 150px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .project-select:focus {
@@ -532,7 +587,9 @@ onMounted(async () => {
   border-radius: 0.375rem;
   font-size: 0.875rem;
   min-width: 250px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .search-input:focus {

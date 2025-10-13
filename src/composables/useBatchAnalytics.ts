@@ -63,15 +63,16 @@ const calculatePercentiles = (values: number[]): LatencyPercentiles => {
 };
 
 const calculateConsistency = (results: BatchRunResult[]): number => {
-  const passResults = results.map(r => r.passed ? 1 : 0);
+  const passResults = results.map((r) => (r.passed ? 1 : 0));
   if (passResults.length === 0) return 0;
 
   const passCount = passResults.reduce((sum: number, val) => sum + val, 0);
   const passRate = passCount / passResults.length;
 
-  const variance = passResults.reduce((sum: number, val) => {
-    return sum + Math.pow(val - passRate, POWER_OF_TWO);
-  }, 0) / passResults.length;
+  const variance =
+    passResults.reduce((sum: number, val) => {
+      return sum + Math.pow(val - passRate, POWER_OF_TWO);
+    }, 0) / passResults.length;
 
   const consistencyScore = Math.max(0, (1 - variance) * PERCENTAGE_MULTIPLIER);
   return Math.round(consistencyScore);
@@ -81,15 +82,15 @@ export function useBatchAnalytics(results: BatchRunResult[]): {
   analytics: ComputedRef<BatchAnalytics>;
 } {
   const analytics = computed((): BatchAnalytics => {
-    const completed = results.filter(r => r.status === "completed");
-    const successful = completed.filter(r => r.passed);
+    const completed = results.filter((r) => r.status === "completed");
+    const successful = completed.filter((r) => r.passed);
 
     const durations = completed
-      .map(r => r.duration)
+      .map((r) => r.duration)
       .filter((d): d is number => d !== undefined);
 
     const costs = completed
-      .map(r => r.cost)
+      .map((r) => r.cost)
       .filter((c): c is number => c !== undefined);
 
     const latencyPercentiles = calculatePercentiles(durations);
@@ -97,7 +98,10 @@ export function useBatchAnalytics(results: BatchRunResult[]): {
     const totalCost = costs.reduce((sum, cost) => sum + cost, 0);
     const successfulRuns = successful.length;
     const costPerSuccess = successfulRuns > 0 ? totalCost / successfulRuns : 0;
-    const totalTokens = completed.reduce((sum, r) => sum + (r.tokenUsage?.totalTokens || 0), 0);
+    const totalTokens = completed.reduce(
+      (sum, r) => sum + (r.tokenUsage?.totalTokens || 0),
+      0,
+    );
     const costPerToken = totalTokens > 0 ? totalCost / totalTokens : 0;
 
     const consistency = calculateConsistency(completed);

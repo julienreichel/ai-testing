@@ -17,20 +17,34 @@
       </template>
       <div class="summary-grid">
         <div class="summary-item">
-          <div class="summary-value success">{{ statistics.passRate.toFixed(1) }}%</div>
-          <div class="summary-label">{{ $t("batch.charts.summary.passRate") }}</div>
+          <div class="summary-value success">
+            {{ statistics.passRate.toFixed(1) }}%
+          </div>
+          <div class="summary-label">
+            {{ $t("batch.charts.summary.passRate") }}
+          </div>
         </div>
         <div class="summary-item">
           <div class="summary-value info">{{ statistics.p50Duration }}ms</div>
-          <div class="summary-label">{{ $t("batch.charts.summary.p50Latency") }}</div>
+          <div class="summary-label">
+            {{ $t("batch.charts.summary.p50Latency") }}
+          </div>
         </div>
         <div class="summary-item">
-          <div class="summary-value warning">{{ statistics.p90Duration }}ms</div>
-          <div class="summary-label">{{ $t("batch.charts.summary.p90Latency") }}</div>
+          <div class="summary-value warning">
+            {{ statistics.p90Duration }}ms
+          </div>
+          <div class="summary-label">
+            {{ $t("batch.charts.summary.p90Latency") }}
+          </div>
         </div>
         <div class="summary-item">
-          <div class="summary-value purple">${{ statistics.totalCost.toFixed(4) }}</div>
-          <div class="summary-label">{{ $t("batch.charts.summary.totalCost") }}</div>
+          <div class="summary-value purple">
+            ${{ statistics.totalCost.toFixed(4) }}
+          </div>
+          <div class="summary-label">
+            {{ $t("batch.charts.summary.totalCost") }}
+          </div>
         </div>
       </div>
     </base-card>
@@ -52,7 +66,10 @@ import {
   LineController,
 } from "chart.js";
 import type { ChartConfiguration } from "chart.js";
-import type { BatchRunResult, BatchStatistics } from "../composables/useBatchRunner";
+import type {
+  BatchRunResult,
+  BatchStatistics,
+} from "../composables/useBatchRunner";
 import BaseCard from "./ui/BaseCard.vue";
 
 // Register Chart.js components
@@ -65,7 +82,7 @@ Chart.register(
   Tooltip,
   Legend,
   Filler,
-  LineController
+  LineController,
 );
 
 interface Props {
@@ -94,7 +111,6 @@ const CHART_COLORS = {
   gray: "#6b7280",
 } as const;
 
-
 const createTimelineChart = (): void => {
   if (!timelineChartRef.value) return;
 
@@ -107,17 +123,19 @@ const createTimelineChart = (): void => {
   const ctx = timelineChartRef.value.getContext("2d");
   if (!ctx) return;
 
-
-
   const maxRuns = Math.max(props.results.length, 1);
   const runIndices = Array.from({ length: maxRuns }, (_, i) => i + 1);
 
   // Calculate cumulative pass rates
   const PERCENT_MULTIPLIER = 100;
   const cumulativePassRates = runIndices.map((runIndex) => {
-    const completedUpToNow = props.results.slice(0, runIndex).filter((r) => r.status === "completed");
+    const completedUpToNow = props.results
+      .slice(0, runIndex)
+      .filter((r) => r.status === "completed");
     const passedUpToNow = completedUpToNow.filter((r) => r.passed === true);
-    return completedUpToNow.length > 0 ? (passedUpToNow.length / completedUpToNow.length) * PERCENT_MULTIPLIER : 0;
+    return completedUpToNow.length > 0
+      ? (passedUpToNow.length / completedUpToNow.length) * PERCENT_MULTIPLIER
+      : 0;
   });
 
   const config: ChartConfiguration = {
@@ -209,7 +227,7 @@ watch(
       void createCharts();
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 // Cleanup on unmount

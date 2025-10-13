@@ -113,8 +113,6 @@ const onBatchRunSelected = (batchRun: BatchRunSession): void => {
   color: #9ca3af;
 }
 
-
-
 @media (max-width: 768px) {
   .runs-view {
     padding: 1rem;

@@ -11,13 +11,17 @@ import type {
   ExportProject,
   ImportResult,
 } from "../types/testManagement";
-import type { BatchRunResult, BatchRunConfig, BatchStatistics } from "../composables/useBatchRunner";
+import type {
+  BatchRunResult,
+  BatchRunConfig,
+  BatchStatistics,
+} from "../composables/useBatchRunner";
 
 // Clean batch run session - no data duplication, proper relational design
 export interface BatchRunSession {
   id: string;
   testCaseId: string; // Reference to test case - no duplication!
-  projectId: string;  // Denormalized for quick filtering, but could be derived from testCase
+  projectId: string; // Denormalized for quick filtering, but could be derived from testCase
 
   // Simple run configuration - no complex objects to serialize
   providerId: string;
@@ -94,7 +98,9 @@ class TestManagementDatabase {
   async init(): Promise<void> {
     this.db = await openDB<TestManagementDB>(DB_NAME, DB_VERSION, {
       upgrade(db, oldVersion, newVersion, _transaction) {
-        console.log(`Upgrading database from version ${oldVersion} to ${newVersion}`);
+        console.log(
+          `Upgrading database from version ${oldVersion} to ${newVersion}`,
+        );
 
         const CURRENT_VERSION = 2;
 
@@ -385,9 +391,7 @@ class TestManagementDatabase {
   /**
    * Export project with all test cases and batch runs
    */
-  async exportProject(
-    projectId: string,
-  ): Promise<ExportProject | null> {
+  async exportProject(projectId: string): Promise<ExportProject | null> {
     const project = await this.getProject(projectId);
     if (!project) {
       return null;
@@ -487,8 +491,6 @@ class TestManagementDatabase {
     return result;
   }
 
-
-
   // ==================== UTILITY METHODS ====================
 
   /**
@@ -546,7 +548,7 @@ class TestManagementDatabase {
     config: BatchRunConfig,
     testCaseId: string,
     projectId: string,
-    tags: string[] = []
+    tags: string[] = [],
   ): Promise<BatchRunSession> {
     const db = await this.ensureDB();
     const now = new Date();
@@ -602,7 +604,9 @@ class TestManagementDatabase {
    */
   async updateBatchRun(
     id: string,
-    updates: Partial<Pick<BatchRunSession, "results" | "statistics" | "status" | "endTime">>
+    updates: Partial<
+      Pick<BatchRunSession, "results" | "statistics" | "status" | "endTime">
+    >,
   ): Promise<BatchRunSession> {
     const db = await this.ensureDB();
     const existing = await db.get("batchRuns", id);
@@ -653,14 +657,18 @@ class TestManagementDatabase {
    */
   async getRecentBatchRuns(
     limit = 10,
-    projectId?: string
+    projectId?: string,
   ): Promise<BatchRunSession[]> {
     const db = await this.ensureDB();
 
     let batchRuns: BatchRunSession[];
 
     if (projectId) {
-      batchRuns = await db.getAllFromIndex("batchRuns", "by-project", projectId);
+      batchRuns = await db.getAllFromIndex(
+        "batchRuns",
+        "by-project",
+        projectId,
+      );
     } else {
       batchRuns = await db.getAll("batchRuns");
     }
@@ -683,11 +691,15 @@ class TestManagementDatabase {
    */
   async deleteBatchRunsByTestCase(testCaseId: string): Promise<void> {
     const db = await this.ensureDB();
-    const batchRuns = await db.getAllFromIndex("batchRuns", "by-testcase", testCaseId);
+    const batchRuns = await db.getAllFromIndex(
+      "batchRuns",
+      "by-testcase",
+      testCaseId,
+    );
 
     const tx = db.transaction("batchRuns", "readwrite");
     await Promise.all([
-      ...batchRuns.map(batchRun => tx.store.delete(batchRun.id)),
+      ...batchRuns.map((batchRun) => tx.store.delete(batchRun.id)),
       tx.done,
     ]);
   }

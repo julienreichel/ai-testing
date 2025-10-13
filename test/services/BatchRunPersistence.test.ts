@@ -89,8 +89,9 @@ describe("BatchRunPersistence - User Data Management", () => {
       const invalidData = { id: "", timestamp: "" };
 
       // User attempts to save invalid data
-      await expect(persistence.saveBatchRun(invalidData))
-        .rejects.toThrow("Invalid batch run data");
+      await expect(persistence.saveBatchRun(invalidData)).rejects.toThrow(
+        "Invalid batch run data",
+      );
     });
   });
 
@@ -168,7 +169,10 @@ describe("BatchRunPersistence - User Data Management", () => {
     it("should allow users to clear all their batch run history", async () => {
       // Setup multiple results
       await persistence.saveBatchRun(SAMPLE_BATCH_RESULT);
-      await persistence.saveBatchRun({ ...SAMPLE_BATCH_RESULT, id: "test-run-2" });
+      await persistence.saveBatchRun({
+        ...SAMPLE_BATCH_RESULT,
+        id: "test-run-2",
+      });
 
       // User wants to clear all their history
       await persistence.clearAllBatchRuns();
@@ -187,8 +191,9 @@ describe("BatchRunPersistence - User Data Management", () => {
       };
 
       // User attempts to save invalid data
-      await expect(persistence.saveBatchRun(invalidData))
-        .rejects.toThrow("Invalid batch run data");
+      await expect(persistence.saveBatchRun(invalidData)).rejects.toThrow(
+        "Invalid batch run data",
+      );
     });
 
     it("should ensure data consistency for user operations", async () => {

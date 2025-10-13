@@ -4,15 +4,33 @@
  */
 
 import { ref, type Ref } from "vue";
-import { testDB, type BatchRunSession } from "../services/testManagementDatabase";
-import type { BatchRunConfig, BatchRunResult, BatchStatistics } from "./useBatchRunner";
+import {
+  testDB,
+  type BatchRunSession,
+} from "../services/testManagementDatabase";
+import type {
+  BatchRunConfig,
+  BatchRunResult,
+  BatchStatistics,
+} from "./useBatchRunner";
 
 export interface BatchRunPersistence {
   currentSession: Ref<BatchRunSession | null>;
   recentSessions: Ref<BatchRunSession[]>;
-  saveBatchRunStart: (config: BatchRunConfig, testCaseId: string, projectId: string) => Promise<BatchRunSession>;
-  updateBatchRunProgress: (results: BatchRunResult[], statistics: BatchStatistics) => Promise<void>;
-  completeBatchRun: (results: BatchRunResult[], statistics: BatchStatistics, status: "completed" | "cancelled" | "failed") => Promise<void>;
+  saveBatchRunStart: (
+    config: BatchRunConfig,
+    testCaseId: string,
+    projectId: string,
+  ) => Promise<BatchRunSession>;
+  updateBatchRunProgress: (
+    results: BatchRunResult[],
+    statistics: BatchStatistics,
+  ) => Promise<void>;
+  completeBatchRun: (
+    results: BatchRunResult[],
+    statistics: BatchStatistics,
+    status: "completed" | "cancelled" | "failed",
+  ) => Promise<void>;
   loadRecentBatchRuns: (projectId?: string, limit?: number) => Promise<void>;
   loadBatchRunsByTestCase: (testCaseId: string) => Promise<BatchRunSession[]>;
   deleteBatchRun: (id: string) => Promise<void>;
@@ -42,7 +60,7 @@ const generateBatchRunTags = (config: BatchRunConfig): string[] => {
 const createBatchRunSession = async (
   config: BatchRunConfig,
   testCaseId: string,
-  projectId: string
+  projectId: string,
 ): Promise<BatchRunSession> => {
   const tags = generateBatchRunTags(config);
   return await testDB.createBatchRun(config, testCaseId, projectId, tags);
@@ -55,10 +73,14 @@ export function useBatchRunPersistence(): BatchRunPersistence {
   const saveBatchRunStart = async (
     config: BatchRunConfig,
     testCaseId: string,
-    projectId: string
+    projectId: string,
   ): Promise<BatchRunSession> => {
     try {
-      const session = await createBatchRunSession(config, testCaseId, projectId);
+      const session = await createBatchRunSession(
+        config,
+        testCaseId,
+        projectId,
+      );
       currentSession.value = session;
       return session;
     } catch (error) {
@@ -68,7 +90,7 @@ export function useBatchRunPersistence(): BatchRunPersistence {
 
   const updateBatchRunProgress = async (
     results: BatchRunResult[],
-    statistics: BatchStatistics
+    statistics: BatchStatistics,
   ): Promise<void> => {
     if (!currentSession.value) {
       console.warn("No current batch run session to update");
@@ -89,7 +111,7 @@ export function useBatchRunPersistence(): BatchRunPersistence {
   const completeBatchRun = async (
     results: BatchRunResult[],
     statistics: BatchStatistics,
-    status: "completed" | "cancelled" | "failed"
+    status: "completed" | "cancelled" | "failed",
   ): Promise<void> => {
     if (!currentSession.value) {
       console.warn("No current batch run session to complete");
@@ -109,7 +131,10 @@ export function useBatchRunPersistence(): BatchRunPersistence {
     }
   };
 
-  const loadRecentBatchRuns = async (projectId?: string, limit = 10): Promise<void> => {
+  const loadRecentBatchRuns = async (
+    projectId?: string,
+    limit = 10,
+  ): Promise<void> => {
     try {
       const sessions = await testDB.getRecentBatchRuns(limit, projectId);
       recentSessions.value = sessions;
@@ -118,7 +143,9 @@ export function useBatchRunPersistence(): BatchRunPersistence {
     }
   };
 
-  const loadBatchRunsByTestCase = async (testCaseId: string): Promise<BatchRunSession[]> => {
+  const loadBatchRunsByTestCase = async (
+    testCaseId: string,
+  ): Promise<BatchRunSession[]> => {
     try {
       return await testDB.getBatchRunsByTestCase(testCaseId);
     } catch (error) {
@@ -133,7 +160,9 @@ export function useBatchRunPersistence(): BatchRunPersistence {
       if (currentSession.value?.id === id) {
         currentSession.value = null;
       }
-      recentSessions.value = recentSessions.value.filter(session => session.id !== id);
+      recentSessions.value = recentSessions.value.filter(
+        (session) => session.id !== id,
+      );
     } catch (error) {
       return handleDatabaseError("delete batch run", error);
     }

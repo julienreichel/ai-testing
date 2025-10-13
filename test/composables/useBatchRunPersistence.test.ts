@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { useBatchRunPersistence } from "../../src/composables/useBatchRunPersistence";
-import type { BatchRunConfig, BatchRunResult, BatchStatistics } from "../../src/composables/useBatchRunner";
+import type {
+  BatchRunConfig,
+  BatchRunResult,
+  BatchStatistics,
+} from "../../src/composables/useBatchRunner";
 import type { BatchRunSession } from "../../src/services/testManagementDatabase";
 
 // Mock the testManagementDatabase service (external dependency)
@@ -40,9 +44,11 @@ vi.mock("../../src/services/testManagementDatabase", () => {
   return {
     testDB: {
       createBatchRun: vi.fn().mockResolvedValue(mockBatchRunSession),
-      updateBatchRun: vi.fn().mockImplementation((id, updates) =>
-        Promise.resolve({ ...mockBatchRunSession, ...updates })
-      ),
+      updateBatchRun: vi
+        .fn()
+        .mockImplementation((id, updates) =>
+          Promise.resolve({ ...mockBatchRunSession, ...updates }),
+        ),
       getRecentBatchRuns: vi.fn().mockResolvedValue([mockBatchRunSession]),
       getBatchRunsByTestCase: vi.fn().mockResolvedValue([mockBatchRunSession]),
       deleteBatchRun: vi.fn().mockResolvedValue(undefined),
@@ -122,7 +128,7 @@ describe("useBatchRunPersistence - Developer Experience", () => {
       const session = await saveBatchRunStart(
         SAMPLE_BATCH_CONFIG,
         "test-case-456",
-        "project-789"
+        "project-789",
       );
 
       // Should create session successfully
@@ -135,28 +141,33 @@ describe("useBatchRunPersistence - Developer Experience", () => {
 
     it("should handle database errors gracefully during session start", async () => {
       // Mock database error
-      const { testDB } = await import("../../src/services/testManagementDatabase");
+      const { testDB } = await import(
+        "../../src/services/testManagementDatabase"
+      );
       (testDB.createBatchRun as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-        new Error("Database connection failed")
+        new Error("Database connection failed"),
       );
 
       const { saveBatchRunStart } = useBatchRunPersistence();
 
       // Developer attempts to start batch run with database error
-      await expect(saveBatchRunStart(
-        SAMPLE_BATCH_CONFIG,
-        "test-case-456",
-        "project-789"
-      )).rejects.toThrow("Database connection failed");
+      await expect(
+        saveBatchRunStart(SAMPLE_BATCH_CONFIG, "test-case-456", "project-789"),
+      ).rejects.toThrow("Database connection failed");
     });
   });
 
   describe("When developers track batch run progress", () => {
     it("should update session progress without blocking execution", async () => {
-      const { saveBatchRunStart, updateBatchRunProgress, currentSession } = useBatchRunPersistence();
+      const { saveBatchRunStart, updateBatchRunProgress, currentSession } =
+        useBatchRunPersistence();
 
       // Start session first
-      await saveBatchRunStart(SAMPLE_BATCH_CONFIG, "test-case-456", "project-789");
+      await saveBatchRunStart(
+        SAMPLE_BATCH_CONFIG,
+        "test-case-456",
+        "project-789",
+      );
 
       // Developer updates progress
       await updateBatchRunProgress(SAMPLE_BATCH_RESULTS, SAMPLE_STATISTICS);
@@ -170,48 +181,73 @@ describe("useBatchRunPersistence - Developer Experience", () => {
       const { updateBatchRunProgress } = useBatchRunPersistence();
 
       // Console.warn should be called but no error thrown
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
       // Should not throw when no current session
-      await expect(updateBatchRunProgress(SAMPLE_BATCH_RESULTS, SAMPLE_STATISTICS))
-        .resolves.toBeUndefined();
+      await expect(
+        updateBatchRunProgress(SAMPLE_BATCH_RESULTS, SAMPLE_STATISTICS),
+      ).resolves.toBeUndefined();
 
-      expect(consoleSpy).toHaveBeenCalledWith("No current batch run session to update");
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "No current batch run session to update",
+      );
       consoleSpy.mockRestore();
     });
 
     it("should continue execution even if progress update fails", async () => {
-      const { saveBatchRunStart, updateBatchRunProgress } = useBatchRunPersistence();
+      const { saveBatchRunStart, updateBatchRunProgress } =
+        useBatchRunPersistence();
 
       // Start session
-      await saveBatchRunStart(SAMPLE_BATCH_CONFIG, "test-case-456", "project-789");
-
-      // Mock database error for update
-      const { testDB } = await import("../../src/services/testManagementDatabase");
-      (testDB.updateBatchRun as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-        new Error("Update failed")
+      await saveBatchRunStart(
+        SAMPLE_BATCH_CONFIG,
+        "test-case-456",
+        "project-789",
       );
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      // Mock database error for update
+      const { testDB } = await import(
+        "../../src/services/testManagementDatabase"
+      );
+      (testDB.updateBatchRun as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+        new Error("Update failed"),
+      );
+
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
       // Should not throw - batch execution should continue
-      await expect(updateBatchRunProgress(SAMPLE_BATCH_RESULTS, SAMPLE_STATISTICS))
-        .resolves.toBeUndefined();
+      await expect(
+        updateBatchRunProgress(SAMPLE_BATCH_RESULTS, SAMPLE_STATISTICS),
+      ).resolves.toBeUndefined();
 
-      expect(consoleSpy).toHaveBeenCalledWith("Failed to update batch run progress:", expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to update batch run progress:",
+        expect.any(Error),
+      );
       consoleSpy.mockRestore();
     });
   });
 
   describe("When developers complete batch runs", () => {
     it("should finalize session with completion status", async () => {
-      const { saveBatchRunStart, completeBatchRun, currentSession } = useBatchRunPersistence();
+      const { saveBatchRunStart, completeBatchRun, currentSession } =
+        useBatchRunPersistence();
 
       // Start session
-      await saveBatchRunStart(SAMPLE_BATCH_CONFIG, "test-case-456", "project-789");
+      await saveBatchRunStart(
+        SAMPLE_BATCH_CONFIG,
+        "test-case-456",
+        "project-789",
+      );
 
       // Developer completes batch run
-      await completeBatchRun(SAMPLE_BATCH_RESULTS, SAMPLE_STATISTICS, "completed");
+      await completeBatchRun(
+        SAMPLE_BATCH_RESULTS,
+        SAMPLE_STATISTICS,
+        "completed",
+      );
 
       // Should update session status
       expect(currentSession.value?.status).toBe("completed");
@@ -221,13 +257,16 @@ describe("useBatchRunPersistence - Developer Experience", () => {
     it("should handle completion gracefully when no session exists", async () => {
       const { completeBatchRun } = useBatchRunPersistence();
 
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
       // Should not throw when no current session
-      await expect(completeBatchRun(SAMPLE_BATCH_RESULTS, SAMPLE_STATISTICS, "completed"))
-        .resolves.toBeUndefined();
+      await expect(
+        completeBatchRun(SAMPLE_BATCH_RESULTS, SAMPLE_STATISTICS, "completed"),
+      ).resolves.toBeUndefined();
 
-      expect(consoleSpy).toHaveBeenCalledWith("No current batch run session to complete");
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "No current batch run session to complete",
+      );
       consoleSpy.mockRestore();
     });
   });
@@ -261,10 +300,19 @@ describe("useBatchRunPersistence - Developer Experience", () => {
 
   describe("When developers manage batch run sessions", () => {
     it("should delete sessions and update state", async () => {
-      const { saveBatchRunStart, deleteBatchRun, currentSession, loadRecentBatchRuns } = useBatchRunPersistence();
+      const {
+        saveBatchRunStart,
+        deleteBatchRun,
+        currentSession,
+        loadRecentBatchRuns,
+      } = useBatchRunPersistence();
 
       // Start session and add to recent
-      await saveBatchRunStart(SAMPLE_BATCH_CONFIG, "test-case-456", "project-789");
+      await saveBatchRunStart(
+        SAMPLE_BATCH_CONFIG,
+        "test-case-456",
+        "project-789",
+      );
       await loadRecentBatchRuns();
 
       const sessionId = currentSession.value?.id || "session-123";
@@ -277,10 +325,15 @@ describe("useBatchRunPersistence - Developer Experience", () => {
     });
 
     it("should clear current session manually", async () => {
-      const { saveBatchRunStart, clearCurrentSession, currentSession } = useBatchRunPersistence();
+      const { saveBatchRunStart, clearCurrentSession, currentSession } =
+        useBatchRunPersistence();
 
       // Start session first
-      await saveBatchRunStart(SAMPLE_BATCH_CONFIG, "test-case-456", "project-789");
+      await saveBatchRunStart(
+        SAMPLE_BATCH_CONFIG,
+        "test-case-456",
+        "project-789",
+      );
 
       // Developer clears session
       clearCurrentSession();

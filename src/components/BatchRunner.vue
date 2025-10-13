@@ -4,17 +4,19 @@
       <div class="header-container">
         <h3>{{ $t("batch.runner.title") }}</h3>
         <div class="badge-container">
-          <base-badge
-            v-if="batchRunner.state.isRunning"
-            variant="info"
-          >
+          <base-badge v-if="batchRunner.state.isRunning" variant="info">
             {{ $t("batch.runner.status.running") }}
           </base-badge>
           <base-badge
             v-else-if="batchRunner.state.completedRuns > 0"
-            :variant="batchRunner.statistics.value.passRate >= 80 ? 'success' : 'warning'"
+            :variant="
+              batchRunner.statistics.value.passRate >= 80
+                ? 'success'
+                : 'warning'
+            "
           >
-            {{ Math.round(batchRunner.statistics.value.passRate) }}% {{ $t("batch.runner.passRate") }}
+            {{ Math.round(batchRunner.statistics.value.passRate) }}%
+            {{ $t("batch.runner.passRate") }}
           </base-badge>
         </div>
       </div>
@@ -54,36 +56,43 @@
       <!-- Progress Section -->
       <div v-if="batchRunner.state.totalRuns > 0" class="progress-section">
         <div class="progress-header">
-          <span>{{ $t("batch.progress.completed", {
-            completed: batchRunner.state.completedRuns,
-            total: batchRunner.state.totalRuns
-          }) }}</span>
+          <span>{{
+            $t("batch.progress.completed", {
+              completed: batchRunner.state.completedRuns,
+              total: batchRunner.state.totalRuns,
+            })
+          }}</span>
           <span>{{ batchRunner.progress }}%</span>
         </div>
 
         <div class="progress-bar-container">
-          <div
-            class="progress-bar"
-            :style="progressBarStyle"
-          ></div>
+          <div class="progress-bar" :style="progressBarStyle"></div>
         </div>
 
         <!-- Real-time Statistics -->
         <div class="stats-grid">
           <div class="stat-item">
-            <div class="stat-value stat-success">{{ batchRunner.statistics.value.passedRuns }}</div>
+            <div class="stat-value stat-success">
+              {{ batchRunner.statistics.value.passedRuns }}
+            </div>
             <div class="stat-label">{{ $t("batch.stats.passed") }}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value stat-error">{{ batchRunner.statistics.value.failedRuns }}</div>
+            <div class="stat-value stat-error">
+              {{ batchRunner.statistics.value.failedRuns }}
+            </div>
             <div class="stat-label">{{ $t("batch.stats.failed") }}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value stat-info">{{ Math.round(batchRunner.statistics.value.avgDuration) }}ms</div>
+            <div class="stat-value stat-info">
+              {{ Math.round(batchRunner.statistics.value.avgDuration) }}ms
+            </div>
             <div class="stat-label">{{ $t("batch.stats.avgLatency") }}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value stat-purple">${{ batchRunner.statistics.value.totalCost.toFixed(4) }}</div>
+            <div class="stat-value stat-purple">
+              ${{ batchRunner.statistics.value.totalCost.toFixed(4) }}
+            </div>
             <div class="stat-label">{{ $t("batch.stats.totalCost") }}</div>
           </div>
         </div>
@@ -104,7 +113,10 @@
       </div>
 
       <!-- Results Visualization -->
-      <div v-if="batchRunner.state.results.length > 0" class="visualization-section">
+      <div
+        v-if="batchRunner.state.results.length > 0"
+        class="visualization-section"
+      >
         <batch-results-visualization
           :results="batchRunner.state.results"
           :statistics="batchRunner.statistics.value"
@@ -133,7 +145,10 @@
           </base-button>
 
           <base-button
-            v-if="batchRunner.state.completedRuns > 0 && !batchRunner.state.isRunning"
+            v-if="
+              batchRunner.state.completedRuns > 0 &&
+              !batchRunner.state.isRunning
+            "
             variant="outline"
             @click="resetBatch"
           >
@@ -157,7 +172,11 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { useBatchRunner, type BatchRunConfig, type BatchRunResult } from "../composables/useBatchRunner";
+import {
+  useBatchRunner,
+  type BatchRunConfig,
+  type BatchRunResult,
+} from "../composables/useBatchRunner";
 import type { TestCase } from "../types/testManagement";
 import BaseCard from "./ui/BaseCard.vue";
 import BaseInputField from "./ui/BaseInputField.vue";
@@ -194,16 +213,18 @@ const config = ref<Omit<BatchRunConfig, "testCase" | "providerId" | "model">>({
 
 // Computed properties
 const canStart = computed(() => {
-  return !props.disabled &&
-         props.testCase &&
-         props.providerId &&
-         props.model &&
-         config.value.runCount > 0 &&
-         !batchRunner.state.isRunning;
+  return (
+    !props.disabled &&
+    props.testCase &&
+    props.providerId &&
+    props.model &&
+    config.value.runCount > 0 &&
+    !batchRunner.state.isRunning
+  );
 });
 
 const progressBarStyle = computed(() => ({
-  width: `${batchRunner.progress.value}%`
+  width: `${batchRunner.progress.value}%`,
 }));
 
 // Methods
@@ -243,7 +264,7 @@ watch(
     if (wasRunning && !isRunning && !batchRunner.state.isCancelled) {
       emit("batch-completed", batchRunner.state.results);
     }
-  }
+  },
 );
 </script>
 

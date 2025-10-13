@@ -128,7 +128,9 @@ describe("TestManagementDatabase - Basic API", () => {
       ];
 
       // eslint-disable-next-line @typescript-eslint/unbound-method
-      vi.mocked(testDB.getBatchRunsByProject).mockResolvedValue(mockResult as never);
+      vi.mocked(testDB.getBatchRunsByProject).mockResolvedValue(
+        mockResult as never,
+      );
 
       // Act: User gets batch runs for project
       const result = await testDB.getBatchRunsByProject(projectId);
@@ -162,7 +164,10 @@ describe("TestManagementDatabase - Basic API", () => {
 
       // Assert: Method called correctly
       // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(testDB.updateBatchRun).toHaveBeenCalledWith(batchRunId, updateData);
+      expect(testDB.updateBatchRun).toHaveBeenCalledWith(
+        batchRunId,
+        updateData,
+      );
       expect(result.status).toBe("completed");
     });
   });

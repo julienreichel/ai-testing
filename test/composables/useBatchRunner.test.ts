@@ -98,7 +98,15 @@ describe("useBatchRunner - User Behavior", () => {
       // Simulate some state changes
       state.completedRuns = 5;
       state.totalRuns = 10;
-      state.results = [{ id: "test", runIndex: 0, status: "completed", startTime: new Date(), retryCount: 0 }];
+      state.results = [
+        {
+          id: "test",
+          runIndex: 0,
+          status: "completed",
+          startTime: new Date(),
+          retryCount: 0,
+        },
+      ];
       state.errors = ["Test error"];
 
       // User resets the batch runner
@@ -131,7 +139,7 @@ describe("useBatchRunner - User Behavior", () => {
       // Should complete the batch run but with error states
       expect(state.isRunning).toBe(false);
       expect(state.errors.length).toBeGreaterThan(0);
-      expect(state.results.some(r => r.status === "failed")).toBe(true);
+      expect(state.results.some((r) => r.status === "failed")).toBe(true);
     });
   });
 });

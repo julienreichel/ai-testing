@@ -59,7 +59,11 @@
             :disabled="!canRunBatch"
             @click="toggleBatchRunner"
           >
-            {{ showBatchRunner ? $t("promptEditor.hideBatch") : $t("promptEditor.showBatch") }}
+            {{
+              showBatchRunner
+                ? $t("promptEditor.hideBatch")
+                : $t("promptEditor.showBatch")
+            }}
           </base-button>
         </div>
       </div>
@@ -187,9 +191,11 @@ const testCaseForBatch = computed((): TestCase => {
     id: currentTestCaseId.value || crypto.randomUUID(),
     projectId: currentTestCase.value?.projectId || "editor-batch",
     name: currentTestCase.value?.name || "Editor Batch Test",
-    description: currentTestCase.value?.description || "Batch test created from editor",
+    description:
+      currentTestCase.value?.description || "Batch test created from editor",
     prompt: promptData.value.userPrompt,
-    rules: validationRules.value.rules.length > 0 ? [validationRules.value] : [],
+    rules:
+      validationRules.value.rules.length > 0 ? [validationRules.value] : [],
     tags: currentTestCase.value?.tags || [],
     createdAt: currentTestCase.value?.createdAt || new Date(),
     updatedAt: new Date(),
@@ -288,11 +294,15 @@ const onBatchCancelled = (): void => {
 const onExportResults = (results: BatchRunResult[]): void => {
   console.log("Exporting batch results", results);
   // TODO: Implement CSV export or similar
-  const csvContent = "data:text/csv;charset=utf-8," +
+  const csvContent =
+    "data:text/csv;charset=utf-8," +
     "Run,Status,Duration,Cost,Passed,Response\n" +
-    results.map(r =>
-      `${r.runIndex},${r.status},${r.duration || 0},${r.cost || 0},${r.passed},${r.response?.replace(/,/g, ';') || ''}`
-    ).join("\n");
+    results
+      .map(
+        (r) =>
+          `${r.runIndex},${r.status},${r.duration || 0},${r.cost || 0},${r.passed},${r.response?.replace(/,/g, ";") || ""}`,
+      )
+      .join("\n");
 
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");
