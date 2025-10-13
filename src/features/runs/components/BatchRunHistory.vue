@@ -262,7 +262,7 @@ import type { Project } from "../../../types/testManagement";
 import type { BatchRunResult } from "../../../composables/useBatchRunner";
 import BaseButton from "../../../components/ui/BaseButton.vue";
 import BaseBadge from "../../../components/ui/BaseBadge.vue";
-import BatchResultsVisualization from "../../../components/BatchResultsVisualization.vue";
+import BatchResultsVisualization from "./BatchResultsVisualization.vue";
 
 interface Props {
   projectId?: string;

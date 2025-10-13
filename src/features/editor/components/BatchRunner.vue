@@ -112,18 +112,6 @@
         </div>
       </div>
 
-      <!-- Results Visualization -->
-      <div
-        v-if="batchRunner.state.results.length > 0"
-        class="visualization-section"
-      >
-        <batch-results-visualization
-          :results="batchRunner.state.results"
-          :statistics="batchRunner.statistics.value"
-          :is-running="batchRunner.state.isRunning"
-        />
-      </div>
-
       <!-- Control Buttons -->
       <div class="controls-container">
         <div class="controls-left">
@@ -182,7 +170,6 @@ import BaseCard from "../../../components/ui/BaseCard.vue";
 import BaseInputField from "../../../components/ui/BaseInputField.vue";
 import BaseButton from "../../../components/ui/BaseButton.vue";
 import BaseBadge from "../../../components/ui/BaseBadge.vue";
-import BatchResultsVisualization from "../../../components/BatchResultsVisualization.vue";
 
 interface Props {
   testCase: TestCase;
