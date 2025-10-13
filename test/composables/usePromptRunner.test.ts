@@ -33,7 +33,7 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
         { role: "user", content: "Hello, how are you?" },
       ],
       temperature: 0.7,
-      maxTokens: 150,
+      maxTokens: 1000,
     };
   });
 

@@ -243,7 +243,7 @@ const executeSingleRun = async (params: {
         model: config.model,
         messages: [{ role: "user", content: config.testCase.prompt }],
         temperature: 0.7,
-        maxTokens: 150,
+        maxTokens: 1000,
       };
 
       // Execute the actual request

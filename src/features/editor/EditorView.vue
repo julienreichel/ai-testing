@@ -146,7 +146,7 @@ const providerSelection = ref<ProviderSelection>({
 const promptData = ref<PromptData>({
   userPrompt: "",
   temperature: 0.7,
-  maxTokens: 150,
+  maxTokens: 1000,
 });
 
 // Rules state
@@ -242,7 +242,7 @@ const clearAll = (): void => {
   promptData.value = {
     userPrompt: "",
     temperature: 0.7,
-    maxTokens: 150,
+    maxTokens: 1000,
   };
   promptRunner.clearResults();
   validationResult.value = null;

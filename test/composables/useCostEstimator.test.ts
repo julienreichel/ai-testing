@@ -27,7 +27,7 @@ describe("useCostEstimator - User Cost Estimation Behavior", () => {
       userPrompt: ref("Hello, how are you?"),
       providerId: ref("openai"),
       model: ref("gpt-3.5-turbo"),
-      maxTokens: ref(150),
+      maxTokens: ref(1000),
     };
   });
 
@@ -44,7 +44,7 @@ describe("useCostEstimator - User Cost Estimation Behavior", () => {
       expect(estimate.outputCost).toBeGreaterThan(0);
       expect(estimate.totalCost).toBe(estimate.inputCost + estimate.outputCost);
       expect(estimate.inputTokens).toBeGreaterThan(0);
-      expect(estimate.estimatedOutputTokens).toBe(150); // matches maxTokens
+      expect(estimate.estimatedOutputTokens).toBe(1000); // matches maxTokens
       expect(estimate.totalTokens).toBe(
         estimate.inputTokens + estimate.estimatedOutputTokens,
       );
@@ -135,7 +135,7 @@ describe("useCostEstimator - User Cost Estimation Behavior", () => {
       const { costEstimate } = useCostEstimator(mockParams);
 
       // User gets reasonable default estimation
-      expect(costEstimate.value.estimatedOutputTokens).toBe(150); // DEFAULT_MAX_TOKENS
+      expect(costEstimate.value.estimatedOutputTokens).toBe(1000); // DEFAULT_MAX_TOKENS
       expect(costEstimate.value.outputCost).toBeGreaterThan(0);
     });
   });

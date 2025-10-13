@@ -121,7 +121,7 @@ const updateUserPrompt = (value: string | number): void => {
 };
 
 const DEFAULT_TEMPERATURE = 0.7;
-const DEFAULT_MAX_TOKENS = 150;
+const DEFAULT_MAX_TOKENS = 1000;
 
 const updateTemperature = (value: string | number): void => {
   const numValue = typeof value === "string" ? parseFloat(value) : value;

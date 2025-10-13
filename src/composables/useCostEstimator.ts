@@ -4,7 +4,7 @@ import { useProvidersStore } from "../store/providers";
 
 // Constants for cost estimation
 const CHARS_PER_TOKEN = 4;
-const DEFAULT_MAX_TOKENS = 150;
+const DEFAULT_MAX_TOKENS = 1000;
 const TOKENS_PER_THOUSAND = 1000;
 const MIN_COST_THRESHOLD = 0.001;
 const COST_PRECISION = 3;

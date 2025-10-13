@@ -207,7 +207,7 @@ describe("useTestManagementState - User State Management Behavior", () => {
         response: "AI generated response",
         executionTime: 2500,
         status: "completed",
-        modelConfig: { temperature: 0.7, maxTokens: 150 },
+        modelConfig: { temperature: 0.7, maxTokens: 1000 },
         tokens: {
           promptTokens: 25,
           completionTokens: 45,
