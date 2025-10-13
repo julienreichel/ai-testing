@@ -1,172 +1,302 @@
-# AI Testing Platform
+# 🧠 AI Tester - Multi-Provider AI Testing Platform
 
-A comprehensive Vue 3 + TypeScript platform for managing and testing AI providers with a robust component architecture.
+> **🚀 [Try the Live Demo](https://julienreichel.github.io/ai-testing/)**
 
-## 🚀 Features
+A comprehensive Vue 3 + TypeScript platform for testing, comparing, and validating prompts across multiple AI providers. Test your prompts with OpenAI, Anthropic Claude, Mistral AI, Google Gemini, and more - all in one unified interface.
 
-- **Provider Management**: Add, test, and manage multiple AI providers (OpenAI, Claude, Mock)
-- **Secure Storage**: API keys stored locally in browser with encryption notice
-- **Real-time Testing**: Test provider connections with visual feedback
-- **Responsive Design**: Clean, modern UI with dark/light theme support
-- **Internationalization**: Full i18n support with Vue I18n
-- **Type Safety**: Complete TypeScript coverage with strict type checking
+## ✨ Key Features
 
-## 🏗️ Architecture
+- **🔌 Multi-Provider Support**: OpenAI, Anthropic Claude, Mistral AI, Google Gemini
+- **🧪 Prompt Testing**: Compare responses across different models and providers
+- **📊 Cost Analysis**: Real-time token usage and cost estimation
+- **🎯 Rules Engine**: Automated validation with custom pass/fail criteria
+- **💾 Data Management**: Local storage with export/import capabilities
+- **🔒 Privacy-First**: All data stays in your browser - no backend required
+- **📱 Responsive Design**: Works on desktop, tablet, and mobile
 
-### Component System
+## 🎮 How to Use the Platform
 
-Built with a comprehensive reusable component library:
+### 1. **🚀 [Open the Live Demo](https://julienreichel.github.io/ai-testing/)**
 
-- **10 Base UI Components**: Button, Dialog, Form, Input, Card, Badge, Toast, Notice, Spinner, EmptyState
-- **Feature Components**: ProviderCard, ProviderForm for specialized functionality
-- **Clean Architecture**: 75% code reduction through component extraction (762 → 190 lines)
+No installation required! The platform runs entirely in your browser.
 
-### Key Benefits
+### 2. **Configure AI Providers**
 
-- **DRY Principle**: Single source of truth for UI patterns
-- **Type Safety**: Full TypeScript interfaces for all components
-- **Accessibility**: Built-in ARIA labels and keyboard navigation
-- **Testing Ready**: Boston School behavior-driven testing approach
-- **Maintainable**: Separated concerns with clear component boundaries
+1. Navigate to **Providers** section
+2. Add your preferred AI providers:
+   - **OpenAI**: Requires API key from [OpenAI Platform](https://platform.openai.com/)
+   - **Anthropic**: Get API key from [Anthropic Console](https://console.anthropic.com/)
+   - **Mistral**: Sign up at [Mistral AI Platform](https://console.mistral.ai/)
+   - **Google Gemini**: Get API key from [Google AI Studio](https://aistudio.google.com/)
+3. Test connections to verify your API keys work
 
-## 🛠️ Tech Stack
+### 3. **Create and Test Prompts**
 
-- **Vue 3** - Composition API with `<script setup>`
-- **TypeScript** - Full type safety and IDE support
-- **Vite** - Fast build tool and development server
-- **Pinia** - State management for provider data
-- **Vue Router 4** - Client-side routing
-- **Vue I18n** - Internationalization
-- **Vitest** - Unit testing framework
-- **ESLint + Prettier** - Code quality and formatting
+1. Go to **Editor** section
+2. Write your system prompt and user message
+3. Select models from different providers
+4. Compare responses, costs, and performance
+5. Save successful prompts for future use
 
-## 🧪 Testing
+### 4. **Set Up Validation Rules**
 
-- **34/34 tests passing** with comprehensive coverage
-- **Boston School approach**: Tests focus on user behavior, not implementation
-- **Behavior-driven**: Tests survive refactoring and document expected behavior
-- **Real i18n integration**: Tests use production translation files (DRY principle)
+1. Visit the **Tests** section
+2. Create rules to automatically validate AI responses:
+   - Text matching (exact, contains, regex)
+   - Length constraints
+   - Custom validation logic
+3. Run batch tests to ensure consistency
 
-## 🎯 Development Standards
+### 5. **Analyze Results**
 
-### Code Quality
+1. Check **Runs** section for execution history
+2. View cost breakdowns and token usage
+3. Export data for further analysis
+4. Track performance trends over time
 
-- **Clean Code Principles**: SOLID, DRY, YAGNI enforcement
-- **ESLint Compliance**: No magic numbers, proper imports, consistent naming
-- **i18n First**: No hardcoded strings, all text through translation system
-- **Component Patterns**: Consistent prop validation, event emission, slot usage
+## 🔒 Privacy & Security
 
-### Commit Standards
+- **Local Storage Only**: All data stays in your browser
+- **No Backend**: Direct API calls to providers
+- **API Key Security**: Keys stored locally, never transmitted to our servers
+- **CORS Limitations**: Some providers may require a proxy for browser access
 
-- **Conventional Commits 1.0.0**: Enforced with commitlint
-- **Sentence-case subjects**: "Add feature" not "add feature"
-- **Imperative mood**: "Fix bug" not "Fixed bug"
+## 🛠️ Development Setup
 
-## 🚦 Getting Started
+### Prerequisites
+
+- **Node.js** 18+ 
+- **npm** or **yarn**
+- **Git**
+
+### Quick Start
 
 ```bash
+# Clone the repository
+git clone https://github.com/julienreichel/ai-testing.git
+cd ai-testing
+
 # Install dependencies
 npm install
 
 # Start development server
 npm run dev
 
-# Run tests
-npm test
-
-# Build for production
-npm run build
-
-# Type checking
-npm run type-check
-
-# Lint and format
-npm run lint
-npm run format
+# Open http://localhost:5173
 ```
 
-## 📁 Project Structure
+### Development Commands
+
+```bash
+# Development
+npm run dev              # Start dev server with HMR
+npm run dev:host         # Expose dev server to network
+
+# Testing
+npm test                 # Run all tests (495+ tests)
+npm run test:watch       # Run tests in watch mode
+npm run test:coverage    # Generate coverage report
+
+# Code Quality
+npm run lint             # ESLint code analysis
+npm run format           # Prettier code formatting
+npm run type-check       # TypeScript type checking
+
+# Build
+npm run build            # Production build
+npm run preview          # Preview production build
+```
+
+## 🏗️ Architecture
+
+### Tech Stack
+
+- **Vue 3** - Composition API with `<script setup>`
+- **TypeScript** - Full type safety (strict mode)
+- **Vite** - Lightning-fast build tool
+- **Pinia** - Vue state management
+- **Vue Router 4** - Client-side routing
+- **Vue I18n** - Internationalization
+- **Vitest** - Modern testing framework
+- **IndexedDB** - Client-side database
+
+### Project Structure
 
 ```
 src/
 ├── components/
-│   └── ui/                    # 10 reusable UI components
+│   └── ui/                     # 10+ reusable UI components
 ├── features/
-│   └── providers/             # Provider management feature
-│       ├── ProvidersView.vue  # Main view (190 lines)
-│       └── components/        # Feature-specific components
-├── store/                     # Pinia stores
-├── router/                    # Vue Router configuration
-├── locales/                   # i18n translations
-└── assets/                    # Global styles and assets
+│   ├── providers/              # Provider management
+│   ├── editor/                 # Prompt testing interface
+│   ├── tests/                  # Test case management
+│   └── runs/                   # Execution history
+├── store/                      # Pinia state stores
+├── composables/                # Reusable Vue logic
+├── types/                      # TypeScript definitions
+└── locales/                    # i18n translations
 ```
 
-## 🎨 Component Library
+### Component Library
 
-### Base UI Components
+**10+ Production-Ready UI Components:**
 
-- **BaseButton**: Variants (primary, outline, danger), loading states, sizes
-- **BaseDialog**: Accessible modals with ESC/click-outside handling
-- **BaseForm**: Form wrapper with validation and loading states
-- **BaseCard**: Flexible content containers with slots
-- **BaseNotice**: Warning/info/error notifications
-- **BaseToast**: Auto-hide notifications
-- **BaseBadge**: Status indicators
-- **BaseSpinner**: Loading indicators
-- **BaseInputField**: Unified form inputs
-- **BaseEmptyState**: Empty state displays with actions
+- `BaseButton` - Variants, loading states, accessibility
+- `BaseDialog` - Modal system with ESC/click-outside
+- `BaseForm` - Form validation and submission
+- `BaseCard` - Flexible content containers
+- `BaseNotice` - Alert notifications
+- `BaseToast` - Auto-hide notifications
+- `BaseBadge` - Status indicators
+- `BaseSpinner` - Loading states
+- `BaseInputField` - Form inputs
+- `BaseEmptyState` - Empty state handling
 
-### Usage Example
+## 🧪 Testing Excellence
 
-```vue
-<BaseButton variant="primary" :loading="isSubmitting" @click="handleSubmit">
-  {{ $t('common.submit') }}
-</BaseButton>
+**495+ Tests with 100% Pass Rate**
 
-<BaseDialog v-model="showDialog" :title="$t('providers.addProvider')">
-  <ProviderForm @submit="addProvider" @cancel="closeDialog" />
-</BaseDialog>
-```
-
-## 🔧 Configuration
-
-### Environment Variables
+- **Boston School Testing**: Behavior-driven, user-focused tests
+- **Complete Coverage**: Components, composables, services, features
+- **Real i18n Integration**: Tests use production translations
+- **IndexedDB Mocking**: Full database testing capabilities
+- **Type-Safe Testing**: Full TypeScript in test environment
 
 ```bash
-VITE_APP_TITLE=AI Testing Platform
-VITE_API_BASE_URL=https://api.example.com
+# Test execution examples
+npm test                    # All tests
+npm test providers          # Provider-specific tests
+npm test components         # UI component tests
+npm run test:coverage       # Coverage report
 ```
 
-### TypeScript
+## 🔌 Adding New AI Providers
 
-- Strict mode enabled
-- Path aliases configured (`@/` → `src/`)
-- Component prop validation
+### 1. Create Provider Adapter
 
-### ESLint Rules
+```typescript
+// src/providers/YourProviderAdapter.ts
+import { BaseProviderAdapter } from "../types/providers";
 
-- `no-magic-numbers`: Use named constants
-- `vue/component-name-in-template-casing`: PascalCase components
-- Custom rules for i18n usage
+export class YourProviderAdapter extends BaseProviderAdapter {
+  async call(request: ProviderRequest): Promise<ProviderResponse> {
+    // Implement API call logic
+  }
+  
+  getModels(): ProviderModel[] {
+    // Return supported models
+  }
+  
+  getPricing(model: string): ProviderPricing | null {
+    // Return pricing information
+  }
+  
+  validateConfig(): boolean {
+    // Validate API key/configuration
+  }
+}
+```
 
-## 📈 Metrics
+### 2. Register Provider
 
-- **Code Coverage**: 80%+ for new code, 90%+ for critical paths
+```typescript
+// src/providers/index.ts
+import { YourProviderAdapter } from "./YourProviderAdapter";
+
+export type ProviderType = "openai" | "anthropic" | "mistral" | "gemini" | "yourprovider" | "mock";
+
+const PROVIDER_CONSTRUCTORS = {
+  // ... existing providers
+  yourprovider: YourProviderAdapter,
+};
+```
+
+### 3. Add Tests
+
+```typescript
+// test/providers/YourProviderAdapter.test.ts
+describe("YourProviderAdapter - User Behavior", () => {
+  it("should successfully process chat completions", async () => {
+    // Test user-visible behavior
+  });
+});
+```
+
+### 4. Update Documentation
+
+- Add provider details to `KNOWLEDGE_BASE.md`
+- Update README with new provider information
+- Document API requirements and setup
+
+## 📊 Performance Metrics
+
 - **Bundle Size**: Optimized with tree-shaking
-- **Performance**: Sub-100ms component render times
+- **Test Coverage**: 495+ tests, 100% pass rate
+- **Build Time**: ~900ms production build
+- **Performance**: <100ms component render times
 - **Accessibility**: WCAG 2.1 AA compliance
+- **Browser Support**: Modern browsers (ES2020+)
+
+## 🎯 Code Quality Standards
+
+### Clean Code Principles
+
+- **SOLID Principles**: Single Responsibility, Open/Closed, etc.
+- **DRY Compliance**: No code duplication
+- **Magic Numbers**: Use named constants (ESLint enforced)
+- **i18n First**: All user text through translation system
+
+### Commit Standards
+
+```bash
+# Conventional Commits 1.0.0
+feat(providers): Add Google Gemini provider support
+fix(ui): Resolve dialog closing issue on mobile
+docs(readme): Update installation instructions
+test(providers): Add comprehensive OpenAI tests
+```
 
 ## 🤝 Contributing
 
-1. Follow the established component patterns
-2. Write behavior-driven tests (Boston School)
-3. Use i18n for all user-facing text
-4. Maintain TypeScript strict compliance
-5. Follow conventional commit format
+1. **Fork the repository**
+2. **Create feature branch**: `git checkout -b feature/new-provider`
+3. **Follow code standards**: ESLint, Prettier, TypeScript strict
+4. **Write behavior-driven tests**: Focus on user experience
+5. **Use conventional commits**: Proper commit message format
+6. **Submit PR**: Include tests and documentation updates
 
-## 📚 Documentation
+### Development Guidelines
 
-- **Component Props**: TypeScript interfaces document all component APIs
-- **Testing Patterns**: Boston School behavior-driven examples
-- **Architecture Decisions**: Clean code principles and SOLID compliance
-- **i18n Guidelines**: Translation key naming and usage patterns
+- **Component Design**: Follow existing UI component patterns
+- **Testing**: Boston School behavior-driven approach
+- **Internationalization**: Use `$t()` for all user-facing text
+- **Type Safety**: Maintain strict TypeScript compliance
+- **Performance**: Consider bundle size and render performance
+
+## 📚 Resources
+
+- **🚀 [Live Demo](https://julienreichel.github.io/ai-testing/)** - Try the platform
+- **📖 [Knowledge Base](./KNOWLEDGE_BASE.md)** - Detailed technical documentation
+- **🧪 [Test Examples](./test/)** - Testing patterns and examples
+- **🎨 [Component Docs](./src/components/ui/)** - UI component library
+- **🔧 [Configuration](./vite.config.ts)** - Build and dev setup
+
+## 🌟 Show Your Support
+
+If this project helps you test and improve your AI prompts, please consider:
+
+- ⭐ **Star the repository**
+- 🐛 **Report issues**
+- 💡 **Suggest new features**
+- 🔌 **Contribute new providers**
+- 📖 **Improve documentation**
+
+## 📄 License
+
+MIT License - see [LICENSE](./LICENSE) for details.
+
+---
+
+**Built with ❤️ using Vue 3, TypeScript, and modern web technologies.**
+
+🚀 **[Start Testing Your AI Prompts Now](https://julienreichel.github.io/ai-testing/)**
