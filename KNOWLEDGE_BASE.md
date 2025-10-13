@@ -2,7 +2,7 @@
 
 ## Overview
 
-**AI Tester** is a front-end-only Vue 3 + TypeScript application (built with Vite + Vitest) designed to **test, compare, and validate prompts** across multiple AI providers such as OpenAI, Claude, and Mock providers.
+**AI Tester** is a front-end-only Vue 3 + TypeScript application (built with Vite + Vitest) designed to **test, compare, and validate prompts** across multiple AI providers including OpenAI, Anthropic Claude, Mistral AI, Google Gemini, and Mock providers.
 The app helps users evaluate model responses, measure cost and token usage, define pass/fail rules, and run statistical reliability tests — all locally in the browser.
 
 ### ✅ **Current Implementation Status**
@@ -15,7 +15,7 @@ We have successfully built a **production-ready application** with complete core
 - **Prompt editor interface** with real provider integration and response handling
 - **Rules engine system** with validation logic and automated testing capabilities
 - **10+ reusable UI components** following clean architecture principles
-- **Comprehensive test suite** (383/383 tests passing) using Boston School behavior-driven approach
+- **Comprehensive test suite** (495/495 tests passing) using Boston School behavior-driven approach
 - **Full internationalization** support with Vue I18n and DRY principle compliance
 - **Type-safe architecture** with strict TypeScript enforcement
 - **Clean code standards** with ESLint, Prettier, and conventional commits
@@ -42,7 +42,7 @@ We have successfully built a **production-ready application** with complete core
 - **✅ Modular provider system** with clean interfaces and extensible architecture
 - **✅ Secure API key storage** in browser localStorage with encryption notice
 - **✅ Provider status management** with validation states and connection testing
-- **✅ Implemented providers**: OpenAI, Claude, Mock (for development/testing)
+- **✅ Implemented providers**: OpenAI, Anthropic Claude, Mistral AI, Google Gemini, Mock (for development/testing)
 - **✅ Real-time connection testing** with visual feedback and status indicators
 - **✅ Complete CRUD operations**: Add, edit, test, and remove providers
 - **✅ Type-safe provider interfaces** with full TypeScript support
@@ -139,7 +139,50 @@ We have successfully built a **production-ready application** with complete core
 
 ---
 
-## 💰 Pricing & Token Estimation
+## � Supported AI Providers
+
+### ✅ **Currently Implemented Providers**
+
+#### **OpenAI**
+- **Models**: GPT-4o, GPT-4o Mini, GPT-4 Turbo, GPT-3.5 Turbo, GPT-5 (nano, mini, full)
+- **API Format**: OpenAI Chat Completions API
+- **Features**: Temperature control, max tokens, system prompts
+- **Pricing**: Official OpenAI pricing per 1K tokens
+
+#### **Anthropic (Claude)**
+- **Models**: Claude 3.5 family (Haiku, Sonnet, Opus)
+- **API Format**: Anthropic Messages API
+- **Features**: System prompts, temperature control, max tokens
+- **Pricing**: Official Anthropic pricing per 1K tokens
+
+#### **Mistral AI**
+- **Models**: Mistral family including latest versions
+- **API Format**: OpenAI-compatible Chat Completions API
+- **Features**: Temperature control, max tokens, system prompts
+- **Pricing**: Official Mistral AI pricing per 1K tokens
+
+#### **Google Gemini**
+- **Models**: Gemini 2.5 Pro, Gemini 2.5 Flash, Gemini 2.0 Flash (including lite variants)
+- **API Format**: Google AI Studio API (generateContent endpoint)
+- **Features**: System prompts, temperature control, safety settings
+- **Pricing**: Official Google AI pricing per 1K tokens
+
+#### **Mock Provider**
+- **Purpose**: Development and testing without API costs
+- **Features**: Simulated responses, configurable latency, token counting
+- **Usage**: Perfect for testing application functionality and UI components
+
+### 🔧 **Provider Architecture**
+
+- **Modular Design**: Each provider implements `BaseProviderAdapter` interface
+- **Type Safety**: Full TypeScript support with proper interface definitions
+- **Error Handling**: Standardized error responses across all providers
+- **Cost Estimation**: Accurate pricing calculation based on official provider rates
+- **Response Normalization**: Unified response format regardless of provider API differences
+
+---
+
+## �💰 Pricing & Token Estimation
 
 - Each provider defines cost per 1K input/output tokens.
 - Token estimation uses either provider usage data or lightweight local approximations.
@@ -157,7 +200,7 @@ We have successfully built a **production-ready application** with complete core
 
 ## 🧪 Testing ✅ **FULLY IMPLEMENTED**
 
-- **✅ Comprehensive test suite**: 383/383 tests passing with full coverage
+- **✅ Comprehensive test suite**: 495/495 tests passing with full coverage
 - **✅ Boston School approach**: Behavior-driven testing focusing on user experience, not implementation
 - **✅ Complete component tests**: All UI components, views, and feature components
 - **✅ Service layer tests**: Database operations, import/export functionality, and data integrity
@@ -177,12 +220,12 @@ We have successfully built a **production-ready application** with complete core
 | **0. Scaffold**           |   ✅   | Base app setup (Vue, Vite, Pinia, Router, Vitest) | Project skeleton & local storage service   |
 | **1. Foundation**         |   ✅   | Provider management & UI component library        | 10+ reusable components, provider CRUD     |
 | **1.5. Architecture**     |   ✅   | Clean code refactoring & testing foundation       | 75% code reduction, clean architecture     |
-| **2. MVP Core**           |   ✅   | Complete prompt testing with OpenAI/Claude        | Editor, response display, cost estimate    |
+| **2. MVP Core**           |   ✅   | Complete prompt testing with multiple providers   | Editor, response display, cost estimate    |
 | **3. Rules Engine**       |   ✅   | Complete rule-based validation system             | PASS/FAIL evaluation, i18n messages        |
 | **4. Data Management**    |   ✅   | IndexedDB integration & export/import             | Data persistence, project management       |
 | **5. Testing Excellence** |   ✅   | Comprehensive test suite (383 tests)              | Perfect test infrastructure, zero warnings |
 | **6. Production Ready**   |   ✅   | Complete core functionality integration           | Full-featured AI testing application       |
-| **7. Multi-Provider**     |   🔄   | Expand provider support (Mistral, LeChat)         | Enhanced provider registry                 |
+| **7. Multi-Provider**     |   ✅   | Expand provider support (Mistral, Gemini)         | Enhanced provider registry                 |
 | **8. AI Evaluator**       |   📋   | Model-based judgment/grading                      | Structured JSON evaluation                 |
 | **9. Batch & Statistics** |   �    | Multiple runs and statistical analysis            | Pass rates, performance metrics, trending  |
 | **10. Enhancements**      |   📋   | PWA, reports, theming, advanced i18n              | Long-term improvements                     |
@@ -231,7 +274,7 @@ We have successfully built a **production-ready application** with complete core
 ### Testing Excellence
 
 - **Boston School Testing**: Behavior-driven tests that survive refactoring
-- **383/383 Tests Passing**: Comprehensive coverage across all application layers
+- **495/495 Tests Passing**: Comprehensive coverage across all application layers including multiple AI providers
 - **Perfect Test Infrastructure**: IndexedDB mocking, zero warnings, clean output
 - **Real i18n Integration**: Tests use production translations (no duplication)
 - **Service Layer Testing**: Database operations, import/export, and composable logic
@@ -264,7 +307,7 @@ We have successfully built a **production-ready application** with complete core
 
 ### ✅ **Production Release Completed (Full Core Application)**
 
-- **✅ Complete AI prompt testing platform** with multi-provider support (OpenAI, Claude, Mock)
+- **✅ Complete AI prompt testing platform** with multi-provider support (OpenAI, Anthropic Claude, Mistral AI, Google Gemini, Mock)
 - **✅ Full data management system** with IndexedDB persistence and export/import capabilities
 - **✅ Complete rules engine** with automated validation and i18n feedback messages
 - **✅ Production-ready UI system** with 10+ reusable components and type-safe interfaces
@@ -293,10 +336,11 @@ We have successfully built a **production-ready application** with complete core
 
 ### 🎯 **Current State Summary**
 
-We have successfully built a **complete, production-ready AI testing platform** that delivers:
+We have successfully built a **complete, production-ready multi-provider AI testing platform** that delivers:
 
 - **Full-featured application** with complete prompt testing, rules validation, and data management
-- **Perfect technical execution** with 383/383 tests passing and zero warnings
+- **Universal multi-provider support** with OpenAI, Anthropic Claude, Mistral AI, and Google Gemini integration
+- **Perfect technical execution** with 495/495 tests passing and zero warnings
 - **Production-grade data persistence** with IndexedDB integration and export/import capabilities
 - **Architectural excellence** with clean, maintainable, and fully testable code
 - **Complete user workflows** from provider setup through test execution and data export
