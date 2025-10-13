@@ -12,7 +12,7 @@ A comprehensive Vue 3 + TypeScript platform for testing, comparing, and validati
 - **🎯 Rules Engine**: Automated validation with custom pass/fail criteria
 - **💾 Data Management**: Local storage with export/import capabilities
 - **🔒 Privacy-First**: All data stays in your browser - no backend required
-- **📱 Responsive Design**: Works on desktop, tablet, and mobile
+- **📱 (no so good) Responsive Design**: Works best on desktop
 
 ## 🎮 How to Use the Platform
 
@@ -33,21 +33,27 @@ No installation required! The platform runs entirely in your browser.
 ### 3. **Create and Test Prompts**
 
 1. Go to **Editor** section
-2. Write your system prompt and user message
+2. Write your user message
 3. Select models from different providers
 4. Compare responses, costs, and performance
 5. Save successful prompts for future use
 
 ### 4. **Set Up Validation Rules**
 
-1. Visit the **Tests** section
-2. Create rules to automatically validate AI responses:
+1. Create rules to automatically validate AI responses:
    - Text matching (exact, contains, regex)
    - Length constraints
    - Custom validation logic
-3. Run batch tests to ensure consistency
+2. Run batch tests to ensure consistency
 
-### 5. **Analyze Results**
+### 5. **Manage Test and Project**
+
+1. Go to **Tests** section
+2. Select saved Test 
+3. Open it directly in the Editor
+4. IMport/Export tests if needed
+
+### 6. **Analyze Results**
 
 1. Check **Runs** section for execution history
 2. View cost breakdowns and token usage
@@ -137,27 +143,12 @@ src/
 └── locales/                    # i18n translations
 ```
 
-### Component Library
-
-**10+ Production-Ready UI Components:**
-
-- `BaseButton` - Variants, loading states, accessibility
-- `BaseDialog` - Modal system with ESC/click-outside
-- `BaseForm` - Form validation and submission
-- `BaseCard` - Flexible content containers
-- `BaseNotice` - Alert notifications
-- `BaseToast` - Auto-hide notifications
-- `BaseBadge` - Status indicators
-- `BaseSpinner` - Loading states
-- `BaseInputField` - Form inputs
-- `BaseEmptyState` - Empty state handling
-
-## 🧪 Testing Excellence
+## 🧪 Testing 
 
 **495+ Tests with 100% Pass Rate**
 
 - **Boston School Testing**: Behavior-driven, user-focused tests
-- **Complete Coverage**: Components, composables, services, features
+- **Large Coverage**: Components, composables, services, features
 - **Real i18n Integration**: Tests use production translations
 - **IndexedDB Mocking**: Full database testing capabilities
 - **Type-Safe Testing**: Full TypeScript in test environment
@@ -234,7 +225,6 @@ describe("YourProviderAdapter - User Behavior", () => {
 - **Test Coverage**: 495+ tests, 100% pass rate
 - **Build Time**: ~900ms production build
 - **Performance**: <100ms component render times
-- **Accessibility**: WCAG 2.1 AA compliance
 - **Browser Support**: Modern browsers (ES2020+)
 
 ## 🎯 Code Quality Standards
@@ -277,9 +267,6 @@ test(providers): Add comprehensive OpenAI tests
 
 - **🚀 [Live Demo](https://julienreichel.github.io/ai-testing/)** - Try the platform
 - **📖 [Knowledge Base](./KNOWLEDGE_BASE.md)** - Detailed technical documentation
-- **🧪 [Test Examples](./test/)** - Testing patterns and examples
-- **🎨 [Component Docs](./src/components/ui/)** - UI component library
-- **🔧 [Configuration](./vite.config.ts)** - Build and dev setup
 
 ## 🌟 Show Your Support
 
@@ -297,6 +284,6 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 ---
 
-**Built with ❤️ using Vue 3, TypeScript, and modern web technologies.**
+**Built with ❤️ using Copilot, Vue 3, TypeScript, and modern web technologies.**
 
 🚀 **[Start Testing Your AI Prompts Now](https://julienreichel.github.io/ai-testing/)**
