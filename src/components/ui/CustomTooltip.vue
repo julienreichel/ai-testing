@@ -54,11 +54,13 @@ const showTooltip = (event: MouseEvent): void => {
     clearTimeout(timeoutId);
   }
 
-  const showTooltipNow = () => {
+  const showTooltipNow = () : void => {
     const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const HALF = 2;
+    const Y_MARGIN = 10;
     position.value = {
-      x: rect.left + rect.width / 2,
-      y: rect.top - 10
+      x: rect.left + rect.width / HALF,
+      y: rect.top - Y_MARGIN
     };
     visible.value = true;
   };
