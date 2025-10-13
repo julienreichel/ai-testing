@@ -2,6 +2,7 @@ import type { BaseProviderAdapter, ProviderConfig } from "../types/providers";
 import { MockProviderAdapter } from "./MockProviderAdapter";
 import { OpenAIProviderAdapter } from "./OpenAIProviderAdapter";
 import { AnthropicProviderAdapter } from "./AnthropicProviderAdapter";
+import { MistralProviderAdapter } from "./MistralProviderAdapter";
 
 export type ProviderType = "openai" | "anthropic" | "mistral" | "mock";
 
@@ -12,9 +13,8 @@ export class ProviderFactory {
   private static readonly PROVIDER_CONSTRUCTORS = {
     openai: OpenAIProviderAdapter,
     anthropic: AnthropicProviderAdapter,
+    mistral: MistralProviderAdapter,
     mock: MockProviderAdapter,
-    // TODO: Add other providers
-    mistral: MockProviderAdapter, // Placeholder
   } as const;
 
   static createProvider(
