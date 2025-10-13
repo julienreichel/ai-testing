@@ -235,7 +235,9 @@ watch(
         if (testCase) {
           testCaseName.value = testCase.name;
           testCaseDescription.value = testCase.description || "";
-          // Note: project and rules are already handled by EditorView prefilling
+          // Pre-select the project that this test case belongs to
+          selectedProjectOption.value = testCase.projectId;
+          // Note: rules are already handled by EditorView prefilling
         }
       } catch (error) {
         console.error("Failed to load test case for dialog:", error);
