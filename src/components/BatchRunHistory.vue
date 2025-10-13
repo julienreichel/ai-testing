@@ -48,24 +48,49 @@
       <p v-else>{{ $t("runs.batchHistory.empty") }}</p>
     </div>
 
-    <div v-else class="batch-runs-table-container">
-      <table class="batch-runs-table">
-        <thead>
-          <tr>
-            <th>{{ $t("runs.table.testName") }}</th>
-            <th>{{ $t("runs.table.provider") }}</th>
-            <th>{{ $t("runs.table.passRate") }}</th>
-            <th>{{ $t("runs.table.cost") }}</th>
-            <th>{{ $t("runs.table.date") }}</th>
-            <th>{{ $t("runs.table.actions") }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="batchRun in filteredBatchRuns"
-            :key="batchRun.id"
-            class="batch-run-row"
-          >
+    <div v-else class="batch-runs-container">
+      <div
+        v-for="group in groupedBatchRuns"
+        :key="group.projectId"
+        class="project-group"
+      >
+        <!-- Project Header (only show if multiple projects) -->
+        <div
+          v-if="hasMultipleProjects"
+          class="project-header"
+          @click="toggleProject(group.projectId)"
+        >
+          <div class="project-info">
+            <span class="expand-icon" :class="{ expanded: isProjectExpanded(group.projectId) }">
+              ▶
+            </span>
+            <h4 class="project-name">{{ group.projectName }}</h4>
+            <span class="project-count">({{ group.runs.length }} runs)</span>
+          </div>
+        </div>
+
+        <!-- Batch Runs Table for this project -->
+        <div
+          v-if="!hasMultipleProjects || isProjectExpanded(group.projectId)"
+          class="batch-runs-table-container"
+        >
+          <table class="batch-runs-table">
+            <thead>
+              <tr>
+                <th>{{ $t("runs.table.testName") }}</th>
+                <th>{{ $t("runs.table.provider") }}</th>
+                <th>{{ $t("runs.table.passRate") }}</th>
+                <th>{{ $t("runs.table.cost") }}</th>
+                <th>{{ $t("runs.table.date") }}</th>
+                <th>{{ $t("runs.table.actions") }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="batchRun in group.runs"
+                :key="batchRun.id"
+                class="batch-run-row"
+              >
             <td class="test-name-cell">
               <div class="test-name">
                 {{ getTestCaseName(batchRun) }}
@@ -128,8 +153,10 @@
               </div>
             </td>
           </tr>
-        </tbody>
-      </table>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
     <!-- Detailed View Modal -->
@@ -220,6 +247,7 @@ const selectedBatchRun = ref<BatchRunSession | null>(null);
 const searchTerm = ref("");
 const selectedProjectId = ref<string>("");
 const projects = ref<Project[]>([]);
+const expandedProjects = ref<Set<string>>(new Set());
 
 // Composables
 const batchPersistence = useBatchRunPersistence();
@@ -246,6 +274,33 @@ const filteredBatchRuns = computed(() => {
   });
 });
 
+const groupedBatchRuns = computed(() => {
+  const grouped = new Map<string, { project: Project | null; runs: BatchRunSession[] }>();
+  
+  // Group filtered batch runs by project
+  filteredBatchRuns.value.forEach((batchRun) => {
+    const projectId = batchRun.projectId;
+    const project = projects.value.find(p => p.id === projectId) || null;
+    
+    if (!grouped.has(projectId)) {
+      grouped.set(projectId, { project, runs: [] });
+    }
+    grouped.get(projectId)!.runs.push(batchRun);
+  });
+  
+  // Convert to array and sort by project name
+  return Array.from(grouped.entries())
+    .map(([projectId, data]) => ({
+      projectId,
+      projectName: data.project?.name || 'Unknown Project',
+      project: data.project,
+      runs: data.runs.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    }))
+    .sort((a, b) => a.projectName.localeCompare(b.projectName));
+});
+
+const hasMultipleProjects = computed(() => groupedBatchRuns.value.length > 1);
+
 // Methods
 const loadProjects = async (): Promise<void> => {
   try {
@@ -264,11 +319,34 @@ const refreshHistory = async (): Promise<void> => {
   isLoading.value = true;
   try {
     await batchPersistence.loadRecentBatchRuns(selectedProjectId.value || undefined, props.limit);
+    
+    // Auto-expand single project, minimize multiple projects by default
+    if (hasMultipleProjects.value) {
+      expandedProjects.value.clear();
+    } else if (groupedBatchRuns.value.length === 1) {
+      expandedProjects.value.clear();
+      const firstProject = groupedBatchRuns.value[0];
+      if (firstProject) {
+        expandedProjects.value.add(firstProject.projectId);
+      }
+    }
   } catch (error) {
     console.error("Failed to load batch run history:", error);
   } finally {
     isLoading.value = false;
   }
+};
+
+const toggleProject = (projectId: string): void => {
+  if (expandedProjects.value.has(projectId)) {
+    expandedProjects.value.delete(projectId);
+  } else {
+    expandedProjects.value.add(projectId);
+  }
+};
+
+const isProjectExpanded = (projectId: string): boolean => {
+  return expandedProjects.value.has(projectId);
 };
 
 
@@ -442,6 +520,61 @@ onMounted(async () => {
 .empty-state {
   text-align: center;
   padding: 2rem;
+  color: #6b7280;
+}
+
+.batch-runs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.project-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.project-header {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.project-header:hover {
+  background: #f3f4f6;
+}
+
+.project-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.expand-icon {
+  color: #6b7280;
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+}
+
+.expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.project-name {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.project-count {
+  font-size: 0.875rem;
   color: #6b7280;
 }
 
