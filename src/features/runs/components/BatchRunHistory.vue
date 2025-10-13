@@ -172,122 +172,15 @@
     </div>
 
     <!-- Detailed View Modal -->
-    <div
+    <batch-run-details-modal
       v-if="selectedBatchRun"
-      class="batch-run-modal-overlay"
-      @click="closeBatchRunDetails"
-    >
-      <div class="batch-run-modal" @click.stop>
-        <div class="modal-header">
-          <h3>
-            {{ getTestCaseName(selectedBatchRun) }} -
-            {{ $t("runs.batchHistory.details") }}
-          </h3>
-          <base-button variant="outline" @click="closeBatchRunDetails">
-            ✕ {{ $t("common.close") }}
-          </base-button>
-        </div>
-
-        <div class="modal-content">
-          <!-- Test Case Details -->
-          <div class="test-case-details" v-if="selectedTestCase">
-            <div class="detail-section">
-              <h4>{{ $t("runs.batchHistory.testDetails") }}</h4>
-              <div class="detail-grid">
-                <div class="detail-item">
-                  <label>{{ $t("runs.batchHistory.provider") }}:</label>
-                  <span>{{ getProviderName(selectedBatchRun.providerId) }}</span>
-                </div>
-                <div class="detail-item">
-                  <label>{{ $t("runs.batchHistory.model") }}:</label>
-                  <span>{{ selectedBatchRun.model }}</span>
-                </div>
-                <div class="detail-item prompt-item">
-                  <label>{{ $t("runs.batchHistory.prompt") }}:</label>
-                  <div class="prompt-text">{{ selectedTestCase.prompt }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <batch-results-visualization
-            :results="selectedBatchRun.results"
-            :statistics="selectedBatchRun.statistics"
-          />
-
-          <div class="run-results-table">
-            <h4>{{ $t("runs.batchHistory.individualResults") }}</h4>
-            <div class="table-container">
-              <table class="results-table">
-                <thead>
-                  <tr>
-                    <th>{{ $t("runs.table.runIndex") }}</th>
-                    <th>{{ $t("runs.table.status") }}</th>
-                    <th>{{ $t("runs.table.duration") }}</th>
-                    <th>{{ $t("runs.table.passed") }}</th>
-                    <th>{{ $t("runs.table.response") }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="result in selectedBatchRun.results"
-                    :key="result.id"
-                    :class="{
-                      'failed-run':
-                        result.status === 'failed' || result.passed === false,
-                    }"
-                  >
-                    <td>{{ result.runIndex + 1 }}</td>
-                    <td>
-                      <base-badge :variant="getResultStatusVariant(result)">
-                        {{ result.status }}
-                      </base-badge>
-                    </td>
-                    <td>
-                      {{
-                        result.duration
-                          ? Math.round(result.duration) + "ms"
-                          : "-"
-                      }}
-                    </td>
-                    <td>
-                      <base-badge
-                        :variant="result.passed ? 'success' : 'danger'"
-                      >
-                        {{ result.passed ? $t("common.yes") : $t("common.no") }}
-                      </base-badge>
-                    </td>
-                    <td class="response-cell">
-                      <div
-                        class="response-text-container"
-                        @mouseenter="showTooltip($event, result.response || '')"
-                        @mouseleave="hideTooltip"
-                      >
-                        <div class="response-text">
-                          {{ result.response || "-" }}
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Custom Tooltip -->
-    <div
-      v-if="tooltipVisible"
-      class="custom-tooltip"
-      :style="{
-        left: tooltipPosition.x + 'px',
-        top: tooltipPosition.y + 'px'
-      }"
-    >
-      {{ tooltipText }}
-    </div>
+      :visible="!!selectedBatchRun"
+      :batch-run="selectedBatchRun"
+      :test-case="selectedTestCase"
+      :test-case-name="getTestCaseName(selectedBatchRun)"
+      :provider-name="getProviderName(selectedBatchRun.providerId)"
+      @close="closeBatchRunDetails"
+    />
   </div>
 </template>
 
@@ -302,8 +195,7 @@ import {
 import type { Project, TestCase } from "../../../types/testManagement";
 import type { BatchRunResult } from "../../../composables/useBatchRunner";
 import BaseButton from "../../../components/ui/BaseButton.vue";
-import BaseBadge from "../../../components/ui/BaseBadge.vue";
-import BatchResultsVisualization from "./BatchResultsVisualization.vue";
+import BatchRunDetailsModal from "./BatchRunDetailsModal.vue";
 
 interface Props {
   projectId?: string;
@@ -326,11 +218,6 @@ const projects = ref<Project[]>([]);
 const expandedProjects = ref<Set<string>>(new Set());
 const testCaseNames = ref<Map<string, string>>(new Map()); // Cache for test case names
 const selectedTestCase = ref<TestCase | null>(null); // Store selected test case for prompt display
-
-// Tooltip state
-const tooltipVisible = ref(false);
-const tooltipText = ref("");
-const tooltipPosition = ref({ x: 0, y: 0 });
 
 // Composables
 const batchPersistence = useBatchRunPersistence();
@@ -555,38 +442,11 @@ const loadTestCaseForModal = async (testCaseId: string): Promise<void> => {
   }
 };
 
-// Tooltip functions
-const showTooltip = (event: MouseEvent, text: string): void => {
-  if (!text || text === "-") return;
-
-  const rect = (event.target as HTMLElement).getBoundingClientRect();
-  tooltipText.value = text;
-  tooltipPosition.value = {
-    x: rect.left + rect.width / 2,
-    y: rect.top - 10
-  };
-  tooltipVisible.value = true;
-};
-
-const hideTooltip = (): void => {
-  tooltipVisible.value = false;
-  tooltipText.value = "";
-};
-
 const getProviderName = (providerId: string): string => {
   const providerStatus = providersStore.providerStatuses.find(
     (status) => status.id === providerId,
   );
   return providerStatus?.name || providerId;
-};
-
-const getResultStatusVariant = (
-  result: BatchRunResult,
-): "success" | "danger" | "warning" | "info" => {
-  if (result.status === "completed") {
-    return result.passed ? "success" : "warning";
-  }
-  return result.status === "failed" ? "danger" : "info";
 };
 
 // Lifecycle
@@ -881,226 +741,7 @@ onMounted(async () => {
   align-items: center;
 }
 
-/* Modal Styles */
-.batch-run-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-}
 
-.batch-run-modal {
-  background: white;
-  color: #000;
-  border-radius: 8px;
-  max-width: min(90%, 980px);
-  max-height: 80%;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.modal-content {
-  padding: 1.5rem;
-  overflow-y: auto;
-  overflow-x: clip;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.test-case-details {
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  padding: 1rem;
-  border: 1px solid #e0e0e0;
-}
-
-.detail-section h4 {
-  margin: 0 0 1rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  align-items: start;
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.detail-item label {
-  font-weight: 600;
-  color: #666;
-  font-size: 0.875rem;
-}
-
-.detail-item span {
-  color: #333;
-  padding: 0.5rem;
-  background: white;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-
-.prompt-item {
-  grid-column: 1 / -1;
-}
-
-.prompt-text {
-  color: #333;
-  padding: 0.75rem;
-  background: white;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  white-space: pre-wrap;
-  font-family: monospace;
-  font-size: 0.875rem;
-  max-height: 200px;
-  overflow-y: auto;
-}
-.run-results-table {
-  color: black;
-}
-
-.run-results-table h4 {
-  margin: 0 0 1rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.table-container {
-  overflow-x: auto;
-}
-
-.results-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-}
-
-.results-table th,
-.results-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.results-table th {
-  font-weight: 600;
-  color: #374151;
-  background-color: #f9fafb;
-}
-
-.results-table tr.failed-run {
-  background-color: #fef2f2;
-}
-
-.results-table tr:hover {
-  background-color: #f9fafb;
-}
-
-.results-table tr.failed-run:hover {
-  background-color: #fee2e2;
-}
-
-.response-cell {
-  max-width: 300px;
-  padding: 0.5rem;
-  position: relative;
-}
-
-.response-text-container {
-  cursor: pointer;
-  border-radius: 4px;
-  padding: 4px 8px;
-  transition: background-color 0.2s ease;
-}
-
-.response-text-container:hover {
-  background-color: #f3f4f6;
-}
-
-.response-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-family: monospace;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  color: #374151;
-}
-
-.custom-tooltip {
-  position: fixed;
-  z-index: 1000;
-  background: #1f2937;
-  color: white;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-family: monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  max-width: 500px;
-  max-height: 300px;
-  overflow-y: clip;
-  white-space: pre-wrap;
-  word-break: break-word;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  transform: translateX(-50%) translateY(-100%);
-  pointer-events: none;
-  opacity: 1;
-  animation: tooltipFadeIn 0.2s ease-out;
-}
-
-.custom-tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: #1f2937;
-}
-
-@keyframes tooltipFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-100%) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-100%) scale(1);
-  }
-}
 </style>
 
 <script lang="ts">
