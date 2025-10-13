@@ -215,7 +215,7 @@
           </div>
           <!-- Empty Project State -->
           <base-empty-state
-            v-else
+            v-if="getProjectTestCases(project.id).length === 0 && (projects.length === 1 || isProjectExpanded(project.id))"
             title="No Test Cases Yet"
             description="Create test cases by saving prompts from the Editor."
             icon="🧪"
