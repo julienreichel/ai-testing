@@ -140,6 +140,9 @@ describe("useBatchRunPersistence - Developer Experience", () => {
     });
 
     it("should handle database errors gracefully during session start", async () => {
+      // Mock console.error to suppress expected error logs during test
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      
       // Mock database error
       const { testDB } = await import(
         "../../src/services/testManagementDatabase"
@@ -154,6 +157,14 @@ describe("useBatchRunPersistence - Developer Experience", () => {
       await expect(
         saveBatchRunStart(SAMPLE_BATCH_CONFIG, "test-case-456", "project-789"),
       ).rejects.toThrow("Database connection failed");
+
+      // Verify error was logged (but suppressed during test)
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to save batch run start:",
+        expect.any(Error)
+      );
+      
+      consoleSpy.mockRestore();
     });
   });
 
