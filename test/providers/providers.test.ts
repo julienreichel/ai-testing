@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { MockProviderAdapter } from "../../src/providers/MockProviderAdapter";
 import { OpenAIProviderAdapter } from "../../src/providers/OpenAIProviderAdapter";
+import { GeminiProviderAdapter } from "../../src/providers/GeminiProviderAdapter";
 import { ProviderFactory, ProviderRegistry } from "../../src/providers";
 import type {
   ProviderConfig,
@@ -217,6 +218,101 @@ describe("Provider System", () => {
     });
   });
 
+  describe("GeminiProviderAdapter - Real Implementation", () => {
+    let provider: GeminiProviderAdapter;
+    let config: ProviderConfig;
+
+    beforeEach(() => {
+      config = {
+        id: "gemini_test",
+        name: "Test Gemini Provider",
+        apiKey: "test-api-key-123",
+        isActive: true,
+      };
+      provider = new GeminiProviderAdapter(config);
+    });
+
+    it("should provide Gemini models", () => {
+      const models = provider.getModels();
+
+      expect(models).toHaveLength(5);
+      expect(models.find((m) => m.id === "gemini-2.5-pro")).toBeDefined();
+      expect(models.find((m) => m.id === "gemini-2.5-flash")).toBeDefined();
+      expect(models.find((m) => m.id === "gemini-2.0-flash")).toBeDefined();
+    });
+
+    it("should provide current Gemini pricing", () => {
+      const pricing = provider.getPricing("gemini-2.5-pro");
+
+      expect(pricing).toEqual({
+        inputTokensPer1K: 1.25,
+        outputTokensPer1K: 10.0,
+      });
+    });
+
+    it("should validate API key requirement", () => {
+      expect(provider.validateConfig()).toBe(true);
+
+      const invalidProvider = new GeminiProviderAdapter({
+        id: "test",
+        name: "Test",
+        isActive: true,
+      });
+      expect(invalidProvider.validateConfig()).toBe(false);
+    });
+
+    it("should reject calls without valid API key", async () => {
+      const invalidProvider = new GeminiProviderAdapter({
+        id: "test",
+        name: "Test",
+        isActive: true,
+      });
+
+      const request: ProviderRequest = {
+        model: "gemini-2.5-flash",
+        messages: [{ role: "user", content: "test" }],
+      };
+
+      await expect(invalidProvider.call(request)).rejects.toThrow();
+    });
+
+    it("should include Gemini 2.5 Pro model", () => {
+      const models = provider.getModels();
+      const gemini25Pro = models.find((m) => m.id === "gemini-2.5-pro");
+      
+      expect(gemini25Pro).toBeDefined();
+      expect(gemini25Pro?.name).toBe("Gemini 2.5 Pro");
+      expect(gemini25Pro?.description).toContain("State-of-the-art");
+    });
+
+    it("should include Gemini 2.5 Flash model", () => {
+      const models = provider.getModels();
+      const gemini25Flash = models.find((m) => m.id === "gemini-2.5-flash");
+      
+      expect(gemini25Flash).toBeDefined();
+      expect(gemini25Flash?.name).toBe("Gemini 2.5 Flash");
+      expect(gemini25Flash?.description).toContain("Hybrid reasoning");
+    });
+
+    it("should provide pricing for Gemini 2.5 Flash", () => {
+      const pricing = provider.getPricing("gemini-2.5-flash");
+      
+      expect(pricing).toEqual({
+        inputTokensPer1K: 0.3,
+        outputTokensPer1K: 2.5,
+      });
+    });
+
+    it("should provide pricing for Gemini 2.5 Flash Lite", () => {
+      const pricing = provider.getPricing("gemini-2.5-flash-lite");
+      
+      expect(pricing).toEqual({
+        inputTokensPer1K: 0.1,
+        outputTokensPer1K: 0.4,
+      });
+    });
+  });
+
   describe("ProviderFactory", () => {
     it("should create mock provider instances", () => {
       const config: ProviderConfig = {
@@ -241,6 +337,18 @@ describe("Provider System", () => {
       expect(provider).toBeInstanceOf(OpenAIProviderAdapter);
     });
 
+    it("should create Gemini provider instances", () => {
+      const config: ProviderConfig = {
+        id: "test_gemini",
+        name: "Test Gemini",
+        apiKey: "test-api-key",
+        isActive: true,
+      };
+
+      const provider = ProviderFactory.createProvider("gemini", config);
+      expect(provider).toBeInstanceOf(GeminiProviderAdapter);
+    });
+
     it("should throw error for unknown provider types", () => {
       const config: ProviderConfig = {
         id: "test",
@@ -257,6 +365,7 @@ describe("Provider System", () => {
     it("should list supported provider types", () => {
       const types = ProviderFactory.getSupportedProviders();
       expect(types).toContain("openai");
+      expect(types).toContain("gemini");
       expect(types).toContain("mock");
     });
   });

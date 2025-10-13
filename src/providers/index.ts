@@ -3,8 +3,9 @@ import { MockProviderAdapter } from "./MockProviderAdapter";
 import { OpenAIProviderAdapter } from "./OpenAIProviderAdapter";
 import { AnthropicProviderAdapter } from "./AnthropicProviderAdapter";
 import { MistralProviderAdapter } from "./MistralProviderAdapter";
+import { GeminiProviderAdapter } from "./GeminiProviderAdapter";
 
-export type ProviderType = "openai" | "anthropic" | "mistral" | "mock";
+export type ProviderType = "openai" | "anthropic" | "mistral" | "gemini" | "mock";
 
 /**
  * Provider Factory - Creates provider instances
@@ -14,6 +15,7 @@ export class ProviderFactory {
     openai: OpenAIProviderAdapter,
     anthropic: AnthropicProviderAdapter,
     mistral: MistralProviderAdapter,
+    gemini: GeminiProviderAdapter,
     mock: MockProviderAdapter,
   } as const;
 
@@ -43,6 +45,7 @@ export class ProviderFactory {
       openai: "OpenAI",
       anthropic: "Anthropic",
       mistral: "Mistral AI",
+      gemini: "Google Gemini",
       mock: "Mock Provider",
     };
     return displayNames[type];
