@@ -92,7 +92,7 @@ onMounted(async () => {
   await testManagement.initialize();
   providersStore.initialize();
   await batchPersistence.loadRecentBatchRuns();
-  
+
   // Load total test case count
   totalTestCases.value = await testManagement.getTotalTestCaseCount();
 });

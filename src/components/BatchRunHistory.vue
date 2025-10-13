@@ -180,6 +180,7 @@ import { useProvidersStore } from "../store/providers";
 import type { BatchRunSession } from "../services/testManagementDatabase";
 import type { BatchRunResult } from "../composables/useBatchRunner";
 import BaseButton from "./ui/BaseButton.vue";
+import BaseBadge from "./ui/BaseBadge.vue";
 import BatchResultsVisualization from "./BatchResultsVisualization.vue";
 
 interface Props {
