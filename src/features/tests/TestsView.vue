@@ -341,7 +341,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useTestManagement } from "../../composables/useTestManagement";
-import { testDB, type BatchRunSession } from "../../services/testManagementDatabase";
+import { testDB } from "../../services/testManagementDatabase";
 import {
   BaseButton,
   BaseInputField,

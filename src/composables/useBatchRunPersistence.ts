@@ -66,6 +66,7 @@ const createBatchRunSession = async (
   return await testDB.createBatchRun(config, testCaseId, projectId, tags);
 };
 
+// eslint-disable-next-line max-lines-per-function
 export function useBatchRunPersistence(): BatchRunPersistence {
   const currentSession = ref<BatchRunSession | null>(null);
   const recentSessions = ref<BatchRunSession[]>([]);

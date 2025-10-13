@@ -47,7 +47,7 @@ vi.mock("../../src/services/testManagementDatabase", () => {
       updateBatchRun: vi
         .fn()
         .mockImplementation((id, updates) =>
-          Promise.resolve({ ...mockBatchRunSession, ...updates }),
+          Promise.resolve({...mockBatchRunSession, ...updates, id }),
         ),
       getRecentBatchRuns: vi.fn().mockResolvedValue([mockBatchRunSession]),
       getBatchRunsByTestCase: vi.fn().mockResolvedValue([mockBatchRunSession]),
