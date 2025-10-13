@@ -370,6 +370,15 @@ class TestManagementDatabase {
     }
   }
 
+  /**
+   * Get total count of all test cases across all projects
+   */
+  async getTotalTestCaseCount(): Promise<number> {
+    const db = await this.ensureDB();
+    const allTestCases = await db.getAll("testCases");
+    return allTestCases.length;
+  }
+
   // ==================== BATCH RUN OPERATIONS ====================
   // Note: Individual test runs are stored within BatchRunSession.results[]
   // This simplifies the schema and focuses on batch comparisons

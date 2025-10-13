@@ -17,7 +17,7 @@
 
       <stat-card
         icon="📋"
-        :value="testCases.length"
+        :value="totalTestCases"
         :label="$t('dashboard.totalTests')"
         :detail="$t('dashboard.testCasesReady')"
         variant="tests"
@@ -25,7 +25,7 @@
 
       <stat-card
         icon="🚀"
-        :value="recentTestRuns.length"
+        :value="recentRunsCount"
         :label="$t('dashboard.recentRuns')"
         :detail="$t('dashboard.last24Hours')"
         variant="runs"
@@ -63,25 +63,38 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, computed, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
-import { useAppStore } from "../../store";
 import { useProvidersStore } from "../../store/providers";
+import { useTestManagement } from "../../composables/useTestManagement";
+import { useBatchRunPersistence } from "../../composables/useBatchRunPersistence";
 import { StatCard } from "./components";
 import { BaseButton } from "../../components/ui";
 import { TestExportImport } from "../tests/components";
 
 const router = useRouter();
-const appStore = useAppStore();
 const providersStore = useProvidersStore();
+const testManagement = useTestManagement();
+const batchPersistence = useBatchRunPersistence();
 
-const { testCases, recentTestRuns } = storeToRefs(appStore);
 const { providerStatuses, validProviders } = storeToRefs(providersStore);
 
-// Initialize provider data on component mount
-onMounted(() => {
+// Get real data from composables
+const totalTestCases = ref(0);
+
+const recentRunsCount = computed(() => {
+  return batchPersistence.recentSessions.value.length;
+});
+
+// Initialize all data on component mount
+onMounted(async () => {
+  await testManagement.initialize();
   providersStore.initialize();
+  await batchPersistence.loadRecentBatchRuns();
+  
+  // Load total test case count
+  totalTestCases.value = await testManagement.getTotalTestCaseCount();
 });
 </script>
 
@@ -111,7 +124,7 @@ onMounted(() => {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 1.5rem;
   margin-bottom: 3rem;
 }
@@ -150,7 +163,7 @@ onMounted(() => {
 
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 1.5rem;
 }
 

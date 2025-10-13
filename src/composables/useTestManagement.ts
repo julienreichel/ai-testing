@@ -264,6 +264,16 @@ export function useTestManagement() {
     }
   };
 
+  const getTotalTestCaseCount = async (): Promise<number> => {
+    try {
+      return await testDB.getTotalTestCaseCount();
+    } catch (err) {
+      state.error.value =
+        err instanceof Error ? err.message : "Failed to get test case count";
+      throw err;
+    }
+  };
+
   // ==================== RETURN API ====================
 
   return {
@@ -292,5 +302,6 @@ export function useTestManagement() {
     deleteTestCase,
     exportProject,
     importProject,
+    getTotalTestCaseCount,
   };
 }
