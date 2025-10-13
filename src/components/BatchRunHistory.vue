@@ -412,6 +412,7 @@ const getTestCaseName = (batchRun: BatchRunSession): string => {
   };
 
   // Trigger async load but don't wait
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   loadTestCaseName();
 
   // Return fallback for now
@@ -765,8 +766,8 @@ onMounted(async () => {
   background: white;
   color: #000;
   border-radius: 8px;
-  max-width: 90vw;
-  max-height: 90vh;
+  max-width: min(90%, 980px);
+  max-height: 80%;
   overflow: hidden;
   display: flex;
   flex-direction: column;

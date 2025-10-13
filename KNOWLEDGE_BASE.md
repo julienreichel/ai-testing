@@ -76,9 +76,14 @@ We have successfully built a **production-ready application** with complete core
 - **✅ Conflict resolution** for duplicate imports and data integrity
 - **✅ Dashboard integration** with quick actions and project overview
 
-### Batch Runs & Statistics 📋 **PLANNED**
+### Batch Runs & Statistics � **IN DEVELOPMENT**
 
-- **📋 Multiple test execution** to assess prompt reliability and consistency
+- **� Relational data architecture** with proper BatchRunSession and BatchRunResults separation
+- **🔄 Comprehensive test infrastructure** for batch runner system with Boston School testing
+- **🔄 Batch runner composable** (`useBatchRunner`) with cancellation and progress tracking
+- **🔄 Data visualization components** for results analysis and timeline display
+- **🔄 History management** with user-friendly batch run tracking and statistics
+- **🔄 Persistence layer** with IndexedDB storage for batch run data
 - **📋 Statistical analysis** with comprehensive metrics:
   - pass/fail ratio across multiple runs
   - grade distribution (if AI evaluator enabled)
@@ -179,7 +184,7 @@ We have successfully built a **production-ready application** with complete core
 | **6. Production Ready** | ✅  | Complete core functionality integration           | Full-featured AI testing application     |
 | **7. Multi-Provider** |   🔄   | Expand provider support (Mistral, LeChat)         | Enhanced provider registry               |
 | **8. AI Evaluator**   |   📋   | Model-based judgment/grading                      | Structured JSON evaluation               |
-| **9. Batch & Statistics** | 📋 | Multiple runs and statistical analysis           | Pass rates, performance metrics, trending |
+| **9. Batch & Statistics** | � | Multiple runs and statistical analysis           | Pass rates, performance metrics, trending |
 | **10. Enhancements**  |   📋   | PWA, reports, theming, advanced i18n              | Long-term improvements                   |
 
 **Legend**: ✅ Complete | 🔄 In Progress | 📋 Planned
@@ -233,6 +238,17 @@ We have successfully built a **production-ready application** with complete core
 - **Component Isolation**: Each component and service testable independently
 - **Type-Safe Tests**: Full TypeScript support in test environment
 
+### Batch Runner System Architecture
+
+- **Relational Database Design**: Replaced serialization-based storage with proper relational structure
+- **BatchRunSession Entity**: Manages batch execution metadata, configuration, and session state
+- **BatchRunResults Entity**: Stores individual test results with proper foreign key relationships
+- **Composable Architecture**: `useBatchRunner` provides clean API for batch execution management
+- **Component System**: Specialized components for results visualization and history management
+- **Persistence Layer**: IndexedDB-based storage with comprehensive CRUD operations
+- **Test Coverage**: Complete Boston School behavior-driven tests for all batch runner components
+- **Type Safety**: Full TypeScript interfaces for batch runner data structures and APIs
+
 ## 🧱 Design Principles
 
 - **✅ Front-end only**: no server dependencies, client-side architecture
@@ -259,6 +275,7 @@ We have successfully built a **production-ready application** with complete core
 
 ### 🔄 **Enhancement Phase (In Progress)**
 
+- **🔄 Batch runner system implementation** with comprehensive test coverage and relational data architecture
 - **🔄 Additional provider support** (Mistral, LeChat, other providers)
 - **🔄 Performance optimizations** and user experience improvements
 
