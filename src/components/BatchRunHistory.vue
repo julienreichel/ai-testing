@@ -3,13 +3,31 @@
     <div class="history-header">
       <h3>{{ $t("runs.batchHistory.title") }}</h3>
       <div class="header-controls">
-        <div class="search-filter">
-          <input
-            v-model="searchTerm"
-            type="text"
-            :placeholder="$t('runs.filter.search')"
-            class="search-input"
-          >
+        <div class="filter-controls">
+          <div class="search-filter">
+            <input
+              v-model="searchTerm"
+              type="text"
+              :placeholder="$t('runs.filter.search')"
+              class="search-input"
+            >
+          </div>
+          <div class="project-filter">
+            <select
+              v-model="selectedProjectId"
+              class="project-select"
+              @change="onProjectChange"
+            >
+              <option value="">{{ $t("runs.filter.allProjects") }}</option>
+              <option
+                v-for="project in projects"
+                :key="project.id"
+                :value="project.id"
+              >
+                {{ project.name }}
+              </option>
+            </select>
+          </div>
         </div>
         <base-button
           variant="outline"
@@ -177,7 +195,8 @@
 import { ref, onMounted, computed } from "vue";
 import { useBatchRunPersistence } from "../composables/useBatchRunPersistence";
 import { useProvidersStore } from "../store/providers";
-import type { BatchRunSession } from "../services/testManagementDatabase";
+import { testDB, type BatchRunSession } from "../services/testManagementDatabase";
+import type { Project } from "../types/testManagement";
 import type { BatchRunResult } from "../composables/useBatchRunner";
 import BaseButton from "./ui/BaseButton.vue";
 import BaseBadge from "./ui/BaseBadge.vue";
@@ -199,6 +218,8 @@ const props = withDefaults(defineProps<Props>(), {
 const isLoading = ref(false);
 const selectedBatchRun = ref<BatchRunSession | null>(null);
 const searchTerm = ref("");
+const selectedProjectId = ref<string>("");
+const projects = ref<Project[]>([]);
 
 // Composables
 const batchPersistence = useBatchRunPersistence();
@@ -217,19 +238,32 @@ const filteredBatchRuns = computed(() => {
     const testName = getTestCaseName(batchRun).toLowerCase();
     const provider = getProviderName(batchRun.config.providerId).toLowerCase();
     const model = batchRun.config.model.toLowerCase();
-    
 
-    return testName.includes(term) || 
-           provider.includes(term) || 
+
+    return testName.includes(term) ||
+           provider.includes(term) ||
            model.includes(term);
   });
 });
 
 // Methods
+const loadProjects = async (): Promise<void> => {
+  try {
+    const allProjects = await testDB.getProjects();
+    projects.value = allProjects;
+  } catch (error) {
+    console.error("Failed to load projects:", error);
+  }
+};
+
+const onProjectChange = async (): Promise<void> => {
+  await refreshHistory();
+};
+
 const refreshHistory = async (): Promise<void> => {
   isLoading.value = true;
   try {
-    await batchPersistence.loadRecentBatchRuns(props.projectId, props.limit);
+    await batchPersistence.loadRecentBatchRuns(selectedProjectId.value || undefined, props.limit);
   } catch (error) {
     console.error("Failed to load batch run history:", error);
   } finally {
@@ -301,7 +335,7 @@ const getPassRateClass = (passRate: number): string => {
   const EXCELLENT_THRESHOLD = 90;
   const GOOD_THRESHOLD = 70;
   const FAIR_THRESHOLD = 50;
-  
+
   if (passRate >= EXCELLENT_THRESHOLD) return "excellent";
   if (passRate >= GOOD_THRESHOLD) return "good";
   if (passRate >= FAIR_THRESHOLD) return "fair";
@@ -323,7 +357,8 @@ const getResultStatusVariant = (result: BatchRunResult): "success" | "danger" | 
 };
 
 // Lifecycle
-onMounted(() => {
+onMounted(async () => {
+  await loadProjects();
   void refreshHistory();
 });
 </script>
@@ -355,9 +390,37 @@ onMounted(() => {
   align-items: center;
 }
 
+.filter-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
 .search-filter {
   display: flex;
   align-items: center;
+}
+
+.project-filter {
+  display: flex;
+  align-items: center;
+}
+
+.project-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  background: white;
+  cursor: pointer;
+  min-width: 150px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.project-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .search-input {
