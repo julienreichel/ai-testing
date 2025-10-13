@@ -28,6 +28,10 @@ export class OpenAIProviderAdapter extends BaseProviderAdapter {
   } as const;
 
   // Default values
+  // Models that don't support custom temperature (only default value of 1)
+  private static readonly TEMPERATURE_RESTRICTED_MODELS = new Set([
+    "gpt-5-nano",
+  ]);
 
   private static readonly MODELS: ProviderModel[] = [
     {
@@ -125,6 +129,13 @@ export class OpenAIProviderAdapter extends BaseProviderAdapter {
     return OpenAIProviderAdapter.PRICING[model] || null;
   }
 
+  /**
+   * Check if a model supports custom temperature settings
+   */
+  private supportsTemperature(model: string): boolean {
+    return !OpenAIProviderAdapter.TEMPERATURE_RESTRICTED_MODELS.has(model);
+  }
+
   validateConfig(): boolean {
     return Boolean(this.config.apiKey && this.config.apiKey.trim() !== "");
   }
@@ -165,12 +176,21 @@ export class OpenAIProviderAdapter extends BaseProviderAdapter {
       });
     }
 
-    const body = {
+    const body: {
+      model: string;
+      messages: Array<{ role: string; content: string }>;
+      max_completion_tokens: number;
+      temperature?: number;
+    } = {
       model: request.model,
       messages,
-      temperature: request.temperature ?? undefined,
       max_completion_tokens: request.maxTokens ?? DEFAULT_MAX_TOKENS,
     };
+
+    // Only include temperature if the model supports it
+    if (this.supportsTemperature(request.model) && request.temperature !== undefined) {
+      body.temperature = request.temperature;
+    }
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);

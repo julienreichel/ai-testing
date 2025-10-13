@@ -161,6 +161,24 @@ describe("Provider System", () => {
 
       await expect(invalidProvider.call(request)).rejects.toThrow();
     });
+
+    it("should include GPT-5 nano model", () => {
+      const models = provider.getModels();
+      const gpt5nano = models.find((m) => m.id === "gpt-5-nano");
+      
+      expect(gpt5nano).toBeDefined();
+      expect(gpt5nano?.name).toBe("GPT-5 Nano");
+      expect(gpt5nano?.description).toContain("Ultra-light version");
+    });
+
+    it("should provide pricing for GPT-5 nano", () => {
+      const pricing = provider.getPricing("gpt-5-nano");
+      
+      expect(pricing).toEqual({
+        inputTokensPer1K: 0.00005,
+        outputTokensPer1K: 0.0004,
+      });
+    });
   });
 
   describe("ProviderFactory", () => {
