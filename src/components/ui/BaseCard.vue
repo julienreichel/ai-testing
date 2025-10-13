@@ -107,7 +107,7 @@ const handleClick = (event: MouseEvent): void => {
 }
 
 .card-header {
-  padding: 1rem 1.5rem 0 1.5rem;
+  padding: 1rem 1.5rem 0 0;
   border-bottom: 1px solid #e9ecef;
   margin-bottom: 1rem;
   padding-bottom: 1rem;

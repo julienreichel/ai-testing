@@ -750,11 +750,13 @@ onMounted(async () => {
   color: #111827;
   font-size: 1.5rem;
   font-weight: 600;
+  text-align: left;
 }
 
 .project-info p {
   margin: 0 0 1rem 0;
   color: #6b7280;
+
 }
 
 .project-stats {

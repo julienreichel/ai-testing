@@ -766,7 +766,7 @@ onMounted(async () => {
 }
 
 .cost-cell {
-  min-width: 100px;
+  min-width: 60px;
 }
 
 .cost-value {
@@ -775,7 +775,7 @@ onMounted(async () => {
 }
 
 .date-cell {
-  min-width: 120px;
+  min-width: 100px;
 }
 
 .date-info {
@@ -795,7 +795,7 @@ onMounted(async () => {
 }
 
 .actions-cell {
-  min-width: 150px;
+  min-width: 120px;
 }
 
 .action-buttons {
