@@ -64,7 +64,7 @@ describe("OpenAIProviderAdapter - Temperature Restrictions", () => {
 
       // Verify fetch was called
       expect(mockFetch).toHaveBeenCalledTimes(1);
-      
+
       // Get the request body that was sent
       const requestBody = getRequestBody(mockFetch);
 
@@ -105,7 +105,7 @@ describe("OpenAIProviderAdapter - Temperature Restrictions", () => {
 
       // Verify fetch was called
       expect(mockFetch).toHaveBeenCalledTimes(1);
-      
+
       // Get the request body that was sent
       const requestBody = getRequestBody(mockFetch);
 
@@ -185,6 +185,88 @@ describe("OpenAIProviderAdapter - Temperature Restrictions", () => {
       // Verify temperature 0 IS included
       expect(requestBody.temperature).toBe(0);
     });
+
+    it("should NOT include temperature parameter for GPT-5 mini model", async () => {
+      // Mock successful API response
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({
+          choices: [
+            {
+              message: {
+                content: "Test response",
+                role: "assistant",
+              },
+            },
+          ],
+          usage: {
+            prompt_tokens: 10,
+            completion_tokens: 20,
+            total_tokens: 30,
+          },
+        }),
+      });
+
+      const request: ProviderRequest = {
+        model: "gpt-5-mini",
+        messages: [{ role: "user", content: "test message" }],
+        temperature: 0.7, // This should be ignored for gpt-5-mini
+      };
+
+      await provider.call(request);
+
+      // Verify fetch was called
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+
+      // Get the request body that was sent
+      const requestBody = getRequestBody(mockFetch);
+
+      // Verify temperature is NOT included in the request
+      expect(requestBody).not.toHaveProperty("temperature");
+      expect(requestBody.model).toBe("gpt-5-mini");
+      expect(requestBody.max_completion_tokens).toBeDefined();
+    });
+
+    it("should NOT include temperature parameter for GPT-5 model", async () => {
+      // Mock successful API response
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({
+          choices: [
+            {
+              message: {
+                content: "Test response",
+                role: "assistant",
+              },
+            },
+          ],
+          usage: {
+            prompt_tokens: 10,
+            completion_tokens: 20,
+            total_tokens: 30,
+          },
+        }),
+      });
+
+      const request: ProviderRequest = {
+        model: "gpt-5",
+        messages: [{ role: "user", content: "test message" }],
+        temperature: 0.8, // This should be ignored for gpt-5
+      };
+
+      await provider.call(request);
+
+      // Verify fetch was called
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+
+      // Get the request body that was sent
+      const requestBody = getRequestBody(mockFetch);
+
+      // Verify temperature is NOT included in the request
+      expect(requestBody).not.toHaveProperty("temperature");
+      expect(requestBody.model).toBe("gpt-5");
+      expect(requestBody.max_completion_tokens).toBeDefined();
+    });
   });
 
   describe("Error Handling", () => {
@@ -253,14 +335,14 @@ describe("OpenAIProviderAdapter - Temperature Restrictions", () => {
       expect(messages).toHaveLength(2);
       expect(messages[0]?.role).toBe("system");
       expect(messages[0]?.content).toBe("You are a helpful assistant");
-      
+
       // Should include user message
       expect(messages[1]?.role).toBe("user");
       expect(messages[1]?.content).toBe("test");
-      
+
       // Should include max tokens
       expect(requestBody.max_completion_tokens).toBe(1500);
-      
+
       // Should NOT include temperature
       expect(requestBody).not.toHaveProperty("temperature");
     });

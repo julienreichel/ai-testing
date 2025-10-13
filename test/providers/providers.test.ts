@@ -165,7 +165,7 @@ describe("Provider System", () => {
     it("should include GPT-5 nano model", () => {
       const models = provider.getModels();
       const gpt5nano = models.find((m) => m.id === "gpt-5-nano");
-      
+
       expect(gpt5nano).toBeDefined();
       expect(gpt5nano?.name).toBe("GPT-5 Nano");
       expect(gpt5nano?.description).toContain("Ultra-light version");
@@ -173,10 +173,46 @@ describe("Provider System", () => {
 
     it("should provide pricing for GPT-5 nano", () => {
       const pricing = provider.getPricing("gpt-5-nano");
-      
+
       expect(pricing).toEqual({
         inputTokensPer1K: 0.00005,
         outputTokensPer1K: 0.0004,
+      });
+    });
+
+    it("should include GPT-5 mini model", () => {
+      const models = provider.getModels();
+      const gpt5mini = models.find((m) => m.id === "gpt-5-mini");
+
+      expect(gpt5mini).toBeDefined();
+      expect(gpt5mini?.name).toBe("GPT-5 Mini");
+      expect(gpt5mini?.description).toContain("Balanced mid-tier");
+    });
+
+    it("should provide pricing for GPT-5 mini", () => {
+      const pricing = provider.getPricing("gpt-5-mini");
+
+      expect(pricing).toEqual({
+        inputTokensPer1K: 0.00025,
+        outputTokensPer1K: 0.002,
+      });
+    });
+
+    it("should include GPT-5 model", () => {
+      const models = provider.getModels();
+      const gpt5 = models.find((m) => m.id === "gpt-5");
+
+      expect(gpt5).toBeDefined();
+      expect(gpt5?.name).toBe("GPT-5");
+      expect(gpt5?.description).toContain("Full GPT-5 flagship");
+    });
+
+    it("should provide pricing for GPT-5", () => {
+      const pricing = provider.getPricing("gpt-5");
+
+      expect(pricing).toEqual({
+        inputTokensPer1K: 0.00125,
+        outputTokensPer1K: 0.01,
       });
     });
   });

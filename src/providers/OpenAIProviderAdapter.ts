@@ -31,6 +31,8 @@ export class OpenAIProviderAdapter extends BaseProviderAdapter {
   // Models that don't support custom temperature (only default value of 1)
   private static readonly TEMPERATURE_RESTRICTED_MODELS = new Set([
     "gpt-5-nano",
+    "gpt-5-mini",
+    "gpt-5",
   ]);
 
   private static readonly MODELS: ProviderModel[] = [
