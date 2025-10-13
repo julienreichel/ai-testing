@@ -33,11 +33,11 @@ describe("AnthropicProviderAdapter - Provider Implementation", () => {
   describe("When developers configure the provider", () => {
     it("should return all supported Claude models", () => {
       const models = provider.getModels();
-      
+
       expect(models).toHaveLength(6);
       expect(models.map((m) => m.id)).toEqual([
         "claude-sonnet-4-0",
-        "claude-opus-4-1", 
+        "claude-opus-4-1",
         "claude-opus-4-0",
         "claude-sonnet-4-5",
         "claude-3-7-sonnet-latest",
@@ -62,7 +62,7 @@ describe("AnthropicProviderAdapter - Provider Implementation", () => {
 
     it("should validate configuration correctly", () => {
       expect(provider.validateConfig()).toBe(true);
-      
+
       const invalidProvider = new AnthropicProviderAdapter({
         ...mockConfig,
         apiKey: "",
@@ -94,7 +94,7 @@ describe("AnthropicProviderAdapter - Provider Implementation", () => {
       expect(result.usage.inputTokens).toBe(12);
       expect(result.usage.outputTokens).toBe(15);
       expect(result.usage.totalTokens).toBe(27);
-      
+
       // Verify cost calculation
       expect(result.cost.inputCost).toBe(0.000036); // 12/1000 * 0.003
       expect(result.cost.outputCost).toBe(0.000225); // 15/1000 * 0.015
@@ -124,8 +124,9 @@ describe("AnthropicProviderAdapter - Provider Implementation", () => {
       await provider.call(requestWithSystem);
 
       const fetchCall = mockFetch.mock.calls[0];
-      const requestBody = JSON.parse(fetchCall[1].body);
-      
+      expect(fetchCall).toBeDefined();
+      const requestBody = JSON.parse(fetchCall![1].body);
+
       expect(requestBody.system).toBe("You are a helpful assistant.");
       expect(requestBody.messages).toHaveLength(1);
       expect(requestBody.messages[0].content).toBe("Hello!");
@@ -144,7 +145,7 @@ describe("AnthropicProviderAdapter - Provider Implementation", () => {
     it("should handle network errors gracefully", async () => {
       const networkError = new Error("Network error") as Error & { code?: string };
       networkError.code = "ECONNREFUSED";
-      
+
       mockFetch.mockRejectedValueOnce(networkError);
 
       await expect(provider.call(mockRequest)).rejects.toThrow();

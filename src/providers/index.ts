@@ -3,7 +3,7 @@ import { MockProviderAdapter } from "./MockProviderAdapter";
 import { OpenAIProviderAdapter } from "./OpenAIProviderAdapter";
 import { AnthropicProviderAdapter } from "./AnthropicProviderAdapter";
 
-export type ProviderType = "openai" | "anthropic" | "mistral" | "lechat" | "mock";
+export type ProviderType = "openai" | "anthropic" | "mistral" | "mock";
 
 /**
  * Provider Factory - Creates provider instances
@@ -15,7 +15,6 @@ export class ProviderFactory {
     mock: MockProviderAdapter,
     // TODO: Add other providers
     mistral: MockProviderAdapter, // Placeholder
-    lechat: MockProviderAdapter, // Placeholder
   } as const;
 
   static createProvider(
@@ -37,6 +36,16 @@ export class ProviderFactory {
 
   static isProviderSupported(type: string): type is ProviderType {
     return type in this.PROVIDER_CONSTRUCTORS;
+  }
+
+  static getProviderDisplayName(type: ProviderType): string {
+    const displayNames: Record<ProviderType, string> = {
+      openai: "OpenAI",
+      anthropic: "Anthropic",
+      mistral: "Mistral AI",
+      mock: "Mock Provider",
+    };
+    return displayNames[type];
   }
 }
 

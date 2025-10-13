@@ -58,8 +58,8 @@
       <provider-form
         :provider="newProvider"
         :is-edit-mode="isEditMode"
-        :supported-types="supportedProviderTypes"
-        @submit="addProvider"
+        :loading="isSaving"
+        @submit="handleProviderSubmit"
         @cancel="closeAddDialog"
       />
     </base-dialog>
@@ -101,7 +101,9 @@ import {
 } from "../../components/ui";
 import ProviderCard from "./components/ProviderCard.vue";
 import ProviderForm from "./components/ProviderForm.vue";
+
 import type { ProviderConfig } from "../../types/providers";
+import type { ProviderType } from "../../providers";
 
 type ProviderDisplayData = {
   id: string;
@@ -131,23 +133,23 @@ const toastMessage = ref("");
 
 // Form state
 const isEditMode = ref(false);
+const isSaving = ref(false);
 const newProvider = ref({
-  type: "",
+  type: "mock" as ProviderType,
   name: "",
   apiKey: "",
   baseUrl: "",
-  models: [] as string[],
 });
 
 // Computed
-const supportedProviderTypes = computed(
-  () => providersStore.supportedProviderTypes,
-);
+
 const providerStatuses = computed(() => providersStore.providerStatuses);
 
 const dialogTitle = computed(() =>
   isEditMode.value ? t("providers.editProvider") : t("providers.addProvider"),
 );
+
+
 
 // Methods
 const acknowledgeNotice = (): void => {
@@ -195,11 +197,10 @@ const testProvider = async (providerId: string): Promise<void> => {
 const editProvider = (provider: ProviderDisplayData): void => {
   isEditMode.value = true;
   newProvider.value = {
-    type: provider.type,
+    type: provider.type as ProviderType,
     name: provider.name,
     apiKey: "", // Don't pre-fill API key for security
     baseUrl: "",
-    models: [],
   };
   showAddDialog.value = true;
 };
@@ -243,12 +244,20 @@ const deleteProvider = async (): Promise<void> => {
   }
 };
 
-const addProvider = (formData: {
+const handleProviderSubmit = (provider: {
+  type: ProviderType;
+  name: string;
+  apiKey: string;
+  baseUrl?: string;
+}): void => {
+  handleSaveProvider(provider);
+};
+
+const handleSaveProvider = (formData: {
   type: string;
   name: string;
   apiKey: string;
   baseUrl?: string;
-  models?: string[];
 }): void => {
   try {
     if (!formData.type || !formData.name) {
@@ -266,9 +275,8 @@ const addProvider = (formData: {
     } else {
       const type = formData.type as
         | "openai"
-        | "claude"
+        | "anthropic"
         | "mistral"
-        | "lechat"
         | "mock";
       providersStore.addKey(
         type,
@@ -297,11 +305,10 @@ const closeAddDialog = (): void => {
   showAddDialog.value = false;
   isEditMode.value = false;
   newProvider.value = {
-    type: "",
+    type: "mock" as ProviderType,
     name: "",
     apiKey: "",
     baseUrl: "",
-    models: [],
   };
 };
 

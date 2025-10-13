@@ -53,17 +53,6 @@
       :hint="$t('providers.baseUrlHint')"
       :error="errors.baseUrl"
     />
-
-    <base-input-field
-      v-if="form.type && form.type !== 'mock'"
-      v-model="modelsText"
-      type="textarea"
-      :label="$t('providers.models')"
-      :placeholder="$t('providers.modelsPlaceholder')"
-      :hint="$t('providers.modelsHint')"
-      :error="errors.models"
-      :rows="3"
-    />
   </base-form>
 </template>
 
@@ -74,19 +63,18 @@ import BaseForm from "../../../components/ui/BaseForm.vue";
 import BaseInputField from "../../../components/ui/BaseInputField.vue";
 import BaseNotice from "../../../components/ui/BaseNotice.vue";
 import type { BaseInputFieldOption } from "../../../components/ui/BaseInputField.vue";
+import { ProviderFactory, type ProviderType } from "../../../providers";
 
 interface Provider {
-  type: string;
+  type: ProviderType;
   name: string;
   apiKey: string;
   baseUrl?: string;
-  models?: string[];
 }
 
 interface ProviderFormProps {
   provider: Provider;
   isEditMode?: boolean;
-  supportedTypes: string[];
   loading?: boolean;
 }
 
@@ -104,11 +92,10 @@ const { t } = useI18n();
 
 // Form state
 const form = ref<Provider>({
-  type: "",
+  type: "mock" as ProviderType,
   name: "",
   apiKey: "",
   baseUrl: "",
-  models: [],
 });
 
 const errors = ref({
@@ -116,7 +103,6 @@ const errors = ref({
   name: "",
   apiKey: "",
   baseUrl: "",
-  models: "",
 });
 
 // Initialize form with prop data
@@ -130,24 +116,14 @@ watch(
 
 // Computed
 const typeOptions = computed((): BaseInputFieldOption[] =>
-  props.supportedTypes.map((type) => ({
+  ProviderFactory.getSupportedProviders().map((type: ProviderType) => ({
     value: type,
-    label: type.toUpperCase(),
+    label: ProviderFactory.getProviderDisplayName(type),
   })),
 );
 
 const showBaseUrl = computed(() => {
   return form.value.type && ["openai", "anthropic"].includes(form.value.type);
-});
-
-const modelsText = computed({
-  get: () => form.value.models?.join("\n") || "",
-  set: (value: string) => {
-    form.value.models = value
-      .split("\n")
-      .map((model) => model.trim())
-      .filter((model) => model.length > 0);
-  },
 });
 
 // Methods
@@ -157,7 +133,6 @@ const validateForm = (): boolean => {
     name: "",
     apiKey: "",
     baseUrl: "",
-    models: "",
   };
 
   let isValid = true;

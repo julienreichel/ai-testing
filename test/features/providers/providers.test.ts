@@ -39,7 +39,7 @@ const mockProviders: ProviderKeyStatus[] = [
   {
     id: "claude-1",
     name: "Claude 3.5",
-    type: "claude",
+    type: "anthropic",
     hasKey: false,
     isValid: null,
     isActive: true,

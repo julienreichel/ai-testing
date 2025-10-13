@@ -157,12 +157,13 @@ export class AnthropicProviderAdapter extends BaseProviderAdapter {
     const headers = {
       "Content-Type": "application/json",
       "x-api-key": this.config.apiKey!,
+      "anthropic-dangerous-direct-browser-access": "true",
       "anthropic-version": "2023-06-01",
     };
 
     // Convert messages to Claude format
     const messages = request.messages.filter(msg => msg.role !== "system");
-    const systemPrompt = request.systemPrompt || 
+    const systemPrompt = request.systemPrompt ||
       request.messages.find(msg => msg.role === "system")?.content || "";
 
     const body = {
