@@ -252,17 +252,17 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
-import { useBatchRunPersistence } from "../composables/useBatchRunPersistence";
-import { useProvidersStore } from "../store/providers";
+import { useBatchRunPersistence } from "../../../composables/useBatchRunPersistence";
+import { useProvidersStore } from "../../../store/providers";
 import {
   testDB,
   type BatchRunSession,
-} from "../services/testManagementDatabase";
-import type { Project } from "../types/testManagement";
-import type { BatchRunResult } from "../composables/useBatchRunner";
-import BaseButton from "./ui/BaseButton.vue";
-import BaseBadge from "./ui/BaseBadge.vue";
-import BatchResultsVisualization from "./BatchResultsVisualization.vue";
+} from "../../../services/testManagementDatabase";
+import type { Project } from "../../../types/testManagement";
+import type { BatchRunResult } from "../../../composables/useBatchRunner";
+import BaseButton from "../../../components/ui/BaseButton.vue";
+import BaseBadge from "../../../components/ui/BaseBadge.vue";
+import BatchResultsVisualization from "../../../components/BatchResultsVisualization.vue";
 
 interface Props {
   projectId?: string;

@@ -117,7 +117,7 @@ import { BaseButton, BaseInputField } from "../../components/ui";
 import { ProviderSelector, ResultsDisplay } from "./components";
 import RulesEditorCompact from "./components/RulesEditorCompact.vue";
 import SaveTestCaseDialog from "./components/SaveTestCaseDialog.vue";
-import BatchRunner from "../../components/BatchRunner.vue";
+import BatchRunner from "./components/BatchRunner.vue";
 import { useRulesUtils } from "../../composables/useRulesUtils";
 import { useRulesEngine } from "../../composables/useRulesEngine";
 import { testDB } from "../../services/testManagementDatabase";

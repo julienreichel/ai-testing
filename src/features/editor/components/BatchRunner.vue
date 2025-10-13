@@ -176,13 +176,13 @@ import {
   useBatchRunner,
   type BatchRunConfig,
   type BatchRunResult,
-} from "../composables/useBatchRunner";
-import type { TestCase } from "../types/testManagement";
-import BaseCard from "./ui/BaseCard.vue";
-import BaseInputField from "./ui/BaseInputField.vue";
-import BaseButton from "./ui/BaseButton.vue";
-import BaseBadge from "./ui/BaseBadge.vue";
-import BatchResultsVisualization from "./BatchResultsVisualization.vue";
+} from "../../../composables/useBatchRunner";
+import type { TestCase } from "../../../types/testManagement";
+import BaseCard from "../../../components/ui/BaseCard.vue";
+import BaseInputField from "../../../components/ui/BaseInputField.vue";
+import BaseButton from "../../../components/ui/BaseButton.vue";
+import BaseBadge from "../../../components/ui/BaseBadge.vue";
+import BatchResultsVisualization from "../../../components/BatchResultsVisualization.vue";
 
 interface Props {
   testCase: TestCase;

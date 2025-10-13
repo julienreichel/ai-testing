@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import type { BatchRunSession } from "../../services/testManagementDatabase";
-import BatchRunHistory from "../../components/BatchRunHistory.vue";
+import BatchRunHistory from "./components/BatchRunHistory.vue";
 
 // Methods
 const onBatchRunSelected = (batchRun: BatchRunSession): void => {
