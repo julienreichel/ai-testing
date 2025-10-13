@@ -729,7 +729,7 @@ onMounted(async () => {
 }
 
 .pass-rate-cell {
-  min-width: 120px;
+  min-width: 70px;
 }
 
 .pass-rate {

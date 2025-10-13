@@ -138,7 +138,7 @@
           class="project-card"
         >
           <template #header>
-            <div 
+            <div
               class="project-header"
               :class="{ 'clickable': projects.length > 1 }"
               @click="projects.length > 1 ? toggleProject(project.id) : undefined"
@@ -196,7 +196,7 @@
                   <div class="test-case-main-info">
                     <h4 class="test-case-name">{{ testCase.name }}</h4>
                     <span class="run-count"
-                      >{{ testCase.metadata?.runCount || 0 }} runs</span
+                      >{{ testCaseBatchRuns.get(testCase.id) || 0 }} runs</span
                     >
                   </div>
                 </div>
@@ -341,7 +341,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useTestManagement } from "../../composables/useTestManagement";
-import { testDB } from "../../services/testManagementDatabase";
+import { testDB, type BatchRunSession } from "../../services/testManagementDatabase";
 import {
   BaseButton,
   BaseInputField,
@@ -377,6 +377,9 @@ const { projects, isLoading, error } = testManager;
 
 // Local state for all test cases (since testManager.testCases only has current project's test cases)
 const allTestCases = ref<TestCase[]>([]);
+
+// Batch runs data for calculating actual run counts
+const testCaseBatchRuns = ref<Map<string, number>>(new Map());
 
 // Collapsible projects state
 const expandedProjects = ref<Set<string>>(new Set());
@@ -421,12 +424,7 @@ const getProjectTestCases = (projectId: string): TestCase[] => {
 const getProjectTotalRuns = (projectId: string): number => {
   const testCases = getProjectTestCases(projectId);
   return testCases.reduce((total: number, tc) => {
-    const runCount =
-      tc.metadata &&
-      typeof tc.metadata === "object" &&
-      "runCount" in tc.metadata
-        ? (tc.metadata as { runCount?: number }).runCount || 0
-        : 0;
+    const runCount = testCaseBatchRuns.value.get(tc.id) || 0;
     return total + runCount;
   }, 0);
 };
@@ -559,6 +557,27 @@ const loadAllTestCases = async (): Promise<void> => {
   allTestCases.value = allCases;
 };
 
+// Load batch run counts for all test cases
+const loadBatchRunCounts = async (): Promise<void> => {
+  const counts = new Map<string, number>();
+
+  for (const testCase of allTestCases.value) {
+    try {
+      const batchRuns = await testDB.getBatchRunsByTestCase(testCase.id);
+      // Calculate total runs from all batch runs for this test case
+      const totalRuns = batchRuns.reduce((total, batchRun) => {
+        return total + (batchRun.results?.length || 0);
+      }, 0);
+      counts.set(testCase.id, totalRuns);
+    } catch (err) {
+      console.error(`Failed to load batch runs for test case ${testCase.id}:`, err);
+      counts.set(testCase.id, 0);
+    }
+  }
+
+  testCaseBatchRuns.value = counts;
+};
+
 // Initialize project expansion state
 const initializeProjectExpansion = (): void => {
   // If there's only one project, expand it by default
@@ -576,6 +595,7 @@ const loadData = async (): Promise<void> => {
     await testManager.initialize();
     await testManager.loadProjects();
     await loadAllTestCases();
+    await loadBatchRunCounts();
     initializeProjectExpansion();
   } catch (err) {
     console.error("Failed to load data:", err);
