@@ -142,7 +142,7 @@ describe("useBatchRunPersistence - Developer Experience", () => {
     it("should handle database errors gracefully during session start", async () => {
       // Mock console.error to suppress expected error logs during test
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-      
+
       // Mock database error
       const { testDB } = await import(
         "../../src/services/testManagementDatabase"
@@ -163,7 +163,7 @@ describe("useBatchRunPersistence - Developer Experience", () => {
         "Failed to save batch run start:",
         expect.any(Error)
       );
-      
+
       consoleSpy.mockRestore();
     });
   });

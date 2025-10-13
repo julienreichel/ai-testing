@@ -238,7 +238,7 @@ describe("CustomTooltip - User Behavior", () => {
         },
       });
 
-      
+
       // Start hover
       const container = wrapper.find(".tooltip-container"); await container.trigger("mouseenter");
       await nextTick();
@@ -275,7 +275,7 @@ describe("CustomTooltip - User Behavior", () => {
 
       const tooltip = wrapper.find(".custom-tooltip");
       expect(tooltip.exists()).toBe(true);
-      
+
       // Should be positioned at center-x, above (y - 10)
       const tooltipElement = tooltip.element as HTMLElement;
       expect(tooltipElement.style.left).toBe("125px"); // 100 + 50/2
@@ -339,7 +339,7 @@ describe("CustomTooltip - User Behavior", () => {
 
       const tooltip = wrapper.find(".custom-tooltip");
       expect(tooltip.exists()).toBe(true);
-      
+
       // Tooltip should exist and not block interactions
       expect(tooltip.classes()).toContain("custom-tooltip");
     });
@@ -402,7 +402,7 @@ describe("CustomTooltip - User Behavior", () => {
       }
 
       await nextTick();
-      
+
       // Should end in hidden state
       expect(wrapper.find(".custom-tooltip").exists()).toBe(false);
     });
@@ -410,7 +410,7 @@ describe("CustomTooltip - User Behavior", () => {
     it("should clean up timeouts on component unmount", async () => {
       vi.useFakeTimers();
       const setTimeoutSpy = vi.spyOn(window, "setTimeout");
-      
+
       const wrapper = createWrapper({
         props: {
           text: "Cleanup test",
@@ -424,18 +424,18 @@ describe("CustomTooltip - User Behavior", () => {
       // Start a delayed tooltip by hovering the container
       const container = wrapper.find(".tooltip-container");
       await container.trigger("mouseenter");
-      
+
       // Verify timeout was created
       expect(setTimeoutSpy).toHaveBeenCalled();
-      
+
       // Unmount component - this should trigger cleanup
       wrapper.unmount();
-      
+
       // Since the component unmounts, Vue's lifecycle should clean up
       // We can't easily test this with the current component structure
       // but we can verify the test doesn't crash and timeout was created
       expect(setTimeoutSpy).toHaveBeenCalled();
-      
+
       vi.useRealTimers();
     });
 
@@ -462,7 +462,7 @@ describe("CustomTooltip - User Behavior", () => {
   describe("Component configuration", () => {
     it("should accept and render with custom configuration", async () => {
       vi.useFakeTimers();
-      
+
       const wrapper = createWrapper({
         props: {
           text: "Custom config test",
@@ -477,22 +477,22 @@ describe("CustomTooltip - User Behavior", () => {
 
       // Test that component renders without errors
       expect(wrapper.exists()).toBe(true);
-      
+
       // Test delayed behavior with custom delay
       const container = wrapper.find(".tooltip-container");
       await container.trigger("mouseenter");
       await nextTick();
-      
+
       // Should not be visible immediately due to delay
       expect(wrapper.find(".custom-tooltip").exists()).toBe(false);
-      
+
       // Advance timers by delay amount
       vi.advanceTimersByTime(250);
       await nextTick();
-      
+
       // Now should be visible
       expect(wrapper.find(".custom-tooltip").exists()).toBe(true);
-      
+
       vi.useRealTimers();
     });
   });
