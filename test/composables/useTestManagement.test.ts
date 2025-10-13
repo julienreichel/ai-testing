@@ -143,9 +143,6 @@ describe("useTestManagement - User Experience with Actual Composable", () => {
       "selectTestCase",
       "updateTestCase",
       "deleteTestCase",
-      "createTestRun",
-      "updateTestRun",
-      "getTestCaseRuns",
       "exportProject",
       "importProject",
     ];

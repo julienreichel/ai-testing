@@ -169,7 +169,6 @@ const exportProject = async (): Promise<void> => {
     isExporting.value = true;
     const exportData = await testManager.exportProject(
       selectedProjectId.value,
-      false,
     ); // Create download
     const blob = new Blob([exportData], { type: "application/json" });
     const url = URL.createObjectURL(blob);

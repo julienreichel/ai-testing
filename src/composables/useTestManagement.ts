@@ -9,11 +9,10 @@ import { testDB } from "../services/testManagementDatabase";
 import type {
   Project,
   TestCase,
-  TestRun,
   ExportProject,
   ImportResult,
 } from "../types/testManagement";
-import type { RuleSet, RuleSetResult } from "../types/rules";
+import type { RuleSet } from "../types/rules";
 
 const JSON_INDENT_SPACES = 2;
 
@@ -31,27 +30,8 @@ export interface CreateTestCaseData {
   tags?: string[];
 }
 
-export interface CreateTestRunData {
-  projectId: string;
-  testCaseId: string;
-  modelProvider: string;
-  modelName: string;
-  prompt: string;
-  response: string;
-  executionTime: number;
-  status: "running" | "completed" | "failed" | "cancelled";
-  modelConfig?: Record<string, unknown>;
-  tokens?: {
-    promptTokens: number;
-    completionTokens: number;
-    totalTokens: number;
-  };
-  evaluationResults?: {
-    overallPass: boolean;
-    message: string;
-    ruleSetResults: RuleSetResult[];
-  };
-}
+// Note: Individual test run creation is now handled through batch runs
+// Use useBatchRunner composable for running tests and creating batch sessions
 
 /**
  * Main Test Management Composable
@@ -120,10 +100,8 @@ export function useTestManagement() {
           sortBy: "updatedAt",
           sortOrder: "desc",
         });
-        state.testRuns.value = await testDB.getTestRunsByProject(projectId, {
-          sortBy: "createdAt",
-          sortOrder: "desc",
-        });
+        // Note: Batch runs are now handled separately via BatchRunHistory component
+        // Individual test runs are no longer managed at this level
       }
     } catch (err) {
       state.error.value =
@@ -199,17 +177,9 @@ export function useTestManagement() {
       state.currentTestCase.value =
         (await testDB.getTestCase(testCaseId)) || null;
       if (state.currentTestCase.value) {
-        const runs = await testDB.getTestRunsByTestCase(testCaseId, {
-          sortBy: "createdAt",
-          sortOrder: "desc",
-        });
-        // Update runs for this test case
-        state.testRuns.value = [
-          ...state.testRuns.value.filter(
-            (run: TestRun) => run.testCaseId !== testCaseId,
-          ),
-          ...runs,
-        ];
+        // Note: Individual test runs are now part of batch run sessions
+        // Use the batch run history component to view individual run results
+        // Batch runs can be accessed via getBatchRunsByTestCase if needed
       }
     } catch (err) {
       state.error.value =
@@ -248,9 +218,8 @@ export function useTestManagement() {
       state.testCases.value = state.testCases.value.filter(
         (tc: TestCase) => tc.id !== testCaseId,
       );
-      state.testRuns.value = state.testRuns.value.filter(
-        (run: TestRun) => run.testCaseId !== testCaseId,
-      );
+      // Note: Individual test runs are no longer managed here
+      // Batch runs are handled separately via useBatchRunPersistence
       if (state.currentTestCase.value?.id === testCaseId) {
         state.currentTestCase.value = null;
       }
@@ -263,53 +232,14 @@ export function useTestManagement() {
 
   // ==================== TEST RUN OPERATIONS ====================
 
-  const createTestRun = async (data: CreateTestRunData): Promise<TestRun> => {
-    try {
-      const testRun = await testDB.createTestRun(data);
-      state.testRuns.value = [testRun, ...state.testRuns.value];
-      return testRun;
-    } catch (err) {
-      state.error.value =
-        err instanceof Error ? err.message : "Failed to create test run";
-      throw err;
-    }
-  };
-
-  const updateTestRun = async (
-    runId: string,
-    updates: Partial<TestRun>,
-  ): Promise<void> => {
-    try {
-      const updatedRun = await testDB.updateTestRun(runId, updates);
-      if (updatedRun) {
-        const index = state.testRuns.value.findIndex(
-          (run: TestRun) => run.id === runId,
-        );
-        if (index !== -1) {
-          state.testRuns.value[index] = updatedRun;
-        }
-      }
-    } catch (err) {
-      state.error.value =
-        err instanceof Error ? err.message : "Failed to update test run";
-      throw err;
-    }
-  };
-
-  const getTestCaseRuns = (testCaseId: string): TestRun[] => {
-    return state.testRuns.value.filter(
-      (run: TestRun) => run.testCaseId === testCaseId,
-    );
-  };
+  // Note: Individual test run creation/updates are now handled through batch runs
+  // Use useBatchRunner composable for running tests and useBatchRunPersistence for data management
 
   // ==================== IMPORT/EXPORT OPERATIONS ====================
 
-  const exportProject = async (
-    projectId: string,
-    includeRuns = false,
-  ): Promise<string> => {
+  const exportProject = async (projectId: string): Promise<string> => {
     try {
-      const exportData = await testDB.exportProject(projectId, includeRuns);
+      const exportData = await testDB.exportProject(projectId);
       if (!exportData) {
         throw new Error("Project not found");
       }
@@ -360,9 +290,6 @@ export function useTestManagement() {
     selectTestCase,
     updateTestCase,
     deleteTestCase,
-    createTestRun,
-    updateTestRun,
-    getTestCaseRuns,
     exportProject,
     importProject,
   };

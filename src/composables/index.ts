@@ -17,6 +17,5 @@ export { useRulesUtils } from "./useRulesUtils";
 export type {
   CreateProjectData,
   CreateTestCaseData,
-  CreateTestRunData,
 } from "./useTestManagement";
 export type { ProjectStats } from "./useTestManagementState";
