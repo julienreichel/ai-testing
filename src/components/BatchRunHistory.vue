@@ -96,13 +96,13 @@
                 {{ getTestCaseName(batchRun) }}
               </div>
               <div class="test-meta">
-                {{ batchRun.config.runCount }} runs • {{ batchRun.status }}
+                {{ batchRun.runCount }} runs • {{ batchRun.status }}
               </div>
             </td>
             <td class="provider-cell">
               <div class="provider-info">
-                <div class="provider">{{ getProviderName(batchRun.config.providerId) }}</div>
-                <div class="model">{{ batchRun.config.model }}</div>
+                <div class="provider">{{ getProviderName(batchRun.providerId) }}</div>
+                <div class="model">{{ batchRun.model }}</div>
               </div>
             </td>
             <td class="pass-rate-cell">
@@ -248,6 +248,7 @@ const searchTerm = ref("");
 const selectedProjectId = ref<string>("");
 const projects = ref<Project[]>([]);
 const expandedProjects = ref<Set<string>>(new Set());
+const testCaseNames = ref<Map<string, string>>(new Map()); // Cache for test case names
 
 // Composables
 const batchPersistence = useBatchRunPersistence();
@@ -264,8 +265,8 @@ const filteredBatchRuns = computed(() => {
   const term = searchTerm.value.toLowerCase().trim();
   return batchRuns.value.filter((batchRun) => {
     const testName = getTestCaseName(batchRun).toLowerCase();
-    const provider = getProviderName(batchRun.config.providerId).toLowerCase();
-    const model = batchRun.config.model.toLowerCase();
+    const provider = getProviderName(batchRun.providerId).toLowerCase();
+    const model = batchRun.model.toLowerCase();
 
 
     return testName.includes(term) ||
@@ -276,18 +277,18 @@ const filteredBatchRuns = computed(() => {
 
 const groupedBatchRuns = computed(() => {
   const grouped = new Map<string, { project: Project | null; runs: BatchRunSession[] }>();
-  
+
   // Group filtered batch runs by project
   filteredBatchRuns.value.forEach((batchRun) => {
     const projectId = batchRun.projectId;
     const project = projects.value.find(p => p.id === projectId) || null;
-    
+
     if (!grouped.has(projectId)) {
       grouped.set(projectId, { project, runs: [] });
     }
     grouped.get(projectId)!.runs.push(batchRun);
   });
-  
+
   // Convert to array and sort by project name
   return Array.from(grouped.entries())
     .map(([projectId, data]) => ({
@@ -319,7 +320,7 @@ const refreshHistory = async (): Promise<void> => {
   isLoading.value = true;
   try {
     await batchPersistence.loadRecentBatchRuns(selectedProjectId.value || undefined, props.limit);
-    
+
     // Auto-expand single project, minimize multiple projects by default
     if (hasMultipleProjects.value) {
       expandedProjects.value.clear();
@@ -391,7 +392,30 @@ const deleteBatchRun = async (batchRun: BatchRunSession): Promise<void> => {
 
 const getTestCaseName = (batchRun: BatchRunSession): string => {
   const TEST_CASE_ID_SUFFIX_LENGTH = 8;
-  return batchRun.testCaseSnapshot.name || batchRun.config.testCase.name || `Test Case ${batchRun.testCaseId.slice(-TEST_CASE_ID_SUFFIX_LENGTH)}`;
+
+  // Check cache first
+  const cachedName = testCaseNames.value.get(batchRun.testCaseId);
+  if (cachedName) {
+    return cachedName;
+  }
+
+  // Load test case name asynchronously
+  const loadTestCaseName = async (): Promise<void> => {
+    try {
+      const testCase = await testDB.getTestCase(batchRun.testCaseId);
+      if (testCase) {
+        testCaseNames.value.set(batchRun.testCaseId, testCase.name);
+      }
+    } catch (error) {
+      console.warn(`Failed to load test case name for ${batchRun.testCaseId}:`, error);
+    }
+  };
+
+  // Trigger async load but don't wait
+  loadTestCaseName();
+
+  // Return fallback for now
+  return `Test Case ${batchRun.testCaseId.slice(-TEST_CASE_ID_SUFFIX_LENGTH)}`;
 };
 
 const formatDate = (date: Date): string => {

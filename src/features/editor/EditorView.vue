@@ -157,6 +157,7 @@ const showBatchRunner = ref(false);
 
 // Current test case state (for update functionality)
 const currentTestCaseId = ref<string | null>(null);
+const currentTestCase = ref<TestCase | null>(null);
 const isUpdateMode = computed(() => !!currentTestCaseId.value);
 
 // Composables
@@ -184,13 +185,13 @@ const canRunBatch = computed(() => {
 const testCaseForBatch = computed((): TestCase => {
   return {
     id: currentTestCaseId.value || crypto.randomUUID(),
-    projectId: "editor-batch",
-    name: "Editor Batch Test",
-    description: "Batch test created from editor",
+    projectId: currentTestCase.value?.projectId || "editor-batch",
+    name: currentTestCase.value?.name || "Editor Batch Test",
+    description: currentTestCase.value?.description || "Batch test created from editor",
     prompt: promptData.value.userPrompt,
     rules: validationRules.value.rules.length > 0 ? [validationRules.value] : [],
-    tags: [],
-    createdAt: new Date(),
+    tags: currentTestCase.value?.tags || [],
+    createdAt: currentTestCase.value?.createdAt || new Date(),
     updatedAt: new Date(),
   };
 });
@@ -314,8 +315,9 @@ onMounted(async () => {
     const testCase = await testDB.getTestCase(testCaseId);
     if (!testCase) return;
 
-    // Set current test case ID for update mode
+    // Set current test case ID and full test case for update mode
     currentTestCaseId.value = testCaseId;
+    currentTestCase.value = testCase;
 
     // Prefill the prompt
     promptData.value.userPrompt = testCase.prompt;

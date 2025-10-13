@@ -13,21 +13,18 @@ import type {
 } from "../types/testManagement";
 import type { BatchRunResult, BatchRunConfig, BatchStatistics } from "../composables/useBatchRunner";
 
-// Batch run persistence types - optimized for comparison analysis
+// Clean batch run session - no data duplication, proper relational design
 export interface BatchRunSession {
   id: string;
-  testCaseId: string;
-  projectId: string;
+  testCaseId: string; // Reference to test case - no duplication!
+  projectId: string;  // Denormalized for quick filtering, but could be derived from testCase
 
-  // Configuration for easy comparison
-  config: BatchRunConfig;
-
-  // Snapshot of the test case at run time for historical analysis
-  testCaseSnapshot: {
-    name: string;
-    prompt: string;
-    rules: unknown[]; // Simplified for storage
-  };
+  // Simple run configuration - no complex objects to serialize
+  providerId: string;
+  model: string;
+  runCount: number;
+  maxRetries: number;
+  delayMs: number;
 
   // All individual run results
   results: BatchRunResult[];
@@ -554,31 +551,26 @@ class TestManagementDatabase {
     const db = await this.ensureDB();
     const now = new Date();
 
-    // Get test case for snapshot
+    // Verify test case exists
     const testCase = await this.getTestCase(testCaseId);
     if (!testCase) {
       throw new Error(`Test case with ID ${testCaseId} not found`);
     }
 
-    // Create a serializable version of the config
-    const serializableConfig = {
-      ...config,
-      testCase: {
-        ...config.testCase,
-        rules: JSON.parse(JSON.stringify(config.testCase.rules)), // Remove functions
-      },
-    };
-
+    // Clean batch run - no data duplication, just references and simple config
     const batchRun: BatchRunSession = {
       id: crypto.randomUUID(),
-      testCaseId,
+      testCaseId, // Just the ID reference - proper relational design!
       projectId,
-      config: serializableConfig,
-      testCaseSnapshot: {
-        name: testCase.name,
-        prompt: testCase.prompt,
-        rules: JSON.parse(JSON.stringify(testCase.rules)), // Deep clone to remove functions
-      },
+
+      // Simple configuration - no complex objects
+      providerId: config.providerId,
+      model: config.model,
+      runCount: config.runCount,
+      maxRetries: config.maxRetries,
+      delayMs: config.delayMs,
+
+      // Results and metadata
       results: [],
       statistics: {
         totalRuns: 0,
