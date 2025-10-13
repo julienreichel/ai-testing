@@ -189,6 +189,27 @@
         </div>
 
         <div class="modal-content">
+          <!-- Test Case Details -->
+          <div class="test-case-details" v-if="selectedTestCase">
+            <div class="detail-section">
+              <h4>{{ $t("runs.batchHistory.testDetails") }}</h4>
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <label>{{ $t("runs.batchHistory.provider") }}:</label>
+                  <span>{{ getProviderName(selectedBatchRun.providerId) }}</span>
+                </div>
+                <div class="detail-item">
+                  <label>{{ $t("runs.batchHistory.model") }}:</label>
+                  <span>{{ selectedBatchRun.model }}</span>
+                </div>
+                <div class="detail-item prompt-item">
+                  <label>{{ $t("runs.batchHistory.prompt") }}:</label>
+                  <div class="prompt-text">{{ selectedTestCase.prompt }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <batch-results-visualization
             :results="selectedBatchRun.results"
             :statistics="selectedBatchRun.statistics"
@@ -203,8 +224,8 @@
                     <th>{{ $t("runs.table.runIndex") }}</th>
                     <th>{{ $t("runs.table.status") }}</th>
                     <th>{{ $t("runs.table.duration") }}</th>
-                    <th>{{ $t("runs.table.cost") }}</th>
                     <th>{{ $t("runs.table.passed") }}</th>
+                    <th>{{ $t("runs.table.response") }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -230,14 +251,22 @@
                       }}
                     </td>
                     <td>
-                      {{ result.cost ? "$" + result.cost.toFixed(4) : "-" }}
-                    </td>
-                    <td>
                       <base-badge
                         :variant="result.passed ? 'success' : 'danger'"
                       >
                         {{ result.passed ? $t("common.yes") : $t("common.no") }}
                       </base-badge>
+                    </td>
+                    <td class="response-cell">
+                      <div
+                        class="response-text-container"
+                        @mouseenter="showTooltip($event, result.response || '')"
+                        @mouseleave="hideTooltip"
+                      >
+                        <div class="response-text">
+                          {{ result.response || "-" }}
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -246,6 +275,18 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Custom Tooltip -->
+    <div
+      v-if="tooltipVisible"
+      class="custom-tooltip"
+      :style="{
+        left: tooltipPosition.x + 'px',
+        top: tooltipPosition.y + 'px'
+      }"
+    >
+      {{ tooltipText }}
     </div>
   </div>
 </template>
@@ -258,7 +299,7 @@ import {
   testDB,
   type BatchRunSession,
 } from "../../../services/testManagementDatabase";
-import type { Project } from "../../../types/testManagement";
+import type { Project, TestCase } from "../../../types/testManagement";
 import type { BatchRunResult } from "../../../composables/useBatchRunner";
 import BaseButton from "../../../components/ui/BaseButton.vue";
 import BaseBadge from "../../../components/ui/BaseBadge.vue";
@@ -284,6 +325,12 @@ const selectedProjectId = ref<string>("");
 const projects = ref<Project[]>([]);
 const expandedProjects = ref<Set<string>>(new Set());
 const testCaseNames = ref<Map<string, string>>(new Map()); // Cache for test case names
+const selectedTestCase = ref<TestCase | null>(null); // Store selected test case for prompt display
+
+// Tooltip state
+const tooltipVisible = ref(false);
+const tooltipText = ref("");
+const tooltipPosition = ref({ x: 0, y: 0 });
 
 // Composables
 const batchPersistence = useBatchRunPersistence();
@@ -392,12 +439,14 @@ const isProjectExpanded = (projectId: string): boolean => {
   return expandedProjects.value.has(projectId);
 };
 
-const viewDetails = (batchRun: BatchRunSession): void => {
+const viewDetails = async (batchRun: BatchRunSession): Promise<void> => {
   selectedBatchRun.value = batchRun;
+  await loadTestCaseForModal(batchRun.testCaseId);
 };
 
 const closeBatchRunDetails = (): void => {
   selectedBatchRun.value = null;
+  selectedTestCase.value = null;
 };
 
 const exportResults = (batchRun: BatchRunSession): void => {
@@ -494,6 +543,34 @@ const getPassRateClass = (passRate: number): string => {
   if (passRate >= GOOD_THRESHOLD) return "good";
   if (passRate >= FAIR_THRESHOLD) return "fair";
   return "poor";
+};
+
+const loadTestCaseForModal = async (testCaseId: string): Promise<void> => {
+  try {
+    const testCase = await testDB.getTestCase(testCaseId);
+    selectedTestCase.value = testCase || null;
+  } catch (error) {
+    console.error(`Failed to load test case ${testCaseId}:`, error);
+    selectedTestCase.value = null;
+  }
+};
+
+// Tooltip functions
+const showTooltip = (event: MouseEvent, text: string): void => {
+  if (!text || text === "-") return;
+
+  const rect = (event.target as HTMLElement).getBoundingClientRect();
+  tooltipText.value = text;
+  tooltipPosition.value = {
+    x: rect.left + rect.width / 2,
+    y: rect.top - 10
+  };
+  tooltipVisible.value = true;
+};
+
+const hideTooltip = (): void => {
+  tooltipVisible.value = false;
+  tooltipText.value = "";
 };
 
 const getProviderName = (providerId: string): string => {
@@ -847,9 +924,68 @@ onMounted(async () => {
 .modal-content {
   padding: 1.5rem;
   overflow-y: auto;
+  overflow-x: clip;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+}
+
+.test-case-details {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+}
+
+.detail-section h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-item label {
+  font-weight: 600;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.detail-item span {
+  color: #333;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.prompt-item {
+  grid-column: 1 / -1;
+}
+
+.prompt-text {
+  color: #333;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 0.875rem;
+  max-height: 200px;
+  overflow-y: auto;
 }
 .run-results-table {
   color: black;
@@ -894,6 +1030,76 @@ onMounted(async () => {
 
 .results-table tr.failed-run:hover {
   background-color: #fee2e2;
+}
+
+.response-cell {
+  max-width: 300px;
+  padding: 0.5rem;
+  position: relative;
+}
+
+.response-text-container {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 4px 8px;
+  transition: background-color 0.2s ease;
+}
+
+.response-text-container:hover {
+  background-color: #f3f4f6;
+}
+
+.response-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: monospace;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: #374151;
+}
+
+.custom-tooltip {
+  position: fixed;
+  z-index: 1000;
+  background: #1f2937;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  max-width: 500px;
+  max-height: 300px;
+  overflow-y: clip;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transform: translateX(-50%) translateY(-100%);
+  pointer-events: none;
+  opacity: 1;
+  animation: tooltipFadeIn 0.2s ease-out;
+}
+
+.custom-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1f2937;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-100%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-100%) scale(1);
+  }
 }
 </style>
 

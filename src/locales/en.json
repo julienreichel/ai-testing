@@ -167,7 +167,11 @@
       "title": "Batch Run History",
       "empty": "No batch runs found. Run some batch tests to see them here.",
       "details": "Details",
-      "individualResults": "Individual Results"
+      "individualResults": "Individual Results",
+      "testDetails": "Test Configuration",
+      "provider": "Provider",
+      "model": "Model",
+      "prompt": "Prompt"
     },
     "table": {
       "runIndex": "Run #",
@@ -175,6 +179,7 @@
       "duration": "Duration",
       "cost": "Cost",
       "passed": "Passed",
+      "response": "Response",
       "testName": "Test Name",
       "provider": "Provider & Model",
       "passRate": "Pass Rate",
