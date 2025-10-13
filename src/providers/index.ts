@@ -1,8 +1,9 @@
 import type { BaseProviderAdapter, ProviderConfig } from "../types/providers";
 import { MockProviderAdapter } from "./MockProviderAdapter";
 import { OpenAIProviderAdapter } from "./OpenAIProviderAdapter";
+import { AnthropicProviderAdapter } from "./AnthropicProviderAdapter";
 
-export type ProviderType = "openai" | "claude" | "mistral" | "lechat" | "mock";
+export type ProviderType = "openai" | "anthropic" | "mistral" | "lechat" | "mock";
 
 /**
  * Provider Factory - Creates provider instances
@@ -10,9 +11,9 @@ export type ProviderType = "openai" | "claude" | "mistral" | "lechat" | "mock";
 export class ProviderFactory {
   private static readonly PROVIDER_CONSTRUCTORS = {
     openai: OpenAIProviderAdapter,
+    anthropic: AnthropicProviderAdapter,
     mock: MockProviderAdapter,
     // TODO: Add other providers
-    claude: MockProviderAdapter, // Placeholder
     mistral: MockProviderAdapter, // Placeholder
     lechat: MockProviderAdapter, // Placeholder
   } as const;
