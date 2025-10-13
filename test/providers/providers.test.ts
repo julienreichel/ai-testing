@@ -279,7 +279,7 @@ describe("Provider System", () => {
     it("should include Gemini 2.5 Pro model", () => {
       const models = provider.getModels();
       const gemini25Pro = models.find((m) => m.id === "gemini-2.5-pro");
-      
+
       expect(gemini25Pro).toBeDefined();
       expect(gemini25Pro?.name).toBe("Gemini 2.5 Pro");
       expect(gemini25Pro?.description).toContain("State-of-the-art");
@@ -288,7 +288,7 @@ describe("Provider System", () => {
     it("should include Gemini 2.5 Flash model", () => {
       const models = provider.getModels();
       const gemini25Flash = models.find((m) => m.id === "gemini-2.5-flash");
-      
+
       expect(gemini25Flash).toBeDefined();
       expect(gemini25Flash?.name).toBe("Gemini 2.5 Flash");
       expect(gemini25Flash?.description).toContain("Hybrid reasoning");
@@ -296,7 +296,7 @@ describe("Provider System", () => {
 
     it("should provide pricing for Gemini 2.5 Flash", () => {
       const pricing = provider.getPricing("gemini-2.5-flash");
-      
+
       expect(pricing).toEqual({
         inputTokensPer1K: 0.3,
         outputTokensPer1K: 2.5,
@@ -305,7 +305,7 @@ describe("Provider System", () => {
 
     it("should provide pricing for Gemini 2.5 Flash Lite", () => {
       const pricing = provider.getPricing("gemini-2.5-flash-lite");
-      
+
       expect(pricing).toEqual({
         inputTokensPer1K: 0.1,
         outputTokensPer1K: 0.4,

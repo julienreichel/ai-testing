@@ -37,7 +37,7 @@ describe("GeminiProviderAdapter", () => {
       const models = provider.getModels();
 
       expect(models).toHaveLength(5);
-      
+
       // Check for key models
       const gemini25Pro = models.find((m) => m.id === "gemini-2.5-pro");
       expect(gemini25Pro).toBeDefined();

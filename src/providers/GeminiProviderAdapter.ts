@@ -66,6 +66,13 @@ export class GeminiProviderAdapter extends BaseProviderAdapter {
 
   private static readonly MODELS: ProviderModel[] = [
     {
+      id: "gemini-2.0-flash-lite",
+      name: "Gemini 2.0 Flash Lite",
+      description: "Smallest and most cost effective second generation model",
+      contextWindow: 1000000, // 1M tokens
+      maxOutputTokens: 32768,
+    },
+    {
       id: "gemini-2.5-pro",
       name: "Gemini 2.5 Pro",
       description: "State-of-the-art multipurpose model, excels at coding and complex reasoning tasks",
@@ -93,13 +100,7 @@ export class GeminiProviderAdapter extends BaseProviderAdapter {
       contextWindow: 1000000, // 1M tokens
       maxOutputTokens: 32768,
     },
-    {
-      id: "gemini-2.0-flash-lite",
-      name: "Gemini 2.0 Flash Lite",
-      description: "Smallest and most cost effective second generation model",
-      contextWindow: 1000000, // 1M tokens
-      maxOutputTokens: 32768,
-    },
+
   ];
 
   // Pricing as of October 2025 (per 1K tokens in USD) - Paid tier
@@ -190,12 +191,12 @@ export class GeminiProviderAdapter extends BaseProviderAdapter {
     });
 
     const generationConfig: Record<string, unknown> = {};
-    
+
     // Add temperature if provided
     if (request.temperature !== undefined) {
       generationConfig.temperature = request.temperature;
     }
-    
+
     // Add max tokens if provided
     if (request.maxTokens !== undefined) {
       generationConfig.maxOutputTokens = request.maxTokens;

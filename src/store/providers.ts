@@ -150,7 +150,7 @@ export const useProvidersStore = defineStore("providers", () => {
       const testRequest: ProviderRequest = {
         model: firstModel.id,
         messages: [{ role: "user", content: "Hello" }],
-        maxTokens: 5,
+        maxTokens: 50,
       };
 
       await provider.call(testRequest);
