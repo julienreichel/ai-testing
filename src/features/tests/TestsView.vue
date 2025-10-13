@@ -138,21 +138,32 @@
           class="project-card"
         >
           <template #header>
-            <div class="project-header">
-              <div class="project-info">
-                <h3>{{ project.name }}</h3>
-                <p v-if="project.description">{{ project.description }}</p>
-                <div class="project-stats">
-                  <span class="stat"
-                    >{{ getProjectTestCases(project.id).length }} test
-                    cases</span
-                  >
-                  <span class="stat"
-                    >{{ getProjectTotalRuns(project.id) }} runs</span
-                  >
+            <div 
+              class="project-header"
+              :class="{ 'clickable': projects.length > 1 }"
+              @click="projects.length > 1 ? toggleProject(project.id) : undefined"
+            >
+              <div class="project-main">
+                <div class="project-toggle" v-if="projects.length > 1">
+                  <span class="chevron" :class="{ 'expanded': isProjectExpanded(project.id) }">
+                    ▶
+                  </span>
+                </div>
+                <div class="project-info">
+                  <h3>{{ project.name }}</h3>
+                  <p v-if="project.description">{{ project.description }}</p>
+                  <div class="project-stats">
+                    <span class="stat"
+                      >{{ getProjectTestCases(project.id).length }} test
+                      cases</span
+                    >
+                    <span class="stat"
+                      >{{ getProjectTotalRuns(project.id) }} runs</span
+                    >
+                  </div>
                 </div>
               </div>
-              <div class="project-actions">
+              <div class="project-actions" @click.stop>
                 <base-button
                   variant="danger"
                   size="sm"
@@ -166,7 +177,7 @@
 
           <!-- Test Cases in Project -->
           <div
-            v-if="getProjectTestCases(project.id).length > 0"
+            v-if="getProjectTestCases(project.id).length > 0 && (projects.length === 1 || isProjectExpanded(project.id))"
             class="test-cases-grid"
           >
             <base-card
@@ -367,6 +378,9 @@ const { projects, isLoading, error } = testManager;
 // Local state for all test cases (since testManager.testCases only has current project's test cases)
 const allTestCases = ref<TestCase[]>([]);
 
+// Collapsible projects state
+const expandedProjects = ref<Set<string>>(new Set());
+
 // Helper functions
 const formatRuleDetails = (rule: Rule): string => {
   switch (rule.type) {
@@ -419,6 +433,19 @@ const getProjectTotalRuns = (projectId: string): number => {
 
 const selectTestCase = (testCase: TestCase): void => {
   selectedTestCase.value = testCase;
+};
+
+// Project collapse/expand functions
+const isProjectExpanded = (projectId: string): boolean => {
+  return expandedProjects.value.has(projectId);
+};
+
+const toggleProject = (projectId: string): void => {
+  if (expandedProjects.value.has(projectId)) {
+    expandedProjects.value.delete(projectId);
+  } else {
+    expandedProjects.value.add(projectId);
+  }
 };
 
 // Navigation functions
@@ -532,12 +559,24 @@ const loadAllTestCases = async (): Promise<void> => {
   allTestCases.value = allCases;
 };
 
+// Initialize project expansion state
+const initializeProjectExpansion = (): void => {
+  // If there's only one project, expand it by default
+  // If there are multiple projects, keep them all collapsed by default
+  if (projects.value.length === 1 && projects.value[0]) {
+    expandedProjects.value.add(projects.value[0].id);
+  } else {
+    expandedProjects.value.clear();
+  }
+};
+
 // Data loading
 const loadData = async (): Promise<void> => {
   try {
     await testManager.initialize();
     await testManager.loadProjects();
     await loadAllTestCases();
+    initializeProjectExpansion();
   } catch (err) {
     console.error("Failed to load data:", err);
   }
@@ -644,6 +683,46 @@ onMounted(async () => {
   justify-content: space-between;
   align-items: flex-start;
   gap: 2rem;
+  transition: background-color 0.2s ease;
+}
+
+.project-header.clickable {
+  cursor: pointer;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  margin: -0.5rem;
+}
+
+.project-header.clickable:hover {
+  background-color: #f9fafb;
+}
+
+.project-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.project-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.125rem;
+}
+
+.chevron {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: #6b7280;
+  transition: transform 0.2s ease;
+  transform: rotate(0deg);
+}
+
+.chevron.expanded {
+  transform: rotate(90deg);
 }
 
 .project-info h3 {
