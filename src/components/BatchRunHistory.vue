@@ -359,6 +359,7 @@ const getResultStatusVariant = (result: BatchRunResult): "success" | "danger" | 
 // Lifecycle
 onMounted(async () => {
   await loadProjects();
+  providersStore.initialize();
   void refreshHistory();
 });
 </script>
@@ -411,7 +412,6 @@ onMounted(async () => {
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  background: white;
   cursor: pointer;
   min-width: 150px;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -454,6 +454,7 @@ onMounted(async () => {
 
 .batch-runs-table {
   width: 100%;
+  text-align: left;
   border-collapse: collapse;
 }
 
