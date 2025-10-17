@@ -247,16 +247,6 @@ const runPrompt = async (): Promise<void> => {
   }
 };
 
-const clearAll = (): void => {
-  promptData.value = {
-    userPrompt: "",
-    temperature: 0.7,
-    maxTokens: 4096,
-  };
-  promptRunner.clearResults();
-  validationResult.value = null;
-};
-
 const saveAsTestCase = (): void => {
   // Show the save dialog
   showSaveDialog.value = true;

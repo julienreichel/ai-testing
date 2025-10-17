@@ -30,7 +30,6 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useProvidersStore } from "../../../store/providers";
 import { BaseForm, BaseInputField } from "../../../components/ui";
@@ -53,9 +52,9 @@ const emit = defineEmits<{
   "update:modelValue": [value: ProviderSelection];
 }>();
 
-const { t } = useI18n();
+
 const providersStore = useProvidersStore();
-const { providerStatuses, validProviders } = storeToRefs(providersStore);
+const { validProviders } = storeToRefs(providersStore);
 
 const providerOptions = computed(() => {
   return validProviders.value.map((provider) => ({
@@ -76,45 +75,6 @@ const modelOptions = computed(() => {
     value: model.id,
   }));
 });
-
-const selectedProviderStatus = computed(() => {
-  return providerStatuses.value.find(
-    (p) => p.id === props.modelValue.providerId,
-  );
-});
-
-const statusIcon = computed(() => {
-  if (!selectedProviderStatus.value) return "";
-
-  const status = selectedProviderStatus.value;
-  if (!status.hasKey) return "⚠️";
-  if (status.isValid === true) return "✅";
-  if (status.isValid === false) return "❌";
-  return "⏳";
-});
-
-const statusText = computed(() => {
-  if (!selectedProviderStatus.value) return "";
-
-  const status = selectedProviderStatus.value;
-  if (!status.hasKey) return t("providers.status.noKey");
-  if (!status.isActive) return t("providers.status.inactive");
-  if (status.isValid === true) return t("providers.status.active");
-  if (status.isValid === false) return t("providers.status.error");
-  return t("providers.status.untested");
-});
-
-const statusClasses = computed(() => [
-  "status-indicator",
-  {
-    "status-success": selectedProviderStatus.value?.isValid === true,
-    "status-error": selectedProviderStatus.value?.isValid === false,
-    "status-warning": !selectedProviderStatus.value?.hasKey,
-    "status-pending":
-      selectedProviderStatus.value?.isValid === null &&
-      selectedProviderStatus.value?.hasKey,
-  },
-]);
 
 const updateProvider = (providerId: string | number): void => {
   emit("update:modelValue", {
