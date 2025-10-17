@@ -36,6 +36,19 @@
           />
         </div>
 
+        <!-- Model Configuration -->
+        <div class="model-config-section">
+          <base-input-field
+            :model-value="promptData.maxTokens"
+            :label="$t('promptEditor.maxTokens')"
+            type="number"
+            :min="1"
+            :max="32000"
+            :disabled="promptRunner.state.value.isRunning"
+            @update:model-value="(value) => promptData.maxTokens = Number(value)"
+          />
+        </div>
+
         <div class="run-controls">
           <base-button
             variant="primary"
@@ -66,6 +79,8 @@
           :test-case="testCaseForBatch"
           :provider-id="providerSelection.providerId"
           :model="providerSelection.model"
+          :temperature="promptData.temperature"
+          :max-tokens="promptData.maxTokens"
           :disabled="!canRunBatch"
           @batch-started="onBatchStarted"
           @batch-completed="onBatchCompleted"
