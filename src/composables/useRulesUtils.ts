@@ -68,6 +68,7 @@ function createRuleByType(type: RuleType, generateId: () => string): Rule {
         type,
         value: "",
         caseSensitive: false,
+        respectPunctuation: false,
       } as StringRule;
 
     case "regex":
@@ -76,6 +77,8 @@ function createRuleByType(type: RuleType, generateId: () => string): Rule {
         type: "regex",
         pattern: "",
         flags: "g",
+        caseSensitive: false,
+        respectPunctuation: false,
       } as RegexRule;
 
     case "length":

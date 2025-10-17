@@ -21,12 +21,15 @@ export interface StringRule extends BaseRule {
   type: "equals" | "contains" | "startsWith" | "endsWith";
   value: string;
   caseSensitive?: boolean;
+  respectPunctuation?: boolean;
 }
 
 export interface RegexRule extends BaseRule {
   type: "regex";
   pattern: string;
   flags?: string;
+  caseSensitive?: boolean;
+  respectPunctuation?: boolean;
 }
 
 export interface LengthRule extends BaseRule {

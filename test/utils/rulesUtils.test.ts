@@ -35,6 +35,7 @@ describe("Rules Utils", () => {
       expect(rule.type).toBe("contains");
       expect(rule.value).toBe("");
       expect(rule.caseSensitive).toBe(false);
+      expect(rule.respectPunctuation).toBe(false);
     });
 
     it("should create regex rules with defaults", () => {
@@ -43,6 +44,8 @@ describe("Rules Utils", () => {
 
       expect(rule.id).toBeDefined();
       expect(rule.type).toBe("regex");
+      expect(rule.caseSensitive).toBe(false);
+      expect(rule.respectPunctuation).toBe(false);
       expect(rule.pattern).toBe("");
       expect(rule.flags).toBe("g");
     });

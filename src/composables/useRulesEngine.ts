@@ -25,6 +25,26 @@ interface RulesEngineComposable {
 }
 
 /**
+ * Helper function to normalize text based on rule options
+ */
+function normalizeText(text: string, caseSensitive: boolean, respectPunctuation: boolean): string {
+  let normalized = text;
+
+  // Handle case sensitivity
+  if (!caseSensitive) {
+    normalized = normalized.toLowerCase();
+  }
+
+  // Handle punctuation and spacing - remove if NOT respecting punctuation
+  if (!respectPunctuation) {
+    // Remove all punctuation, whitespace, and normalize spaces
+    normalized = normalized.replace(/[^\p{L}\p{N}]/gu, '');
+  }
+
+  return normalized;
+}
+
+/**
  * String rule validation helper
  */
 function createStringRuleValidator(
@@ -37,11 +57,12 @@ function createStringRuleValidator(
 } {
   return {
     equals: (rule: StringRule, input: string): RuleResult => {
-      const comparison =
-        rule.caseSensitive !== false ? input : input.toLowerCase();
-      const target =
-        rule.caseSensitive !== false ? rule.value : rule.value.toLowerCase();
-      const pass = comparison === target;
+      const caseSensitive = rule.caseSensitive ?? false;
+      const respectPunctuation = rule.respectPunctuation ?? false;
+
+      const normalizedInput = normalizeText(input, caseSensitive, respectPunctuation);
+      const normalizedTarget = normalizeText(rule.value, caseSensitive, respectPunctuation);
+      const pass = normalizedInput === normalizedTarget;
 
       return {
         ruleId: rule.id,
@@ -57,11 +78,12 @@ function createStringRuleValidator(
       };
     },
     contains: (rule: StringRule, input: string): RuleResult => {
-      const comparison =
-        rule.caseSensitive !== false ? input : input.toLowerCase();
-      const target =
-        rule.caseSensitive !== false ? rule.value : rule.value.toLowerCase();
-      const pass = comparison.includes(target);
+      const caseSensitive = rule.caseSensitive ?? false;
+      const respectPunctuation = rule.respectPunctuation ?? false;
+
+      const normalizedInput = normalizeText(input, caseSensitive, respectPunctuation);
+      const normalizedTarget = normalizeText(rule.value, caseSensitive, respectPunctuation);
+      const pass = normalizedInput.includes(normalizedTarget);
 
       return {
         ruleId: rule.id,
@@ -74,11 +96,12 @@ function createStringRuleValidator(
       };
     },
     startsWith: (rule: StringRule, input: string): RuleResult => {
-      const comparison =
-        rule.caseSensitive !== false ? input : input.toLowerCase();
-      const target =
-        rule.caseSensitive !== false ? rule.value : rule.value.toLowerCase();
-      const pass = comparison.startsWith(target);
+      const caseSensitive = rule.caseSensitive ?? false;
+      const respectPunctuation = rule.respectPunctuation ?? false;
+
+      const normalizedInput = normalizeText(input, caseSensitive, respectPunctuation);
+      const normalizedTarget = normalizeText(rule.value, caseSensitive, respectPunctuation);
+      const pass = normalizedInput.startsWith(normalizedTarget);
 
       return {
         ruleId: rule.id,
@@ -91,11 +114,12 @@ function createStringRuleValidator(
       };
     },
     endsWith: (rule: StringRule, input: string): RuleResult => {
-      const comparison =
-        rule.caseSensitive !== false ? input : input.toLowerCase();
-      const target =
-        rule.caseSensitive !== false ? rule.value : rule.value.toLowerCase();
-      const pass = comparison.endsWith(target);
+      const caseSensitive = rule.caseSensitive ?? false;
+      const respectPunctuation = rule.respectPunctuation ?? false;
+
+      const normalizedInput = normalizeText(input, caseSensitive, respectPunctuation);
+      const normalizedTarget = normalizeText(rule.value, caseSensitive, respectPunctuation);
+      const pass = normalizedInput.endsWith(normalizedTarget);
 
       return {
         ruleId: rule.id,
@@ -119,9 +143,19 @@ function validateRegexRule(
   t: (key: string, params?: Record<string, unknown>) => string,
 ): RuleResult {
   try {
-    const regex = new RegExp(rule.pattern, rule.flags || "");
-    const pass = regex.test(input);
-    const flags = rule.flags || "";
+    const caseSensitive = rule.caseSensitive ?? false;
+    const respectPunctuation = rule.respectPunctuation ?? false;
+
+    const normalizedInput = normalizeText(input, caseSensitive, respectPunctuation);
+
+    // Build flags dynamically based on options
+    let flags = rule.flags || "";
+    if (!caseSensitive && !flags.includes('i')) {
+      flags += 'i';
+    }
+
+    const regex = new RegExp(rule.pattern, flags);
+    const pass = regex.test(normalizedInput);
 
     return {
       ruleId: rule.id,

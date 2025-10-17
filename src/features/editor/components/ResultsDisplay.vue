@@ -59,9 +59,6 @@
           <base-button variant="primary" size="sm" @click="$emit('saveAsTest')">
             {{ $t("promptEditor.saveAsTestCase") }}
           </base-button>
-          <base-button variant="outline" size="sm" @click="copyToClipboard">
-            {{ $t("common.copy") }}
-          </base-button>
           <base-button
             variant="outline"
             size="sm"
@@ -192,17 +189,6 @@ const formatLatency = (latencyMs: number): string => {
     return `${Math.round(latencyMs)}ms`;
   }
   return `${(latencyMs / MILLISECONDS_PER_SECOND).toFixed(1)}s`;
-};
-
-const copyToClipboard = (): void => {
-  // This would be implemented with the actual result content
-  try {
-    // navigator.clipboard.writeText(result.content);
-    // Show success feedback
-  } catch (error) {
-    // Handle copy error
-    console.error("Failed to copy to clipboard:", error);
-  }
 };
 </script>
 

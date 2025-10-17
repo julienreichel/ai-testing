@@ -161,6 +161,10 @@
     "title": "Validation Rules",
     "description": "Define rules to automatically validate AI output quality",
     "addRule": "Add Rule",
+    "options": {
+      "caseSensitive": "Case Sensitive",
+      "respectPunctuation": "Punctuation & Spacing Matter"
+    },
     "types": {
       "equals": {
         "label": "Equals",

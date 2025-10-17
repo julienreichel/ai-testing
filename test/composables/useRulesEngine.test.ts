@@ -143,6 +143,7 @@ describe("useRulesEngine", () => {
         const rule = rulesUtils.createRule("regex") as RegexRule;
         rule.pattern = "\\d+"; // Matches numbers
         rule.flags = "g";
+        rule.caseSensitive = true; // Override default to prevent automatic 'i' flag
 
         const passingResult = rulesEngine.validateRule(rule, "Hello 123 world");
         expect(passingResult.pass).toBe(true);
