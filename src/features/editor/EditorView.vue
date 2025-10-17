@@ -47,14 +47,6 @@
           </base-button>
 
           <base-button
-            variant="outline"
-            :disabled="promptRunner.state.value.isRunning"
-            @click="clearAll"
-          >
-            {{ $t("promptEditor.clear") }}
-          </base-button>
-
-          <base-button
             variant="primary"
             :disabled="!canRunBatch"
             @click="toggleBatchRunner"
@@ -146,7 +138,7 @@ const providerSelection = ref<ProviderSelection>({
 const promptData = ref<PromptData>({
   userPrompt: "",
   temperature: 0.7,
-  maxTokens: 1000,
+  maxTokens: 4096,
 });
 
 // Rules state
@@ -242,7 +234,7 @@ const clearAll = (): void => {
   promptData.value = {
     userPrompt: "",
     temperature: 0.7,
-    maxTokens: 1000,
+    maxTokens: 4096,
   };
   promptRunner.clearResults();
   validationResult.value = null;

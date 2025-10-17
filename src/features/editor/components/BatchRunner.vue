@@ -171,10 +171,16 @@ import BaseInputField from "../../../components/ui/BaseInputField.vue";
 import BaseButton from "../../../components/ui/BaseButton.vue";
 import BaseBadge from "../../../components/ui/BaseBadge.vue";
 
+// Constants to avoid magic numbers
+const DEFAULT_TEMPERATURE = 0.7;
+const DEFAULT_MAX_TOKENS = 4096;
+
 interface Props {
   testCase: TestCase;
   providerId: string;
   model: string;
+  temperature?: number;
+  maxTokens?: number;
   disabled?: boolean;
 }
 
@@ -196,6 +202,8 @@ const config = ref<Omit<BatchRunConfig, "testCase" | "providerId" | "model">>({
   runCount: 10,
   maxRetries: 2,
   delayMs: 100,
+  temperature: undefined,
+  maxTokens: undefined,
 });
 
 // Computed properties
@@ -223,6 +231,8 @@ const startBatch = async (): Promise<void> => {
     providerId: props.providerId,
     model: props.model,
     ...config.value,
+    temperature: props.temperature ?? config.value.temperature ?? DEFAULT_TEMPERATURE,
+    maxTokens: props.maxTokens ?? config.value.maxTokens ?? DEFAULT_MAX_TOKENS,
   };
 
   emit("batch-started");

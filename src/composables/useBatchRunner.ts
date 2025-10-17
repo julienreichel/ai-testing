@@ -19,12 +19,16 @@ const MAX_RETRY_DELAY_MS = 30000;
 const DEFAULT_RETRY_DELAY_MS = 1000;
 const UI_UPDATE_DELAY_MS = 10;
 const PROGRESS_UPDATE_INTERVAL = 5;
+const DEFAULT_TEMPERATURE = 0.7;
+const DEFAULT_MAX_TOKENS = 4096;
 
 // Configuration for batch runs
 export interface BatchRunConfig {
   testCase: TestCase;
   providerId: string;
   model: string;
+  temperature?: number;
+  maxTokens?: number;
   runCount: number;
   maxRetries: number;
   delayMs: number;
@@ -239,14 +243,19 @@ const executeSingleRun = async (params: {
       }
 
       // Create the provider request
+      const messages = [
+        {
+          role: "user" as const,
+          content: config.testCase.prompt,
+        },
+      ];
+
       const providerRequest: ProviderRequest = {
         model: config.model,
-        messages: [{ role: "user", content: config.testCase.prompt }],
-        temperature: 0.7,
-        maxTokens: 1000,
-      };
-
-      // Execute the actual request
+        messages,
+        temperature: config.temperature ?? DEFAULT_TEMPERATURE,
+        maxTokens: config.maxTokens ?? DEFAULT_MAX_TOKENS,
+      };      // Execute the actual request
       const response = await provider.call(providerRequest);
 
       result.endTime = new Date();

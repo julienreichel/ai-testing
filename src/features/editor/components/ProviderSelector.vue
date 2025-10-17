@@ -25,13 +25,6 @@
         </div>
       </base-form>
     </div>
-
-    <div v-if="selectedProviderStatus" class="provider-status">
-      <span :class="statusClasses">
-        {{ statusIcon }}
-      </span>
-      <span class="status-text">{{ statusText }}</span>
-    </div>
   </div>
 </template>
 
