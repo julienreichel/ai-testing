@@ -25,8 +25,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  maxWidth: 500,
-  maxHeight: 300,
+
   delay: 0,
 });
 
@@ -39,8 +38,8 @@ const hasText = computed(() => props.text && props.text !== "-");
 const tooltipStyle = computed(() => ({
   left: position.value.x + "px",
   top: position.value.y + "px",
-  maxWidth: props.maxWidth + "px",
-  maxHeight: props.maxHeight + "px",
+  maxWidth: props.maxWidth ? props.maxWidth + "px" : "80%",
+  maxHeight: props.maxHeight ? props.maxHeight + "px" : "80%",
 }));
 
 const showTooltip = (event: MouseEvent): void => {
@@ -52,11 +51,10 @@ const showTooltip = (event: MouseEvent): void => {
 
   const showTooltipNow = (): void => {
     const rect = (event.target as HTMLElement).getBoundingClientRect();
-    const HALF = 2;
-    const Y_MARGIN = 10;
+    const MARGIN = 10;
     position.value = {
-      x: rect.left + rect.width / HALF,
-      y: rect.top - Y_MARGIN,
+      x: rect.left,
+      y: rect.top - MARGIN,
     };
     visible.value = true;
   };
@@ -101,7 +99,7 @@ export default defineComponent({
   font-family: monospace;
   font-size: 0.875rem;
   line-height: 1.5;
-  overflow-y: hidden;
+  overflow-y: clip;
   white-space: pre-wrap;
   word-break: break-word;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
