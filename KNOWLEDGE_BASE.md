@@ -144,30 +144,35 @@ We have successfully built a **production-ready application** with complete core
 ### ✅ **Currently Implemented Providers**
 
 #### **OpenAI**
+
 - **Models**: GPT-4o, GPT-4o Mini, GPT-4 Turbo, GPT-3.5 Turbo, GPT-5 (nano, mini, full)
 - **API Format**: OpenAI Chat Completions API
 - **Features**: Temperature control, max tokens, system prompts
 - **Pricing**: Official OpenAI pricing per 1K tokens
 
 #### **Anthropic (Claude)**
+
 - **Models**: Claude 3.5 family (Haiku, Sonnet, Opus)
 - **API Format**: Anthropic Messages API
 - **Features**: System prompts, temperature control, max tokens
 - **Pricing**: Official Anthropic pricing per 1K tokens
 
 #### **Mistral AI**
+
 - **Models**: Mistral family including latest versions
 - **API Format**: OpenAI-compatible Chat Completions API
 - **Features**: Temperature control, max tokens, system prompts
 - **Pricing**: Official Mistral AI pricing per 1K tokens
 
 #### **Google Gemini**
+
 - **Models**: Gemini 2.5 Pro, Gemini 2.5 Flash, Gemini 2.0 Flash (including lite variants)
 - **API Format**: Google AI Studio API (generateContent endpoint)
 - **Features**: System prompts, temperature control, safety settings
 - **Pricing**: Official Google AI pricing per 1K tokens
 
 #### **Mock Provider**
+
 - **Purpose**: Development and testing without API costs
 - **Features**: Simulated responses, configurable latency, token counting
 - **Usage**: Perfect for testing application functionality and UI components

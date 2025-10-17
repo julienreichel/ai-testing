@@ -140,12 +140,17 @@
           <template #header>
             <div
               class="project-header"
-              :class="{ 'clickable': projects.length > 1 }"
-              @click="projects.length > 1 ? toggleProject(project.id) : undefined"
+              :class="{ clickable: projects.length > 1 }"
+              @click="
+                projects.length > 1 ? toggleProject(project.id) : undefined
+              "
             >
               <div class="project-main">
                 <div class="project-toggle" v-if="projects.length > 1">
-                  <span class="chevron" :class="{ 'expanded': isProjectExpanded(project.id) }">
+                  <span
+                    class="chevron"
+                    :class="{ expanded: isProjectExpanded(project.id) }"
+                  >
                     ▶
                   </span>
                 </div>
@@ -177,7 +182,10 @@
 
           <!-- Test Cases in Project -->
           <div
-            v-if="getProjectTestCases(project.id).length > 0 && (projects.length === 1 || isProjectExpanded(project.id))"
+            v-if="
+              getProjectTestCases(project.id).length > 0 &&
+              (projects.length === 1 || isProjectExpanded(project.id))
+            "
             class="test-cases-grid"
           >
             <base-card
@@ -215,7 +223,10 @@
           </div>
           <!-- Empty Project State -->
           <base-empty-state
-            v-if="getProjectTestCases(project.id).length === 0 && (projects.length === 1 || isProjectExpanded(project.id))"
+            v-if="
+              getProjectTestCases(project.id).length === 0 &&
+              (projects.length === 1 || isProjectExpanded(project.id))
+            "
             title="No Test Cases Yet"
             description="Create test cases by saving prompts from the Editor."
             icon="🧪"
@@ -570,7 +581,10 @@ const loadBatchRunCounts = async (): Promise<void> => {
       }, 0);
       counts.set(testCase.id, totalRuns);
     } catch (err) {
-      console.error(`Failed to load batch runs for test case ${testCase.id}:`, err);
+      console.error(
+        `Failed to load batch runs for test case ${testCase.id}:`,
+        err,
+      );
       counts.set(testCase.id, 0);
     }
   }
@@ -756,7 +770,6 @@ onMounted(async () => {
 .project-info p {
   margin: 0 0 1rem 0;
   color: #6b7280;
-
 }
 
 .project-stats {

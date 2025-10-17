@@ -149,8 +149,6 @@ const dialogTitle = computed(() =>
   isEditMode.value ? t("providers.editProvider") : t("providers.addProvider"),
 );
 
-
-
 // Methods
 const acknowledgeNotice = (): void => {
   hasShownNotice.value = true;
@@ -273,11 +271,7 @@ const handleSaveProvider = (formData: {
         "Edit functionality needs implementation",
       );
     } else {
-      const type = formData.type as
-        | "openai"
-        | "anthropic"
-        | "mistral"
-        | "mock";
+      const type = formData.type as "openai" | "anthropic" | "mistral" | "mock";
       providersStore.addKey(
         type,
         formData.name,

@@ -175,7 +175,7 @@ const openAI = ProviderFactory.createProvider("openai", {
 
 ```typescript
 const claude = ProviderFactory.createProvider("anthropic", {
-  id: "anthropic-main", 
+  id: "anthropic-main",
   name: "Anthropic Claude",
   apiKey: "sk-ant-your-api-key",
   isActive: true,
@@ -192,7 +192,7 @@ const claude = ProviderFactory.createProvider("anthropic", {
 ```typescript
 const mistral = ProviderFactory.createProvider("mistral", {
   id: "mistral-main",
-  name: "Mistral AI", 
+  name: "Mistral AI",
   apiKey: "your-mistral-api-key",
   isActive: true,
 });
@@ -209,7 +209,7 @@ const mistral = ProviderFactory.createProvider("mistral", {
 const gemini = ProviderFactory.createProvider("gemini", {
   id: "gemini-main",
   name: "Google Gemini",
-  apiKey: "your-gemini-api-key", 
+  apiKey: "your-gemini-api-key",
   isActive: true,
 });
 ```
@@ -351,7 +351,12 @@ private static readonly PROVIDER_CONSTRUCTORS = {
 3. **Add to types**:
 
 ```typescript
-export type ProviderType = "openai" | "anthropic" | "mistral" | "gemini" | "mock";
+export type ProviderType =
+  | "openai"
+  | "anthropic"
+  | "mistral"
+  | "gemini"
+  | "mock";
 ```
 
 ## 📱 Integration Examples

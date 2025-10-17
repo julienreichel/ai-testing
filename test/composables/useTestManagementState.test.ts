@@ -6,7 +6,6 @@ import type {
   TestRun,
 } from "../../src/types/testManagement";
 
-
 // eslint-disable-next-line max-lines-per-function
 describe("useTestManagementState - User State Management Behavior", () => {
   describe("When user accesses test management state", () => {
@@ -442,14 +441,18 @@ describe("useTestManagementState - User State Management Behavior", () => {
       // User sees test case children with run metadata
       expect(projectNode?.children).toHaveLength(2);
 
-      const testCase1Node = projectNode?.children?.find(child => child.id === "test-1");
+      const testCase1Node = projectNode?.children?.find(
+        (child) => child.id === "test-1",
+      );
       expect(testCase1Node?.name).toBe("Response Quality Test");
       expect(testCase1Node?.type).toBe("testCase");
       expect(testCase1Node?.parentId).toBe("proj-1");
       expect(testCase1Node?.metadata?.runCount).toBe(2); // Test case 1 has 2 runs
       expect(testCase1Node?.metadata?.lastRun).toEqual(now); // Most recent run time
 
-      const testCase2Node = projectNode?.children?.find(child => child.id === "test-2");
+      const testCase2Node = projectNode?.children?.find(
+        (child) => child.id === "test-2",
+      );
       expect(testCase2Node?.name).toBe("Speed Test");
       expect(testCase2Node?.metadata?.runCount).toBe(1); // Test case 2 has 1 run
       expect(testCase2Node?.metadata?.lastRun).toEqual(now);
@@ -526,8 +529,8 @@ describe("useTestManagementState - User State Management Behavior", () => {
       const tree = state.projectTree.value;
       expect(tree).toHaveLength(2);
 
-      const alpha = tree.find(p => p.id === "proj-1");
-      const beta = tree.find(p => p.id === "proj-2");
+      const alpha = tree.find((p) => p.id === "proj-1");
+      const beta = tree.find((p) => p.id === "proj-2");
 
       expect(alpha?.children).toHaveLength(1);
       expect(beta?.children).toHaveLength(1);

@@ -3,7 +3,12 @@
  * Tests focus on user behavior and experience with test project management workflows
  */
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import type { Project, TestCase, ExportProject, ImportResult } from "../../src/types/testManagement";
+import type {
+  Project,
+  TestCase,
+  ExportProject,
+  ImportResult,
+} from "../../src/types/testManagement";
 
 // Mock the database service (external dependency) - must be before imports
 vi.mock("../../src/services/testManagementDatabase", () => ({
@@ -139,7 +144,9 @@ describe("useTestManagement - User Project Management", () => {
       const management = useTestManagement();
 
       // Assert - User sees appropriate error handling
-      await expect(management.createProject(projectData)).rejects.toThrow(errorMessage);
+      await expect(management.createProject(projectData)).rejects.toThrow(
+        errorMessage,
+      );
     });
   });
 
@@ -222,7 +229,9 @@ describe("useTestManagement - User Test Case Management", () => {
       mockTestDB.getProject.mockResolvedValue(selectedProject);
       mockTestDB.getTestCasesByProject.mockResolvedValue([]);
       mockTestDB.createTestCase.mockResolvedValue(createdTestCase);
-      mockTestDB.getTestCasesByProject.mockResolvedValueOnce([]).mockResolvedValueOnce([createdTestCase]);
+      mockTestDB.getTestCasesByProject
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([createdTestCase]);
 
       // Act - User selects project and creates test case
       const management = useTestManagement();
@@ -247,7 +256,9 @@ describe("useTestManagement - User Test Case Management", () => {
 
       // Act & Assert - User sees error about missing project
       const management = useTestManagement();
-      await expect(management.createTestCase(testCaseData)).rejects.toThrow(/No project selected/);
+      await expect(management.createTestCase(testCaseData)).rejects.toThrow(
+        /No project selected/,
+      );
     });
   });
 
@@ -287,7 +298,10 @@ describe("useTestManagement - User Test Case Management", () => {
       await management.updateTestCase("tc-123", updatedData);
 
       // Assert - User sees update operation completed
-      expect(mockTestDB.updateTestCase).toHaveBeenCalledWith("tc-123", updatedData);
+      expect(mockTestDB.updateTestCase).toHaveBeenCalledWith(
+        "tc-123",
+        updatedData,
+      );
     });
 
     it("should allow user to delete unwanted test cases", async () => {
@@ -357,7 +371,9 @@ describe("useTestManagement - Import/Export Functionality", () => {
       // Assert - User sees successful import
       expect(result).toEqual(importResult);
       // Note: JSON.parse converts Date strings back to Date objects, so we check the parsed data
-      expect(mockTestDB.importProject).toHaveBeenCalledWith(JSON.parse(jsonData));
+      expect(mockTestDB.importProject).toHaveBeenCalledWith(
+        JSON.parse(jsonData),
+      );
     });
 
     it("should handle import errors gracefully", async () => {
@@ -407,10 +423,13 @@ describe("useTestManagement - Loading States and Error Handling", () => {
 
       // Act - User initiates project creation
       const management = useTestManagement();
-      const createPromise = management.createProject({ name: "Test", description: "Test" });
+      const createPromise = management.createProject({
+        name: "Test",
+        description: "Test",
+      });
 
       // Give Vue reactivity time to update
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       // Assert - User sees loading indicator
       expect(management.isLoading.value).toBe(true);
@@ -448,7 +467,7 @@ describe("useTestManagement - Loading States and Error Handling", () => {
 
       // Assert - User gets clear error message
       await expect(
-        management.createProject({ name: "Test", description: "Test" })
+        management.createProject({ name: "Test", description: "Test" }),
       ).rejects.toThrow(errorMessage);
     });
   });
@@ -476,13 +495,17 @@ describe("useTestManagement - Statistics and Insights", () => {
 
     it("should handle statistics loading errors", async () => {
       // Arrange - Statistics loading fails
-      mockTestDB.getTotalTestCaseCount.mockRejectedValue(new Error("Stats unavailable"));
+      mockTestDB.getTotalTestCaseCount.mockRejectedValue(
+        new Error("Stats unavailable"),
+      );
 
       // Act - User attempts to get statistics
       const management = useTestManagement();
 
       // Assert - Error is handled gracefully
-      await expect(management.getTotalTestCaseCount()).rejects.toThrow("Stats unavailable");
+      await expect(management.getTotalTestCaseCount()).rejects.toThrow(
+        "Stats unavailable",
+      );
     });
   });
 });

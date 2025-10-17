@@ -15,7 +15,9 @@ const MEDIUM_TOKENS = 500;
 const LARGE_TOKENS = 1000;
 
 // Helper function to create realistic batch run results
-const createBatchResult = (overrides: Partial<BatchRunResult> = {}): BatchRunResult => ({
+const createBatchResult = (
+  overrides: Partial<BatchRunResult> = {},
+): BatchRunResult => ({
   id: `result-${Date.now()}-${Math.random()}`,
   runIndex: 0,
   status: "completed",
@@ -43,31 +45,31 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
           runIndex: 0,
           duration: MEDIUM_LATENCY,
           cost: LOW_COST,
-          passed: true
+          passed: true,
         }),
         createBatchResult({
           runIndex: 1,
           duration: MEDIUM_LATENCY + 50,
           cost: LOW_COST,
-          passed: true
+          passed: true,
         }),
         createBatchResult({
           runIndex: 2,
           duration: MEDIUM_LATENCY - 50,
           cost: LOW_COST,
-          passed: true
+          passed: true,
         }),
         createBatchResult({
           runIndex: 3,
           duration: MEDIUM_LATENCY + 25,
           cost: LOW_COST,
-          passed: true
+          passed: true,
         }),
         createBatchResult({
           runIndex: 4,
           duration: MEDIUM_LATENCY - 25,
           cost: LOW_COST,
-          passed: true
+          passed: true,
         }),
       ];
 
@@ -85,14 +87,18 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
 
       // Assert: User sees cost efficiency data
       expect(analytics.value.costEfficiency.costPerSuccess).toBe(LOW_COST);
-      expect(analytics.value.costEfficiency.costPerToken).toBe(LOW_COST / SMALL_TOKENS);
+      expect(analytics.value.costEfficiency.costPerToken).toBe(
+        LOW_COST / SMALL_TOKENS,
+      );
 
       // Assert: User sees reliability indicators showing high consistency
       expect(analytics.value.reliability.consistency).toBe(100);
       expect(analytics.value.reliability.stabilityScore).toBe(50);
 
       // Assert: User receives positive performance feedback
-      expect(analytics.value.recommendations).toContain("Batch execution performing well");
+      expect(analytics.value.recommendations).toContain(
+        "Batch execution performing well",
+      );
     });
 
     it("should show cost efficiency metrics for successful runs only", () => {
@@ -102,19 +108,31 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
           runIndex: 0,
           cost: HIGH_COST,
           passed: true,
-          tokenUsage: { promptTokens: 200, completionTokens: 800, totalTokens: LARGE_TOKENS }
+          tokenUsage: {
+            promptTokens: 200,
+            completionTokens: 800,
+            totalTokens: LARGE_TOKENS,
+          },
         }),
         createBatchResult({
           runIndex: 1,
           cost: MEDIUM_COST,
           passed: true,
-          tokenUsage: { promptTokens: 100, completionTokens: 400, totalTokens: MEDIUM_TOKENS }
+          tokenUsage: {
+            promptTokens: 100,
+            completionTokens: 400,
+            totalTokens: MEDIUM_TOKENS,
+          },
         }),
         createBatchResult({
           runIndex: 2,
           cost: LOW_COST,
           passed: false, // Failed - should not count in cost per success
-          tokenUsage: { promptTokens: 50, completionTokens: 50, totalTokens: SMALL_TOKENS }
+          tokenUsage: {
+            promptTokens: 50,
+            completionTokens: 50,
+            totalTokens: SMALL_TOKENS,
+          },
         }),
       ];
 
@@ -123,13 +141,19 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
 
       // Assert: Cost per success only includes successful runs
       const expectedCostPerSuccess = (HIGH_COST + MEDIUM_COST) / 2; // Only 2 successful runs
-      expect(analytics.value.costEfficiency.costPerSuccess).toBeCloseTo(expectedCostPerSuccess, 1);
+      expect(analytics.value.costEfficiency.costPerSuccess).toBeCloseTo(
+        expectedCostPerSuccess,
+        1,
+      );
 
       // Assert: Cost per token includes all completed runs (success + failure)
       const totalCost = HIGH_COST + MEDIUM_COST + LOW_COST;
       const totalTokens = LARGE_TOKENS + MEDIUM_TOKENS + SMALL_TOKENS;
       const expectedCostPerToken = totalCost / totalTokens;
-      expect(analytics.value.costEfficiency.costPerToken).toBeCloseTo(expectedCostPerToken, 5);
+      expect(analytics.value.costEfficiency.costPerToken).toBeCloseTo(
+        expectedCostPerToken,
+        5,
+      );
     });
   });
 
@@ -146,7 +170,9 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
       const { analytics } = useBatchAnalytics(highLatencyResults);
 
       // Assert: User receives performance warning
-      expect(analytics.value.recommendations).toContain("High latency detected - optimize prompts");
+      expect(analytics.value.recommendations).toContain(
+        "High latency detected - optimize prompts",
+      );
 
       // Assert: Latency percentiles reflect the performance issue
       expect(analytics.value.latencyPercentiles.p90).toBeGreaterThan(2000); // HIGH_LATENCY_THRESHOLD
@@ -176,13 +202,19 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
       // For this test, we need a scenario that actually triggers the warning (< 70%)
       // Let's test the behavior we can observe
       if (analytics.value.reliability.consistency < 70) {
-        expect(analytics.value.recommendations).toContain("Consider reviewing test consistency");
+        expect(analytics.value.recommendations).toContain(
+          "Consider reviewing test consistency",
+        );
       } else {
-        expect(analytics.value.recommendations).toContain("Batch execution performing well");
+        expect(analytics.value.recommendations).toContain(
+          "Batch execution performing well",
+        );
       }
 
       // Assert: Stability score is half of consistency
-      expect(analytics.value.reliability.stabilityScore).toBe(Math.round(analytics.value.reliability.consistency / 2));
+      expect(analytics.value.reliability.stabilityScore).toBe(
+        Math.round(analytics.value.reliability.consistency / 2),
+      );
     });
 
     it("should provide multiple recommendations when multiple issues exist", () => {
@@ -198,7 +230,9 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
       const { analytics } = useBatchAnalytics(problematicResults);
 
       // Assert: User receives high latency warning (since p90 > 2000ms)
-      expect(analytics.value.recommendations).toContain("High latency detected - optimize prompts");
+      expect(analytics.value.recommendations).toContain(
+        "High latency detected - optimize prompts",
+      );
 
       // Assert: Since all results are successful, consistency should be high and no consistency warning
       expect(analytics.value.reliability.consistency).toBe(100);
@@ -218,21 +252,38 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
 
       // Assert: User sees zero-state analytics without errors
       expect(analytics.value.latencyPercentiles).toEqual({
-        p25: 0, p50: 0, p75: 0, p90: 0, p95: 0, p99: 0,
+        p25: 0,
+        p50: 0,
+        p75: 0,
+        p90: 0,
+        p95: 0,
+        p99: 0,
       });
       expect(analytics.value.costEfficiency.costPerSuccess).toBe(0);
       expect(analytics.value.costEfficiency.costPerToken).toBe(0);
       expect(analytics.value.reliability.consistency).toBe(0);
       expect(analytics.value.reliability.stabilityScore).toBe(0);
-      expect(analytics.value.recommendations).toEqual(["Consider reviewing test consistency"]);
+      expect(analytics.value.recommendations).toEqual([
+        "Consider reviewing test consistency",
+      ]);
     });
 
     it("should handle incomplete batch results appropriately", () => {
       // Arrange: Mix of completed and incomplete results
       const incompleteResults: BatchRunResult[] = [
         createBatchResult({ status: "running" }), // Should be filtered out
-        createBatchResult({ status: "completed", duration: undefined, cost: undefined, passed: false }), // Completed but failed
-        createBatchResult({ status: "completed", duration: MEDIUM_LATENCY, cost: LOW_COST, passed: true }),
+        createBatchResult({
+          status: "completed",
+          duration: undefined,
+          cost: undefined,
+          passed: false,
+        }), // Completed but failed
+        createBatchResult({
+          status: "completed",
+          duration: MEDIUM_LATENCY,
+          cost: LOW_COST,
+          passed: true,
+        }),
       ];
 
       // Act: User analyzes partially complete batch
@@ -252,12 +303,16 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
         createBatchResult({
           cost: undefined,
           tokenUsage: undefined,
-          passed: true
+          passed: true,
         }),
         createBatchResult({
           cost: LOW_COST,
-          tokenUsage: { promptTokens: 50, completionTokens: 50, totalTokens: SMALL_TOKENS },
-          passed: true
+          tokenUsage: {
+            promptTokens: 50,
+            completionTokens: 50,
+            totalTokens: SMALL_TOKENS,
+          },
+          passed: true,
         }),
       ];
 
@@ -266,7 +321,9 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
 
       // Assert: Cost calculations handle missing data appropriately
       expect(analytics.value.costEfficiency.costPerSuccess).toBe(LOW_COST / 2); // Only 1 success with cost data
-      expect(analytics.value.costEfficiency.costPerToken).toBe(LOW_COST / SMALL_TOKENS); // Only 1 result with token data
+      expect(analytics.value.costEfficiency.costPerToken).toBe(
+        LOW_COST / SMALL_TOKENS,
+      ); // Only 1 result with token data
 
       // Assert: Analytics still provide meaningful insights
       expect(analytics.value.reliability.consistency).toBe(100); // Both completed runs passed
@@ -275,7 +332,11 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
     it("should calculate percentiles correctly with single result", () => {
       // Arrange: Single batch result
       const singleResult: BatchRunResult[] = [
-        createBatchResult({ duration: MEDIUM_LATENCY, cost: LOW_COST, passed: true }),
+        createBatchResult({
+          duration: MEDIUM_LATENCY,
+          cost: LOW_COST,
+          passed: true,
+        }),
       ];
 
       // Act: User analyzes single-run batch
@@ -298,11 +359,11 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
     it("should provide percentile distributions for performance comparison", () => {
       // Arrange: Batch with varied performance characteristics
       const variedPerformanceResults: BatchRunResult[] = [
-        createBatchResult({ duration: LOW_LATENCY }),     // Fast
+        createBatchResult({ duration: LOW_LATENCY }), // Fast
         createBatchResult({ duration: LOW_LATENCY + 100 }),
-        createBatchResult({ duration: MEDIUM_LATENCY }),  // Medium
+        createBatchResult({ duration: MEDIUM_LATENCY }), // Medium
         createBatchResult({ duration: MEDIUM_LATENCY + 200 }),
-        createBatchResult({ duration: HIGH_LATENCY }),    // Slow
+        createBatchResult({ duration: HIGH_LATENCY }), // Slow
         createBatchResult({ duration: HIGH_LATENCY + 500 }),
         createBatchResult({ duration: VERY_HIGH_LATENCY }), // Very slow
       ];
@@ -331,20 +392,32 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
         // Expensive model with high token usage
         createBatchResult({
           cost: HIGH_COST,
-          tokenUsage: { promptTokens: 200, completionTokens: 800, totalTokens: LARGE_TOKENS },
-          passed: true
+          tokenUsage: {
+            promptTokens: 200,
+            completionTokens: 800,
+            totalTokens: LARGE_TOKENS,
+          },
+          passed: true,
         }),
         // Budget model with low token usage
         createBatchResult({
           cost: LOW_COST,
-          tokenUsage: { promptTokens: 25, completionTokens: 75, totalTokens: SMALL_TOKENS },
-          passed: true
+          tokenUsage: {
+            promptTokens: 25,
+            completionTokens: 75,
+            totalTokens: SMALL_TOKENS,
+          },
+          passed: true,
         }),
         // Medium model with medium usage
         createBatchResult({
           cost: MEDIUM_COST,
-          tokenUsage: { promptTokens: 100, completionTokens: 400, totalTokens: MEDIUM_TOKENS },
-          passed: true
+          tokenUsage: {
+            promptTokens: 100,
+            completionTokens: 400,
+            totalTokens: MEDIUM_TOKENS,
+          },
+          passed: true,
         }),
       ];
 
@@ -353,13 +426,19 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
 
       // Assert: Cost per success reflects average across all successful runs
       const expectedCostPerSuccess = (HIGH_COST + LOW_COST + MEDIUM_COST) / 3;
-      expect(analytics.value.costEfficiency.costPerSuccess).toBeCloseTo(expectedCostPerSuccess, 3);
+      expect(analytics.value.costEfficiency.costPerSuccess).toBeCloseTo(
+        expectedCostPerSuccess,
+        3,
+      );
 
       // Assert: Cost per token shows efficiency metric
       const totalCost = HIGH_COST + LOW_COST + MEDIUM_COST;
       const totalTokens = LARGE_TOKENS + SMALL_TOKENS + MEDIUM_TOKENS;
       const expectedCostPerToken = totalCost / totalTokens;
-      expect(analytics.value.costEfficiency.costPerToken).toBeCloseTo(expectedCostPerToken, 5);
+      expect(analytics.value.costEfficiency.costPerToken).toBeCloseTo(
+        expectedCostPerToken,
+        5,
+      );
     });
   });
 
@@ -389,7 +468,9 @@ describe("useBatchAnalytics - User Analytics Experience", () => {
 
       // Assert: Analytics reflect the new data
       expect(updatedAnalytics.value.reliability.consistency).toBeLessThan(100); // Now has failures
-      expect(updatedAnalytics.value.latencyPercentiles.p50).toBe(MEDIUM_LATENCY); // Median of [500, 1000, 2500]
+      expect(updatedAnalytics.value.latencyPercentiles.p50).toBe(
+        MEDIUM_LATENCY,
+      ); // Median of [500, 1000, 2500]
     });
   });
 });

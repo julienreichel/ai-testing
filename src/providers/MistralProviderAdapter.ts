@@ -165,15 +165,19 @@ export class MistralProviderAdapter extends BaseProviderAdapter {
 
       return this.processResponse(response, request.model, latency);
     } catch (error) {
-      const providerError = this.handleError(error as Error & { code?: string });
+      const providerError = this.handleError(
+        error as Error & { code?: string },
+      );
       throw new Error(JSON.stringify(providerError));
     }
   }
 
-  private async makeRequest(request: ProviderRequest): Promise<MistralResponse> {
+  private async makeRequest(
+    request: ProviderRequest,
+  ): Promise<MistralResponse> {
     const headers = {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${this.config.apiKey!}`,
+      Authorization: `Bearer ${this.config.apiKey!}`,
     };
 
     // Convert messages to Mistral format
@@ -188,7 +192,7 @@ export class MistralProviderAdapter extends BaseProviderAdapter {
     }
 
     // Add system message from messages array if no systemPrompt is provided
-    const systemMessage = request.messages.find(msg => msg.role === "system");
+    const systemMessage = request.messages.find((msg) => msg.role === "system");
     if (!request.systemPrompt && systemMessage) {
       messages.push({
         role: "system",
@@ -197,11 +201,15 @@ export class MistralProviderAdapter extends BaseProviderAdapter {
     }
 
     // Add non-system messages
-    const nonSystemMessages = request.messages.filter(msg => msg.role !== "system");
-    messages.push(...nonSystemMessages.map(msg => ({
-      role: msg.role,
-      content: msg.content,
-    })));
+    const nonSystemMessages = request.messages.filter(
+      (msg) => msg.role !== "system",
+    );
+    messages.push(
+      ...nonSystemMessages.map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+      })),
+    );
 
     const body = {
       model: request.model,
@@ -211,11 +219,14 @@ export class MistralProviderAdapter extends BaseProviderAdapter {
       stream: false,
     };
 
-    const response = await fetch(`${MistralProviderAdapter.BASE_URL}/chat/completions`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(body),
-    });
+    const response = await fetch(
+      `${MistralProviderAdapter.BASE_URL}/chat/completions`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      },
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -241,8 +252,12 @@ export class MistralProviderAdapter extends BaseProviderAdapter {
 
     const pricing = this.getPricing(model);
     const cost = {
-      inputCost: pricing ? (usage.inputTokens / TOKENS_PER_1K) * pricing.inputTokensPer1K : 0,
-      outputCost: pricing ? (usage.outputTokens / TOKENS_PER_1K) * pricing.outputTokensPer1K : 0,
+      inputCost: pricing
+        ? (usage.inputTokens / TOKENS_PER_1K) * pricing.inputTokensPer1K
+        : 0,
+      outputCost: pricing
+        ? (usage.outputTokens / TOKENS_PER_1K) * pricing.outputTokensPer1K
+        : 0,
       totalCost: 0,
     };
     cost.totalCost = cost.inputCost + cost.outputCost;
@@ -265,7 +280,9 @@ export class MistralProviderAdapter extends BaseProviderAdapter {
    * Extracts text content from Mistral's response, handling both string and array formats
    * Some models (like Magistral) return complex content with "thinking" sections
    */
-  private extractTextFromContent(content: string | Array<MistralContentItem>): string {
+  private extractTextFromContent(
+    content: string | Array<MistralContentItem>,
+  ): string {
     if (typeof content === "string") {
       return content;
     }
@@ -285,7 +302,9 @@ export class MistralProviderAdapter extends BaseProviderAdapter {
   private handleError(error: Error & { code?: string }): ProviderError {
     if (error.message?.includes("HTTP")) {
       const statusMatch = error.message.match(/HTTP (\d+)/);
-      const status = statusMatch ? parseInt(statusMatch[1]!, 10) : DEFAULT_STATUS_CODE;
+      const status = statusMatch
+        ? parseInt(statusMatch[1]!, 10)
+        : DEFAULT_STATUS_CODE;
 
       switch (status) {
         case MistralProviderAdapter.HTTP_STATUS.UNAUTHORIZED:
@@ -295,7 +314,10 @@ export class MistralProviderAdapter extends BaseProviderAdapter {
         case MistralProviderAdapter.HTTP_STATUS.BAD_REQUEST:
           return this.createError("invalid_request", "Invalid request format");
         default:
-          return this.createError("server_error", `API error: ${error.message}`);
+          return this.createError(
+            "server_error",
+            `API error: ${error.message}`,
+          );
       }
     }
 
@@ -303,11 +325,19 @@ export class MistralProviderAdapter extends BaseProviderAdapter {
       return this.createError("network_error", "Network connection failed");
     }
 
-    return this.createError("server_error", error.message || "Unknown error occurred");
+    return this.createError(
+      "server_error",
+      error.message || "Unknown error occurred",
+    );
   }
 
   private createError(
-    type: "auth" | "rate_limit" | "invalid_request" | "server_error" | "network_error",
+    type:
+      | "auth"
+      | "rate_limit"
+      | "invalid_request"
+      | "server_error"
+      | "network_error",
     message: string,
   ): ProviderError {
     return {

@@ -49,7 +49,7 @@ No installation required! The platform runs entirely in your browser.
 ### 5. **Manage Test and Project**
 
 1. Go to **Tests** section
-2. Select saved Test 
+2. Select saved Test
 3. Open it directly in the Editor
 4. IMport/Export tests if needed
 
@@ -71,7 +71,7 @@ No installation required! The platform runs entirely in your browser.
 
 ### Prerequisites
 
-- **Node.js** 18+ 
+- **Node.js** 18+
 - **npm** or **yarn**
 - **Git**
 
@@ -143,7 +143,7 @@ src/
 └── locales/                    # i18n translations
 ```
 
-## 🧪 Testing 
+## 🧪 Testing
 
 **495+ Tests with 100% Pass Rate**
 
@@ -173,15 +173,15 @@ export class YourProviderAdapter extends BaseProviderAdapter {
   async call(request: ProviderRequest): Promise<ProviderResponse> {
     // Implement API call logic
   }
-  
+
   getModels(): ProviderModel[] {
     // Return supported models
   }
-  
+
   getPricing(model: string): ProviderPricing | null {
     // Return pricing information
   }
-  
+
   validateConfig(): boolean {
     // Validate API key/configuration
   }
@@ -194,7 +194,13 @@ export class YourProviderAdapter extends BaseProviderAdapter {
 // src/providers/index.ts
 import { YourProviderAdapter } from "./YourProviderAdapter";
 
-export type ProviderType = "openai" | "anthropic" | "mistral" | "gemini" | "yourprovider" | "mock";
+export type ProviderType =
+  | "openai"
+  | "anthropic"
+  | "mistral"
+  | "gemini"
+  | "yourprovider"
+  | "mock";
 
 const PROVIDER_CONSTRUCTORS = {
   // ... existing providers

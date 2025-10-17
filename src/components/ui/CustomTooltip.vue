@@ -8,11 +8,7 @@
     <slot />
 
     <!-- Tooltip element -->
-    <div
-      v-if="visible && hasText"
-      class="custom-tooltip"
-      :style="tooltipStyle"
-    >
+    <div v-if="visible && hasText" class="custom-tooltip" :style="tooltipStyle">
       {{ text }}
     </div>
   </div>
@@ -54,13 +50,13 @@ const showTooltip = (event: MouseEvent): void => {
     clearTimeout(timeoutId);
   }
 
-  const showTooltipNow = () : void => {
+  const showTooltipNow = (): void => {
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     const HALF = 2;
     const Y_MARGIN = 10;
     position.value = {
       x: rect.left + rect.width / HALF,
-      y: rect.top - Y_MARGIN
+      y: rect.top - Y_MARGIN,
     };
     visible.value = true;
   };
@@ -116,7 +112,7 @@ export default defineComponent({
 }
 
 .custom-tooltip::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 100%;
   left: 50%;

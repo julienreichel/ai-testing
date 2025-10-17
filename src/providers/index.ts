@@ -5,7 +5,12 @@ import { AnthropicProviderAdapter } from "./AnthropicProviderAdapter";
 import { MistralProviderAdapter } from "./MistralProviderAdapter";
 import { GeminiProviderAdapter } from "./GeminiProviderAdapter";
 
-export type ProviderType = "openai" | "anthropic" | "mistral" | "gemini" | "mock";
+export type ProviderType =
+  | "openai"
+  | "anthropic"
+  | "mistral"
+  | "gemini"
+  | "mock";
 
 /**
  * Provider Factory - Creates provider instances

@@ -190,7 +190,10 @@ export class OpenAIProviderAdapter extends BaseProviderAdapter {
     };
 
     // Only include temperature if the model supports it
-    if (this.supportsTemperature(request.model) && request.temperature !== undefined) {
+    if (
+      this.supportsTemperature(request.model) &&
+      request.temperature !== undefined
+    ) {
       body.temperature = request.temperature;
     }
 

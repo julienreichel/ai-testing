@@ -231,7 +231,8 @@ const startBatch = async (): Promise<void> => {
     providerId: props.providerId,
     model: props.model,
     ...config.value,
-    temperature: props.temperature ?? config.value.temperature ?? DEFAULT_TEMPERATURE,
+    temperature:
+      props.temperature ?? config.value.temperature ?? DEFAULT_TEMPERATURE,
     maxTokens: props.maxTokens ?? config.value.maxTokens ?? DEFAULT_MAX_TOKENS,
   };
 

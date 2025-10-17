@@ -52,7 +52,6 @@ const emit = defineEmits<{
   "update:modelValue": [value: ProviderSelection];
 }>();
 
-
 const providersStore = useProvidersStore();
 const { validProviders } = storeToRefs(providersStore);
 

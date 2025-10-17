@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AnthropicProviderAdapter } from "../../src/providers/AnthropicProviderAdapter";
-import type { ProviderConfig, ProviderRequest } from "../../src/types/providers";
+import type {
+  ProviderConfig,
+  ProviderRequest,
+} from "../../src/types/providers";
 
 const mockConfig: ProviderConfig = {
   id: "anthropic-test",
@@ -11,9 +14,7 @@ const mockConfig: ProviderConfig = {
 
 const mockRequest: ProviderRequest = {
   model: "claude-sonnet-4-5",
-  messages: [
-    { role: "user", content: "Hello, how are you?" }
-  ],
+  messages: [{ role: "user", content: "Hello, how are you?" }],
   temperature: 0.7,
   maxTokens: 100,
 };
@@ -41,15 +42,27 @@ describe("AnthropicProviderAdapter - Provider Implementation", () => {
         "claude-opus-4-0",
         "claude-sonnet-4-5",
         "claude-3-7-sonnet-latest",
-        "claude-3-5-haiku-latest"
+        "claude-3-5-haiku-latest",
       ]);
     });
 
     it("should provide accurate pricing for all models", () => {
       const testCases = [
-        { model: "claude-sonnet-4-5", expectedInput: 0.003, expectedOutput: 0.015 },
-        { model: "claude-opus-4-1", expectedInput: 0.015, expectedOutput: 0.075 },
-        { model: "claude-3-5-haiku-latest", expectedInput: 0.0008, expectedOutput: 0.004 },
+        {
+          model: "claude-sonnet-4-5",
+          expectedInput: 0.003,
+          expectedOutput: 0.015,
+        },
+        {
+          model: "claude-opus-4-1",
+          expectedInput: 0.015,
+          expectedOutput: 0.075,
+        },
+        {
+          model: "claude-3-5-haiku-latest",
+          expectedInput: 0.0008,
+          expectedOutput: 0.004,
+        },
       ];
 
       testCases.forEach(({ model, expectedInput, expectedOutput }) => {
@@ -75,7 +88,12 @@ describe("AnthropicProviderAdapter - Provider Implementation", () => {
     it("should make successful API call with proper Claude format", async () => {
       const mockResponse = {
         id: "msg_test123",
-        content: [{ text: "Hello! I'm doing well, thank you for asking.", type: "text" }],
+        content: [
+          {
+            text: "Hello! I'm doing well, thank you for asking.",
+            type: "text",
+          },
+        ],
         usage: {
           input_tokens: 12,
           output_tokens: 15,
@@ -89,7 +107,9 @@ describe("AnthropicProviderAdapter - Provider Implementation", () => {
 
       const result = await provider.call(mockRequest);
 
-      expect(result.content).toBe("Hello! I'm doing well, thank you for asking.");
+      expect(result.content).toBe(
+        "Hello! I'm doing well, thank you for asking.",
+      );
       expect(result.model).toBe("claude-sonnet-4-5");
       expect(result.usage.inputTokens).toBe(12);
       expect(result.usage.outputTokens).toBe(15);
@@ -106,7 +126,7 @@ describe("AnthropicProviderAdapter - Provider Implementation", () => {
         ...mockRequest,
         messages: [
           { role: "system", content: "You are a helpful assistant." },
-          { role: "user", content: "Hello!" }
+          { role: "user", content: "Hello!" },
         ],
       };
 
@@ -143,7 +163,9 @@ describe("AnthropicProviderAdapter - Provider Implementation", () => {
     });
 
     it("should handle network errors gracefully", async () => {
-      const networkError = new Error("Network error") as Error & { code?: string };
+      const networkError = new Error("Network error") as Error & {
+        code?: string;
+      };
       networkError.code = "ECONNREFUSED";
 
       mockFetch.mockRejectedValueOnce(networkError);
@@ -169,10 +191,12 @@ describe("AnthropicProviderAdapter - Provider Implementation", () => {
         },
       ];
 
-      testCases.forEach(({ model, inputTokens, outputTokens, expectedTotal }) => {
-        const cost = provider.estimateCost(inputTokens, outputTokens, model);
-        expect(cost).toBeCloseTo(expectedTotal, 6);
-      });
+      testCases.forEach(
+        ({ model, inputTokens, outputTokens, expectedTotal }) => {
+          const cost = provider.estimateCost(inputTokens, outputTokens, model);
+          expect(cost).toBeCloseTo(expectedTotal, 6);
+        },
+      );
     });
   });
 

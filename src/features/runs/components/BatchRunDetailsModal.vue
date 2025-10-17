@@ -6,9 +6,7 @@
   >
     <div class="batch-run-modal" @click.stop>
       <div class="modal-header">
-        <h3>
-          {{ testCaseName }} - {{ $t("runs.batchHistory.details") }}
-        </h3>
+        <h3>{{ testCaseName }} - {{ $t("runs.batchHistory.details") }}</h3>
         <base-button variant="outline" @click="handleClose">
           ✕ {{ $t("common.close") }}
         </base-button>
@@ -75,9 +73,7 @@
                     }}
                   </td>
                   <td>
-                    <base-badge
-                      :variant="result.passed ? 'success' : 'danger'"
-                    >
+                    <base-badge :variant="result.passed ? 'success' : 'danger'">
                       {{ result.passed ? $t("common.yes") : $t("common.no") }}
                     </base-badge>
                   </td>

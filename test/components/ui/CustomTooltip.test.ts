@@ -58,7 +58,7 @@ describe("CustomTooltip - User Behavior", () => {
       expect(wrapper.find(".custom-tooltip").exists()).toBe(false);
 
       // Trigger hover on the container (where the event listener is)
-      const container = wrapper.find('.tooltip-container');
+      const container = wrapper.find(".tooltip-container");
       await container.trigger("mouseenter");
       await nextTick();
 
@@ -78,7 +78,6 @@ describe("CustomTooltip - User Behavior", () => {
           default: '<div data-testid="trigger">Hover target</div>',
         },
       });
-
 
       // Show tooltip
       const container = wrapper.find(".tooltip-container");
@@ -140,7 +139,8 @@ describe("CustomTooltip - User Behavior", () => {
         },
       });
 
-      const container = wrapper.find(".tooltip-container"); await container.trigger("mouseenter");
+      const container = wrapper.find(".tooltip-container");
+      await container.trigger("mouseenter");
       await nextTick();
 
       const tooltip = wrapper.find(".custom-tooltip");
@@ -162,7 +162,8 @@ describe("CustomTooltip - User Behavior", () => {
         },
       });
 
-      const container = wrapper.find(".tooltip-container"); await container.trigger("mouseenter");
+      const container = wrapper.find(".tooltip-container");
+      await container.trigger("mouseenter");
       await nextTick();
 
       const tooltip = wrapper.find(".custom-tooltip");
@@ -238,9 +239,9 @@ describe("CustomTooltip - User Behavior", () => {
         },
       });
 
-
       // Start hover
-      const container = wrapper.find(".tooltip-container"); await container.trigger("mouseenter");
+      const container = wrapper.find(".tooltip-container");
+      await container.trigger("mouseenter");
       await nextTick();
 
       // Should not be visible yet
@@ -270,7 +271,8 @@ describe("CustomTooltip - User Behavior", () => {
         },
       });
 
-      const container = wrapper.find(".tooltip-container"); await container.trigger("mouseenter");
+      const container = wrapper.find(".tooltip-container");
+      await container.trigger("mouseenter");
       await nextTick();
 
       const tooltip = wrapper.find(".custom-tooltip");
@@ -294,7 +296,8 @@ describe("CustomTooltip - User Behavior", () => {
         },
       });
 
-      const container = wrapper.find(".tooltip-container"); await container.trigger("mouseenter");
+      const container = wrapper.find(".tooltip-container");
+      await container.trigger("mouseenter");
       await nextTick();
 
       const tooltip = wrapper.find(".custom-tooltip");
@@ -313,7 +316,8 @@ describe("CustomTooltip - User Behavior", () => {
         },
       });
 
-      const container = wrapper.find(".tooltip-container"); await container.trigger("mouseenter");
+      const container = wrapper.find(".tooltip-container");
+      await container.trigger("mouseenter");
       await nextTick();
 
       const tooltip = wrapper.find(".custom-tooltip");
@@ -334,7 +338,8 @@ describe("CustomTooltip - User Behavior", () => {
         },
       });
 
-      const container = wrapper.find(".tooltip-container"); await container.trigger("mouseenter");
+      const container = wrapper.find(".tooltip-container");
+      await container.trigger("mouseenter");
       await nextTick();
 
       const tooltip = wrapper.find(".custom-tooltip");
@@ -350,7 +355,8 @@ describe("CustomTooltip - User Behavior", () => {
           text: "Test tooltip",
         },
         slots: {
-          default: '<img src="test.jpg" alt="Test image" data-testid="image" />',
+          default:
+            '<img src="test.jpg" alt="Test image" data-testid="image" />',
         },
       });
 
@@ -394,10 +400,10 @@ describe("CustomTooltip - User Behavior", () => {
         },
       });
 
-
       // Rapid interactions
       for (let i = 0; i < 5; i++) {
-        const container = wrapper.find(".tooltip-container"); await container.trigger("mouseenter");
+        const container = wrapper.find(".tooltip-container");
+        await container.trigger("mouseenter");
         await container.trigger("mouseleave");
       }
 
@@ -450,7 +456,7 @@ describe("CustomTooltip - User Behavior", () => {
       });
 
       // This test ensures the component doesn't crash with unusual events
-      const container = wrapper.find('.tooltip-container');
+      const container = wrapper.find(".tooltip-container");
       await container.trigger("mouseenter");
       await nextTick();
 

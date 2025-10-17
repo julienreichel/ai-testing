@@ -49,7 +49,8 @@ interface GeminiContent {
  * Implements the BaseProviderAdapter for Google's Gemini API
  */
 export class GeminiProviderAdapter extends BaseProviderAdapter {
-  private static readonly BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
+  private static readonly BASE_URL =
+    "https://generativelanguage.googleapis.com/v1beta";
 
   // HTTP Status codes
   private static readonly HTTP_STATUS = {
@@ -75,32 +76,35 @@ export class GeminiProviderAdapter extends BaseProviderAdapter {
     {
       id: "gemini-2.5-pro",
       name: "Gemini 2.5 Pro",
-      description: "State-of-the-art multipurpose model, excels at coding and complex reasoning tasks",
+      description:
+        "State-of-the-art multipurpose model, excels at coding and complex reasoning tasks",
       contextWindow: 2000000, // 2M tokens
       maxOutputTokens: 32768,
     },
     {
       id: "gemini-2.5-flash",
       name: "Gemini 2.5 Flash",
-      description: "Hybrid reasoning model with 1M token context window and thinking budgets",
+      description:
+        "Hybrid reasoning model with 1M token context window and thinking budgets",
       contextWindow: 1000000, // 1M tokens
       maxOutputTokens: 32768,
     },
     {
       id: "gemini-2.5-flash-lite",
       name: "Gemini 2.5 Flash Lite",
-      description: "Smallest and most cost effective model, built for at scale usage",
+      description:
+        "Smallest and most cost effective model, built for at scale usage",
       contextWindow: 1000000, // 1M tokens
       maxOutputTokens: 32768,
     },
     {
       id: "gemini-2.0-flash",
       name: "Gemini 2.0 Flash",
-      description: "Most balanced multimodal model with great performance across all tasks",
+      description:
+        "Most balanced multimodal model with great performance across all tasks",
       contextWindow: 1000000, // 1M tokens
       maxOutputTokens: 32768,
     },
-
   ];
 
   // Pricing as of October 2025 (per 1K tokens in USD) - Paid tier
@@ -247,7 +251,8 @@ export class GeminiProviderAdapter extends BaseProviderAdapter {
       const errorData = await response.json().catch(() => ({}));
       const error = this.createError(
         this.mapHttpStatusToErrorType(response.status),
-        errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`,
+        errorData.error?.message ||
+          `HTTP ${response.status}: ${response.statusText}`,
         response.status,
         errorData,
       );

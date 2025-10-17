@@ -1,9 +1,15 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { GeminiProviderAdapter } from "../../src/providers/GeminiProviderAdapter";
-import type { ProviderConfig, ProviderRequest } from "../../src/types/providers";
+import type {
+  ProviderConfig,
+  ProviderRequest,
+} from "../../src/types/providers";
 
 // Helper function to safely get request body from mock fetch call
-function getRequestBody(mockFetch: ReturnType<typeof vi.fn>, callIndex = 0): Record<string, unknown> {
+function getRequestBody(
+  mockFetch: ReturnType<typeof vi.fn>,
+  callIndex = 0,
+): Record<string, unknown> {
   const fetchCall = mockFetch.mock.calls[callIndex];
   expect(fetchCall).toBeDefined();
   if (!fetchCall) throw new Error("Fetch call not found");
@@ -106,24 +112,25 @@ describe("GeminiProviderAdapter", () => {
       // Mock successful API response
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          candidates: [
-            {
-              content: {
-                parts: [{ text: "Hello! How can I help you today?" }],
-                role: "model",
+        json: () =>
+          Promise.resolve({
+            candidates: [
+              {
+                content: {
+                  parts: [{ text: "Hello! How can I help you today?" }],
+                  role: "model",
+                },
+                finishReason: "STOP",
+                index: 0,
               },
-              finishReason: "STOP",
-              index: 0,
+            ],
+            usageMetadata: {
+              promptTokenCount: 8,
+              candidatesTokenCount: 12,
+              totalTokenCount: 20,
             },
-          ],
-          usageMetadata: {
-            promptTokenCount: 8,
-            candidatesTokenCount: 12,
-            totalTokenCount: 20,
-          },
-          modelVersion: "gemini-2.5-flash-001",
-        }),
+            modelVersion: "gemini-2.5-flash-001",
+          }),
       });
 
       const request: ProviderRequest = {
@@ -156,7 +163,9 @@ describe("GeminiProviderAdapter", () => {
 
       // Verify the API call was made correctly
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"),
+        expect.stringContaining(
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        ),
         expect.objectContaining({
           method: "POST",
           headers: {
@@ -170,23 +179,24 @@ describe("GeminiProviderAdapter", () => {
     it("should handle system prompts correctly", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          candidates: [
-            {
-              content: {
-                parts: [{ text: "I am a helpful assistant." }],
-                role: "model",
+        json: () =>
+          Promise.resolve({
+            candidates: [
+              {
+                content: {
+                  parts: [{ text: "I am a helpful assistant." }],
+                  role: "model",
+                },
+                finishReason: "STOP",
+                index: 0,
               },
-              finishReason: "STOP",
-              index: 0,
+            ],
+            usageMetadata: {
+              promptTokenCount: 15,
+              candidatesTokenCount: 8,
+              totalTokenCount: 23,
             },
-          ],
-          usageMetadata: {
-            promptTokenCount: 15,
-            candidatesTokenCount: 8,
-            totalTokenCount: 23,
-          },
-        }),
+          }),
       });
 
       const request: ProviderRequest = {
@@ -208,23 +218,24 @@ describe("GeminiProviderAdapter", () => {
     it("should handle temperature and maxTokens parameters", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          candidates: [
-            {
-              content: {
-                parts: [{ text: "Test response" }],
-                role: "model",
+        json: () =>
+          Promise.resolve({
+            candidates: [
+              {
+                content: {
+                  parts: [{ text: "Test response" }],
+                  role: "model",
+                },
+                finishReason: "STOP",
+                index: 0,
               },
-              finishReason: "STOP",
-              index: 0,
+            ],
+            usageMetadata: {
+              promptTokenCount: 5,
+              candidatesTokenCount: 3,
+              totalTokenCount: 8,
             },
-          ],
-          usageMetadata: {
-            promptTokenCount: 5,
-            candidatesTokenCount: 3,
-            totalTokenCount: 8,
-          },
-        }),
+          }),
       });
 
       const request: ProviderRequest = {
@@ -238,7 +249,10 @@ describe("GeminiProviderAdapter", () => {
 
       const requestBody = getRequestBody(mockFetch);
 
-      const generationConfig = requestBody.generationConfig as Record<string, unknown>;
+      const generationConfig = requestBody.generationConfig as Record<
+        string,
+        unknown
+      >;
       expect(generationConfig.temperature).toBe(0.7);
       expect(generationConfig.maxOutputTokens).toBe(1500);
     });
@@ -246,23 +260,24 @@ describe("GeminiProviderAdapter", () => {
     it("should convert message roles correctly", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          candidates: [
-            {
-              content: {
-                parts: [{ text: "Response" }],
-                role: "model",
+        json: () =>
+          Promise.resolve({
+            candidates: [
+              {
+                content: {
+                  parts: [{ text: "Response" }],
+                  role: "model",
+                },
+                finishReason: "STOP",
+                index: 0,
               },
-              finishReason: "STOP",
-              index: 0,
+            ],
+            usageMetadata: {
+              promptTokenCount: 10,
+              candidatesTokenCount: 2,
+              totalTokenCount: 12,
             },
-          ],
-          usageMetadata: {
-            promptTokenCount: 10,
-            candidatesTokenCount: 2,
-            totalTokenCount: 12,
-          },
-        }),
+          }),
       });
 
       const request: ProviderRequest = {
@@ -298,7 +313,7 @@ describe("GeminiProviderAdapter", () => {
       };
 
       await expect(invalidProvider.call(request)).rejects.toThrow(
-        /API key is required/
+        /API key is required/,
       );
     });
   });
@@ -309,12 +324,13 @@ describe("GeminiProviderAdapter", () => {
         ok: false,
         status: 400,
         statusText: "Bad Request",
-        json: () => Promise.resolve({
-          error: {
-            message: "Invalid request format",
-            code: 400,
-          },
-        }),
+        json: () =>
+          Promise.resolve({
+            error: {
+              message: "Invalid request format",
+              code: 400,
+            },
+          }),
       });
 
       const request: ProviderRequest = {
@@ -323,7 +339,7 @@ describe("GeminiProviderAdapter", () => {
       };
 
       await expect(provider.call(request)).rejects.toThrow(
-        /Invalid request format/
+        /Invalid request format/,
       );
     });
 
@@ -332,12 +348,13 @@ describe("GeminiProviderAdapter", () => {
         ok: false,
         status: 401,
         statusText: "Unauthorized",
-        json: () => Promise.resolve({
-          error: {
-            message: "API key not valid",
-            code: 401,
-          },
-        }),
+        json: () =>
+          Promise.resolve({
+            error: {
+              message: "API key not valid",
+              code: 401,
+            },
+          }),
       });
 
       const request: ProviderRequest = {
@@ -353,12 +370,13 @@ describe("GeminiProviderAdapter", () => {
         ok: false,
         status: 429,
         statusText: "Too Many Requests",
-        json: () => Promise.resolve({
-          error: {
-            message: "Rate limit exceeded",
-            code: 429,
-          },
-        }),
+        json: () =>
+          Promise.resolve({
+            error: {
+              message: "Rate limit exceeded",
+              code: 429,
+            },
+          }),
       });
 
       const request: ProviderRequest = {
@@ -372,14 +390,15 @@ describe("GeminiProviderAdapter", () => {
     it("should handle empty response candidates", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          candidates: [],
-          usageMetadata: {
-            promptTokenCount: 5,
-            candidatesTokenCount: 0,
-            totalTokenCount: 5,
-          },
-        }),
+        json: () =>
+          Promise.resolve({
+            candidates: [],
+            usageMetadata: {
+              promptTokenCount: 5,
+              candidatesTokenCount: 0,
+              totalTokenCount: 5,
+            },
+          }),
       });
 
       const request: ProviderRequest = {
@@ -388,29 +407,30 @@ describe("GeminiProviderAdapter", () => {
       };
 
       await expect(provider.call(request)).rejects.toThrow(
-        /No response candidates/
+        /No response candidates/,
       );
     });
 
     it("should handle malformed response format", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          candidates: [
-            {
-              content: {
-                parts: [],
-                role: "model",
+        json: () =>
+          Promise.resolve({
+            candidates: [
+              {
+                content: {
+                  parts: [],
+                  role: "model",
+                },
+                finishReason: "STOP",
               },
-              finishReason: "STOP",
+            ],
+            usageMetadata: {
+              promptTokenCount: 5,
+              candidatesTokenCount: 0,
+              totalTokenCount: 5,
             },
-          ],
-          usageMetadata: {
-            promptTokenCount: 5,
-            candidatesTokenCount: 0,
-            totalTokenCount: 5,
-          },
-        }),
+          }),
       });
 
       const request: ProviderRequest = {
@@ -419,7 +439,7 @@ describe("GeminiProviderAdapter", () => {
       };
 
       await expect(provider.call(request)).rejects.toThrow(
-        /Invalid response format/
+        /Invalid response format/,
       );
     });
 
@@ -435,7 +455,9 @@ describe("GeminiProviderAdapter", () => {
     });
 
     it("should handle timeout errors", async () => {
-      mockFetch.mockRejectedValueOnce(new DOMException("Aborted", "AbortError"));
+      mockFetch.mockRejectedValueOnce(
+        new DOMException("Aborted", "AbortError"),
+      );
 
       const request: ProviderRequest = {
         model: "gemini-2.5-flash",
@@ -452,17 +474,31 @@ describe("GeminiProviderAdapter", () => {
       const TOKENS_50 = 50;
 
       // Test Gemini 2.5 Pro pricing
-      const costPro = provider.estimateCost(TOKENS_100, TOKENS_50, "gemini-2.5-pro");
-      const expectedPro = (TOKENS_100 / 1000) * 1.25 + (TOKENS_50 / 1000) * 10.0;
+      const costPro = provider.estimateCost(
+        TOKENS_100,
+        TOKENS_50,
+        "gemini-2.5-pro",
+      );
+      const expectedPro =
+        (TOKENS_100 / 1000) * 1.25 + (TOKENS_50 / 1000) * 10.0;
       expect(costPro).toBeCloseTo(expectedPro);
 
       // Test Gemini 2.5 Flash pricing
-      const costFlash = provider.estimateCost(TOKENS_100, TOKENS_50, "gemini-2.5-flash");
-      const expectedFlash = (TOKENS_100 / 1000) * 0.3 + (TOKENS_50 / 1000) * 2.5;
+      const costFlash = provider.estimateCost(
+        TOKENS_100,
+        TOKENS_50,
+        "gemini-2.5-flash",
+      );
+      const expectedFlash =
+        (TOKENS_100 / 1000) * 0.3 + (TOKENS_50 / 1000) * 2.5;
       expect(costFlash).toBeCloseTo(expectedFlash);
 
       // Test unknown model
-      const costUnknown = provider.estimateCost(TOKENS_100, TOKENS_50, "unknown-model");
+      const costUnknown = provider.estimateCost(
+        TOKENS_100,
+        TOKENS_50,
+        "unknown-model",
+      );
       expect(costUnknown).toBe(0);
     });
 

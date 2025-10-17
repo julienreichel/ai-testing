@@ -341,7 +341,7 @@ const exportResults = (batchRun: BatchRunSession): void => {
   const testCaseName = getTestCaseName(batchRun);
   csvExport.exportBatchResults(batchRun.results, {
     batchRunId: batchRun.id,
-    testCaseName: testCaseName
+    testCaseName: testCaseName,
   });
 };
 
@@ -729,8 +729,6 @@ onMounted(async () => {
   gap: 0.5rem;
   align-items: center;
 }
-
-
 </style>
 
 <script lang="ts">

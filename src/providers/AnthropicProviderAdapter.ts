@@ -51,7 +51,8 @@ export class AnthropicProviderAdapter extends BaseProviderAdapter {
     {
       id: "claude-opus-4-1",
       name: "Claude Opus 4.1",
-      description: "Exceptional model for specialized complex tasks requiring advanced reasoning",
+      description:
+        "Exceptional model for specialized complex tasks requiring advanced reasoning",
       contextWindow: 200000,
       maxOutputTokens: 32000,
     },
@@ -65,7 +66,8 @@ export class AnthropicProviderAdapter extends BaseProviderAdapter {
     {
       id: "claude-sonnet-4-5",
       name: "Claude Sonnet 4.5",
-      description: "Our best model for complex agents and coding with highest intelligence across most tasks",
+      description:
+        "Our best model for complex agents and coding with highest intelligence across most tasks",
       contextWindow: 200000,
       maxOutputTokens: 64000,
     },
@@ -148,7 +150,9 @@ export class AnthropicProviderAdapter extends BaseProviderAdapter {
 
       return this.processResponse(response, request.model, latency);
     } catch (error) {
-      const providerError = this.handleError(error as Error & { code?: string });
+      const providerError = this.handleError(
+        error as Error & { code?: string },
+      );
       throw new Error(JSON.stringify(providerError));
     }
   }
@@ -162,26 +166,31 @@ export class AnthropicProviderAdapter extends BaseProviderAdapter {
     };
 
     // Convert messages to Claude format
-    const messages = request.messages.filter(msg => msg.role !== "system");
-    const systemPrompt = request.systemPrompt ||
-      request.messages.find(msg => msg.role === "system")?.content || "";
+    const messages = request.messages.filter((msg) => msg.role !== "system");
+    const systemPrompt =
+      request.systemPrompt ||
+      request.messages.find((msg) => msg.role === "system")?.content ||
+      "";
 
     const body = {
       model: request.model,
       max_tokens: request.maxTokens || DEFAULT_MAX_TOKENS,
       temperature: request.temperature || DEFAULT_TEMPERATURE,
-      messages: messages.map(msg => ({
+      messages: messages.map((msg) => ({
         role: msg.role === "assistant" ? "assistant" : "user",
         content: msg.content,
       })),
       ...(systemPrompt && { system: systemPrompt }),
     };
 
-    const response = await fetch(`${AnthropicProviderAdapter.BASE_URL}/messages`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(body),
-    });
+    const response = await fetch(
+      `${AnthropicProviderAdapter.BASE_URL}/messages`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      },
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -200,13 +209,19 @@ export class AnthropicProviderAdapter extends BaseProviderAdapter {
     const usage = {
       inputTokens: response.usage?.input_tokens || 0,
       outputTokens: response.usage?.output_tokens || 0,
-      totalTokens: (response.usage?.input_tokens || 0) + (response.usage?.output_tokens || 0),
+      totalTokens:
+        (response.usage?.input_tokens || 0) +
+        (response.usage?.output_tokens || 0),
     };
 
     const pricing = this.getPricing(model);
     const cost = {
-      inputCost: pricing ? (usage.inputTokens / TOKENS_PER_1K) * pricing.inputTokensPer1K : 0,
-      outputCost: pricing ? (usage.outputTokens / TOKENS_PER_1K) * pricing.outputTokensPer1K : 0,
+      inputCost: pricing
+        ? (usage.inputTokens / TOKENS_PER_1K) * pricing.inputTokensPer1K
+        : 0,
+      outputCost: pricing
+        ? (usage.outputTokens / TOKENS_PER_1K) * pricing.outputTokensPer1K
+        : 0,
       totalCost: 0,
     };
     cost.totalCost = cost.inputCost + cost.outputCost;
@@ -228,7 +243,9 @@ export class AnthropicProviderAdapter extends BaseProviderAdapter {
   private handleError(error: Error & { code?: string }): ProviderError {
     if (error.message?.includes("HTTP")) {
       const statusMatch = error.message.match(/HTTP (\d+)/);
-      const status = statusMatch ? parseInt(statusMatch[1]!, 10) : DEFAULT_STATUS_CODE;
+      const status = statusMatch
+        ? parseInt(statusMatch[1]!, 10)
+        : DEFAULT_STATUS_CODE;
 
       switch (status) {
         case AnthropicProviderAdapter.HTTP_STATUS.UNAUTHORIZED:
@@ -238,7 +255,10 @@ export class AnthropicProviderAdapter extends BaseProviderAdapter {
         case AnthropicProviderAdapter.HTTP_STATUS.BAD_REQUEST:
           return this.createError("invalid_request", "Invalid request format");
         default:
-          return this.createError("server_error", `API error: ${error.message}`);
+          return this.createError(
+            "server_error",
+            `API error: ${error.message}`,
+          );
       }
     }
 
@@ -246,11 +266,19 @@ export class AnthropicProviderAdapter extends BaseProviderAdapter {
       return this.createError("network_error", "Network connection failed");
     }
 
-    return this.createError("server_error", error.message || "Unknown error occurred");
+    return this.createError(
+      "server_error",
+      error.message || "Unknown error occurred",
+    );
   }
 
   private createError(
-    type: "auth" | "rate_limit" | "invalid_request" | "server_error" | "network_error",
+    type:
+      | "auth"
+      | "rate_limit"
+      | "invalid_request"
+      | "server_error"
+      | "network_error",
     message: string,
   ): ProviderError {
     return {

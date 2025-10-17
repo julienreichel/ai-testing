@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MistralProviderAdapter } from "../../src/providers/MistralProviderAdapter";
-import type { ProviderConfig, ProviderRequest } from "../../src/types/providers";
+import type {
+  ProviderConfig,
+  ProviderRequest,
+} from "../../src/types/providers";
 
 const mockConfig: ProviderConfig = {
   id: "mistral-test",
@@ -11,9 +14,7 @@ const mockConfig: ProviderConfig = {
 
 const mockRequest: ProviderRequest = {
   model: "mistral-medium-latest",
-  messages: [
-    { role: "user", content: "Hello, how are you?" }
-  ],
+  messages: [{ role: "user", content: "Hello, how are you?" }],
   temperature: 0.7,
   maxTokens: 100,
 };
@@ -41,18 +42,42 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
         "codestral-latest",
         "mistral-small-latest",
         "ministral-8b-latest",
-        "ministral-3b-latest"
+        "ministral-3b-latest",
       ]);
     });
 
     it("should provide accurate pricing for all models", () => {
       const testCases = [
-        { model: "mistral-medium-latest", expectedInput: 0.0004, expectedOutput: 0.002 },
-        { model: "magistral-medium-latest", expectedInput: 0.0005, expectedOutput: 0.005 },
-        { model: "codestral-latest", expectedInput: 0.0004, expectedOutput: 0.002 },
-        { model: "mistral-small-latest", expectedInput: 0.0001, expectedOutput: 0.0003 },
-        { model: "ministral-8b-latest", expectedInput: 0.00004, expectedOutput: 0.00004 },
-        { model: "ministral-3b-latest", expectedInput: 0.00004, expectedOutput: 0.00004 },
+        {
+          model: "mistral-medium-latest",
+          expectedInput: 0.0004,
+          expectedOutput: 0.002,
+        },
+        {
+          model: "magistral-medium-latest",
+          expectedInput: 0.0005,
+          expectedOutput: 0.005,
+        },
+        {
+          model: "codestral-latest",
+          expectedInput: 0.0004,
+          expectedOutput: 0.002,
+        },
+        {
+          model: "mistral-small-latest",
+          expectedInput: 0.0001,
+          expectedOutput: 0.0003,
+        },
+        {
+          model: "ministral-8b-latest",
+          expectedInput: 0.00004,
+          expectedOutput: 0.00004,
+        },
+        {
+          model: "ministral-3b-latest",
+          expectedInput: 0.00004,
+          expectedOutput: 0.00004,
+        },
       ];
 
       testCases.forEach(({ model, expectedInput, expectedOutput }) => {
@@ -91,14 +116,16 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
         id: "cmpl-test123",
         object: "chat.completion",
         model: "mistral-medium-latest",
-        choices: [{
-          index: 0,
-          message: {
-            content: "Hello! I'm doing well, thank you for asking.",
-            role: "assistant",
+        choices: [
+          {
+            index: 0,
+            message: {
+              content: "Hello! I'm doing well, thank you for asking.",
+              role: "assistant",
+            },
+            finish_reason: "stop",
           },
-          finish_reason: "stop",
-        }],
+        ],
         usage: {
           prompt_tokens: 12,
           completion_tokens: 15,
@@ -114,7 +141,9 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
 
       const result = await provider.call(mockRequest);
 
-      expect(result.content).toBe("Hello! I'm doing well, thank you for asking.");
+      expect(result.content).toBe(
+        "Hello! I'm doing well, thank you for asking.",
+      );
       expect(result.model).toBe("mistral-medium-latest");
       expect(result.usage.inputTokens).toBe(12);
       expect(result.usage.outputTokens).toBe(15);
@@ -131,7 +160,7 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
         ...mockRequest,
         messages: [
           { role: "system", content: "You are a helpful assistant." },
-          { role: "user", content: "Hello!" }
+          { role: "user", content: "Hello!" },
         ],
       };
 
@@ -139,11 +168,13 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
         id: "cmpl-test123",
         object: "chat.completion",
         model: "mistral-medium-latest",
-        choices: [{
-          index: 0,
-          message: { content: "Hello!", role: "assistant" },
-          finish_reason: "stop",
-        }],
+        choices: [
+          {
+            index: 0,
+            message: { content: "Hello!", role: "assistant" },
+            finish_reason: "stop",
+          },
+        ],
         usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
         created: 1702256327,
       };
@@ -161,7 +192,9 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
 
       expect(requestBody.messages).toHaveLength(2);
       expect(requestBody.messages[0].role).toBe("system");
-      expect(requestBody.messages[0].content).toBe("You are a helpful assistant.");
+      expect(requestBody.messages[0].content).toBe(
+        "You are a helpful assistant.",
+      );
       expect(requestBody.messages[1].role).toBe("user");
       expect(requestBody.messages[1].content).toBe("Hello!");
     });
@@ -170,20 +203,20 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
       const requestWithSystemPrompt: ProviderRequest = {
         ...mockRequest,
         systemPrompt: "You are a helpful assistant.",
-        messages: [
-          { role: "user", content: "Hello!" }
-        ],
+        messages: [{ role: "user", content: "Hello!" }],
       };
 
       const mockResponse = {
         id: "cmpl-test123",
         object: "chat.completion",
         model: "mistral-medium-latest",
-        choices: [{
-          index: 0,
-          message: { content: "Hello!", role: "assistant" },
-          finish_reason: "stop",
-        }],
+        choices: [
+          {
+            index: 0,
+            message: { content: "Hello!", role: "assistant" },
+            finish_reason: "stop",
+          },
+        ],
         usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
         created: 1702256327,
       };
@@ -201,7 +234,9 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
 
       expect(requestBody.messages).toHaveLength(2);
       expect(requestBody.messages[0].role).toBe("system");
-      expect(requestBody.messages[0].content).toBe("You are a helpful assistant.");
+      expect(requestBody.messages[0].content).toBe(
+        "You are a helpful assistant.",
+      );
     });
 
     it("should make request with correct headers and URL", async () => {
@@ -209,11 +244,13 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
         id: "cmpl-test123",
         object: "chat.completion",
         model: "mistral-medium-latest",
-        choices: [{
-          index: 0,
-          message: { content: "Test response", role: "assistant" },
-          finish_reason: "stop",
-        }],
+        choices: [
+          {
+            index: 0,
+            message: { content: "Test response", role: "assistant" },
+            finish_reason: "stop",
+          },
+        ],
         usage: { prompt_tokens: 5, completion_tokens: 3, total_tokens: 8 },
         created: 1702256327,
       };
@@ -231,7 +268,9 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
       const options = fetchCall![1];
       expect(options.method).toBe("POST");
       expect(options.headers["Content-Type"]).toBe("application/json");
-      expect(options.headers["Authorization"]).toBe("Bearer sk-mistral-test123");
+      expect(options.headers["Authorization"]).toBe(
+        "Bearer sk-mistral-test123",
+      );
     });
 
     it("should handle API errors appropriately", async () => {
@@ -264,7 +303,9 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
     });
 
     it("should handle network errors gracefully", async () => {
-      const networkError = new Error("Network error") as Error & { code?: string };
+      const networkError = new Error("Network error") as Error & {
+        code?: string;
+      };
       networkError.code = "ECONNREFUSED";
 
       mockFetch.mockRejectedValueOnce(networkError);
@@ -302,28 +343,30 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
         id: "cmpl-magistral-test123",
         object: "chat.completion",
         model: "magistral-medium-latest",
-        choices: [{
-          index: 0,
-          message: {
-            content: [
-              {
-                type: "thinking",
-                thinking: [
-                  {
-                    type: "text",
-                    text: "Ok, let's think about this. The country that touches both Germany and Spain is France. The capital of France is Paris."
-                  }
-                ]
-              },
-              {
-                type: "text",
-                text: "Paris"
-              }
-            ],
-            role: "assistant",
+        choices: [
+          {
+            index: 0,
+            message: {
+              content: [
+                {
+                  type: "thinking",
+                  thinking: [
+                    {
+                      type: "text",
+                      text: "Ok, let's think about this. The country that touches both Germany and Spain is France. The capital of France is Paris.",
+                    },
+                  ],
+                },
+                {
+                  type: "text",
+                  text: "Paris",
+                },
+              ],
+              role: "assistant",
+            },
+            finish_reason: "stop",
           },
-          finish_reason: "stop",
-        }],
+        ],
         usage: { prompt_tokens: 20, completion_tokens: 30, total_tokens: 50 },
         created: 1702256327,
       };
@@ -367,10 +410,12 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
         },
       ];
 
-      testCases.forEach(({ model, inputTokens, outputTokens, expectedTotal }) => {
-        const cost = provider.estimateCost(inputTokens, outputTokens, model);
-        expect(cost).toBeCloseTo(expectedTotal, 6);
-      });
+      testCases.forEach(
+        ({ model, inputTokens, outputTokens, expectedTotal }) => {
+          const cost = provider.estimateCost(inputTokens, outputTokens, model);
+          expect(cost).toBeCloseTo(expectedTotal, 6);
+        },
+      );
     });
 
     it("should handle cost calculation when pricing is not available", () => {
@@ -410,11 +455,13 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
         id: "cmpl-specific-id",
         object: "chat.completion",
         model: "mistral-medium-latest",
-        choices: [{
-          index: 0,
-          message: { content: "Test", role: "assistant" },
-          finish_reason: "stop",
-        }],
+        choices: [
+          {
+            index: 0,
+            message: { content: "Test", role: "assistant" },
+            finish_reason: "stop",
+          },
+        ],
         usage: { prompt_tokens: 5, completion_tokens: 3, total_tokens: 8 },
         created: 1702256327,
       };
@@ -436,11 +483,13 @@ describe("MistralProviderAdapter - Provider Implementation", () => {
       const mockResponse = {
         object: "chat.completion",
         model: "mistral-medium-latest",
-        choices: [{
-          index: 0,
-          message: { content: "Test", role: "assistant" },
-          finish_reason: "stop",
-        }],
+        choices: [
+          {
+            index: 0,
+            message: { content: "Test", role: "assistant" },
+            finish_reason: "stop",
+          },
+        ],
         usage: { prompt_tokens: 5, completion_tokens: 3, total_tokens: 8 },
         created: 1702256327,
       };

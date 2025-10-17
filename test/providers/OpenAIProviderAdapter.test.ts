@@ -1,9 +1,15 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { OpenAIProviderAdapter } from "../../src/providers/OpenAIProviderAdapter";
-import type { ProviderConfig, ProviderRequest } from "../../src/types/providers";
+import type {
+  ProviderConfig,
+  ProviderRequest,
+} from "../../src/types/providers";
 
 // Helper function to safely get request body from mock fetch call
-function getRequestBody(mockFetch: ReturnType<typeof vi.fn>, callIndex = 0): Record<string, unknown> {
+function getRequestBody(
+  mockFetch: ReturnType<typeof vi.fn>,
+  callIndex = 0,
+): Record<string, unknown> {
   const fetchCall = mockFetch.mock.calls[callIndex];
   expect(fetchCall).toBeDefined();
   if (!fetchCall) throw new Error("Fetch call not found");
@@ -37,21 +43,22 @@ describe("OpenAIProviderAdapter - Temperature Restrictions", () => {
       // Mock successful API response
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          choices: [
-            {
-              message: {
-                content: "Test response",
-                role: "assistant",
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: "Test response",
+                  role: "assistant",
+                },
               },
+            ],
+            usage: {
+              prompt_tokens: 10,
+              completion_tokens: 20,
+              total_tokens: 30,
             },
-          ],
-          usage: {
-            prompt_tokens: 10,
-            completion_tokens: 20,
-            total_tokens: 30,
-          },
-        }),
+          }),
       });
 
       const request: ProviderRequest = {
@@ -78,21 +85,22 @@ describe("OpenAIProviderAdapter - Temperature Restrictions", () => {
       // Mock successful API response
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          choices: [
-            {
-              message: {
-                content: "Test response",
-                role: "assistant",
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: "Test response",
+                  role: "assistant",
+                },
               },
+            ],
+            usage: {
+              prompt_tokens: 10,
+              completion_tokens: 20,
+              total_tokens: 30,
             },
-          ],
-          usage: {
-            prompt_tokens: 10,
-            completion_tokens: 20,
-            total_tokens: 30,
-          },
-        }),
+          }),
       });
 
       const request: ProviderRequest = {
@@ -118,21 +126,22 @@ describe("OpenAIProviderAdapter - Temperature Restrictions", () => {
       // Mock successful API response
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          choices: [
-            {
-              message: {
-                content: "Test response",
-                role: "assistant",
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: "Test response",
+                  role: "assistant",
+                },
               },
+            ],
+            usage: {
+              prompt_tokens: 10,
+              completion_tokens: 20,
+              total_tokens: 30,
             },
-          ],
-          usage: {
-            prompt_tokens: 10,
-            completion_tokens: 20,
-            total_tokens: 30,
-          },
-        }),
+          }),
       });
 
       const request: ProviderRequest = {
@@ -154,21 +163,22 @@ describe("OpenAIProviderAdapter - Temperature Restrictions", () => {
       // Mock successful API response
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          choices: [
-            {
-              message: {
-                content: "Test response",
-                role: "assistant",
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: "Test response",
+                  role: "assistant",
+                },
               },
+            ],
+            usage: {
+              prompt_tokens: 10,
+              completion_tokens: 20,
+              total_tokens: 30,
             },
-          ],
-          usage: {
-            prompt_tokens: 10,
-            completion_tokens: 20,
-            total_tokens: 30,
-          },
-        }),
+          }),
       });
 
       const request: ProviderRequest = {
@@ -190,21 +200,22 @@ describe("OpenAIProviderAdapter - Temperature Restrictions", () => {
       // Mock successful API response
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          choices: [
-            {
-              message: {
-                content: "Test response",
-                role: "assistant",
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: "Test response",
+                  role: "assistant",
+                },
               },
+            ],
+            usage: {
+              prompt_tokens: 10,
+              completion_tokens: 20,
+              total_tokens: 30,
             },
-          ],
-          usage: {
-            prompt_tokens: 10,
-            completion_tokens: 20,
-            total_tokens: 30,
-          },
-        }),
+          }),
       });
 
       const request: ProviderRequest = {
@@ -231,21 +242,22 @@ describe("OpenAIProviderAdapter - Temperature Restrictions", () => {
       // Mock successful API response
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          choices: [
-            {
-              message: {
-                content: "Test response",
-                role: "assistant",
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: "Test response",
+                  role: "assistant",
+                },
               },
+            ],
+            usage: {
+              prompt_tokens: 10,
+              completion_tokens: 20,
+              total_tokens: 30,
             },
-          ],
-          usage: {
-            prompt_tokens: 10,
-            completion_tokens: 20,
-            total_tokens: 30,
-          },
-        }),
+          }),
       });
 
       const request: ProviderRequest = {
@@ -274,21 +286,22 @@ describe("OpenAIProviderAdapter - Temperature Restrictions", () => {
       // Mock successful API response (no error because temperature is not sent)
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          choices: [
-            {
-              message: {
-                content: "Test response",
-                role: "assistant",
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: "Test response",
+                  role: "assistant",
+                },
               },
+            ],
+            usage: {
+              prompt_tokens: 10,
+              completion_tokens: 20,
+              total_tokens: 30,
             },
-          ],
-          usage: {
-            prompt_tokens: 10,
-            completion_tokens: 20,
-            total_tokens: 30,
-          },
-        }),
+          }),
       });
 
       const request: ProviderRequest = {
@@ -312,10 +325,15 @@ describe("OpenAIProviderAdapter - Temperature Restrictions", () => {
     it("should include all required fields except temperature for restricted models", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          choices: [{ message: { content: "Test", role: "assistant" } }],
-          usage: { prompt_tokens: 10, completion_tokens: 20, total_tokens: 30 },
-        }),
+        json: () =>
+          Promise.resolve({
+            choices: [{ message: { content: "Test", role: "assistant" } }],
+            usage: {
+              prompt_tokens: 10,
+              completion_tokens: 20,
+              total_tokens: 30,
+            },
+          }),
       });
 
       const request: ProviderRequest = {
@@ -331,7 +349,10 @@ describe("OpenAIProviderAdapter - Temperature Restrictions", () => {
       const requestBody = getRequestBody(mockFetch);
 
       // Should include system message
-      const messages = requestBody.messages as Array<{ role: string; content: string }>;
+      const messages = requestBody.messages as Array<{
+        role: string;
+        content: string;
+      }>;
       expect(messages).toHaveLength(2);
       expect(messages[0]?.role).toBe("system");
       expect(messages[0]?.content).toBe("You are a helpful assistant");

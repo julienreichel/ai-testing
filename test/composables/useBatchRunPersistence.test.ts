@@ -47,7 +47,7 @@ vi.mock("../../src/services/testManagementDatabase", () => {
       updateBatchRun: vi
         .fn()
         .mockImplementation((id, updates) =>
-          Promise.resolve({...mockBatchRunSession, ...updates, id }),
+          Promise.resolve({ ...mockBatchRunSession, ...updates, id }),
         ),
       getRecentBatchRuns: vi.fn().mockResolvedValue([mockBatchRunSession]),
       getBatchRunsByTestCase: vi.fn().mockResolvedValue([mockBatchRunSession]),
@@ -141,7 +141,9 @@ describe("useBatchRunPersistence - Developer Experience", () => {
 
     it("should handle database errors gracefully during session start", async () => {
       // Mock console.error to suppress expected error logs during test
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
       // Mock database error
       const { testDB } = await import(
@@ -161,7 +163,7 @@ describe("useBatchRunPersistence - Developer Experience", () => {
       // Verify error was logged (but suppressed during test)
       expect(consoleSpy).toHaveBeenCalledWith(
         "Failed to save batch run start:",
-        expect.any(Error)
+        expect.any(Error),
       );
 
       consoleSpy.mockRestore();

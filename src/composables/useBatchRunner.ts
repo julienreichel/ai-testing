@@ -255,7 +255,7 @@ const executeSingleRun = async (params: {
         messages,
         temperature: config.temperature ?? DEFAULT_TEMPERATURE,
         maxTokens: config.maxTokens ?? DEFAULT_MAX_TOKENS,
-      };      // Execute the actual request
+      }; // Execute the actual request
       const response = await provider.call(providerRequest);
 
       result.endTime = new Date();

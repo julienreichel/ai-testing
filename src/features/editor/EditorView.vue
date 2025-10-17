@@ -45,7 +45,9 @@
             :min="1"
             :max="32000"
             :disabled="promptRunner.state.value.isRunning"
-            @update:model-value="(value) => promptData.maxTokens = Number(value)"
+            @update:model-value="
+              (value) => (promptData.maxTokens = Number(value))
+            "
           />
         </div>
 
@@ -294,7 +296,7 @@ const onExportResults = (results: BatchRunResult[]): void => {
   const testCaseName = testCaseForBatch.value.name;
   csvExport.exportBatchResults(results, {
     testCaseName: testCaseName,
-    batchRunId: `editor-batch-${Date.now()}`
+    batchRunId: `editor-batch-${Date.now()}`,
   });
 };
 
