@@ -80,11 +80,46 @@
           <table class="batch-runs-table">
             <thead>
               <tr>
-                <th>{{ $t("runs.table.testName") }}</th>
-                <th>{{ $t("runs.table.provider") }}</th>
-                <th>{{ $t("runs.table.passRate") }}</th>
-                <th>{{ $t("runs.table.cost") }}</th>
-                <th>{{ $t("runs.table.date") }}</th>
+                <th
+                  class="sortable-header"
+                  @click="handleSort('testName')"
+                  :class="{ active: sortField === 'testName' }"
+                >
+                  {{ $t("runs.table.testName") }}
+                  <span class="sort-icon">{{ getSortIcon('testName') }}</span>
+                </th>
+                <th
+                  class="sortable-header"
+                  @click="handleSort('provider')"
+                  :class="{ active: sortField === 'provider' }"
+                >
+                  {{ $t("runs.table.provider") }}
+                  <span class="sort-icon">{{ getSortIcon('provider') }}</span>
+                </th>
+                <th
+                  class="sortable-header"
+                  @click="handleSort('passRate')"
+                  :class="{ active: sortField === 'passRate' }"
+                >
+                  {{ $t("runs.table.passRate") }}
+                  <span class="sort-icon">{{ getSortIcon('passRate') }}</span>
+                </th>
+                <th
+                  class="sortable-header"
+                  @click="handleSort('cost')"
+                  :class="{ active: sortField === 'cost' }"
+                >
+                  {{ $t("runs.table.cost") }}
+                  <span class="sort-icon">{{ getSortIcon('cost') }}</span>
+                </th>
+                <th
+                  class="sortable-header"
+                  @click="handleSort('date')"
+                  :class="{ active: sortField === 'date' }"
+                >
+                  {{ $t("runs.table.date") }}
+                  <span class="sort-icon">{{ getSortIcon('date') }}</span>
+                </th>
                 <th>{{ $t("runs.table.actions") }}</th>
               </tr>
             </thead>
@@ -219,6 +254,12 @@ const expandedProjects = ref<Set<string>>(new Set());
 const testCaseNames = ref<Map<string, string>>(new Map()); // Cache for test case names
 const selectedTestCase = ref<TestCase | null>(null); // Store selected test case for prompt display
 
+// Sorting state
+type SortField = "testName" | "provider" | "passRate" | "cost" | "date";
+type SortDirection = "asc" | "desc";
+const sortField = ref<SortField>("date");
+const sortDirection = ref<SortDirection>("desc");
+
 // Composables
 const batchPersistence = useBatchRunPersistence();
 const providersStore = useProvidersStore();
@@ -267,14 +308,55 @@ const groupedBatchRuns = computed(() => {
       projectId,
       projectName: data.project?.name || "Unknown Project",
       project: data.project,
-      runs: data.runs.sort(
-        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
-      ),
+      runs: sortBatchRuns(data.runs),
     }))
     .sort((a, b) => a.projectName.localeCompare(b.projectName));
 });
 
 const hasMultipleProjects = computed(() => groupedBatchRuns.value.length > 1);
+
+// Sorting methods
+const sortBatchRuns = (runs: BatchRunSession[]): BatchRunSession[] => {
+  return [...runs].sort((a, b) => {
+    let comparison = 0;
+
+    switch (sortField.value) {
+      case "testName":
+        comparison = getTestCaseName(a).localeCompare(getTestCaseName(b));
+        break;
+      case "provider":
+        comparison = getProviderName(a.providerId).localeCompare(getProviderName(b.providerId));
+        break;
+      case "passRate":
+        comparison = a.statistics.passRate - b.statistics.passRate;
+        break;
+      case "cost":
+        comparison = a.statistics.totalCost - b.statistics.totalCost;
+        break;
+      case "date":
+        comparison = a.createdAt.getTime() - b.createdAt.getTime();
+        break;
+    }
+
+    return sortDirection.value === "asc" ? comparison : -comparison;
+  });
+};
+
+const handleSort = (field: SortField): void => {
+  if (sortField.value === field) {
+    // Toggle direction if same field
+    sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
+  } else {
+    // New field, default to desc for most fields, asc for testName/provider
+    sortField.value = field;
+    sortDirection.value = (field === "testName" || field === "provider") ? "asc" : "desc";
+  }
+};
+
+const getSortIcon = (field: SortField): string => {
+  if (sortField.value !== field) return "↕️";
+  return sortDirection.value === "asc" ? "↑" : "↓";
+};
 
 // Methods
 const loadProjects = async (): Promise<void> => {
@@ -607,6 +689,34 @@ onMounted(async () => {
   font-size: 0.875rem;
   color: #374151;
   border-bottom: 1px solid #e5e7eb;
+}
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s, color 0.2s;
+  position: relative;
+}
+
+.sortable-header:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.sortable-header.active {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.sort-icon {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.sortable-header:hover .sort-icon,
+.sortable-header.active .sort-icon {
+  opacity: 1;
 }
 
 .batch-runs-table td {
