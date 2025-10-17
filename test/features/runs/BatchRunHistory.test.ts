@@ -37,10 +37,10 @@ describe("BatchRunHistory - Sorting Logic", () => {
   ];
 
   // Test sorting function implementation
-  function sortBatchRuns(runs: typeof mockBatchRuns, field: string, direction: "asc" | "desc") {
+  function sortBatchRuns(runs: typeof mockBatchRuns, field: string, direction: "asc" | "desc") : typeof mockBatchRuns{
     return [...runs].sort((a, b) => {
-      let aVal: any;
-      let bVal: any;
+      let aVal: string | number | Date;
+      let bVal: string | number | Date;
 
       switch (field) {
         case "testName":
