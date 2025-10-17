@@ -187,13 +187,13 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useBatchRunPersistence } from "../../../composables/useBatchRunPersistence";
+import { useCsvExport } from "../../../composables/useCsvExport";
 import { useProvidersStore } from "../../../store/providers";
 import {
   testDB,
   type BatchRunSession,
 } from "../../../services/testManagementDatabase";
 import type { Project, TestCase } from "../../../types/testManagement";
-import type { BatchRunResult } from "../../../composables/useBatchRunner";
 import BaseButton from "../../../components/ui/BaseButton.vue";
 import BatchRunDetailsModal from "./BatchRunDetailsModal.vue";
 
@@ -222,6 +222,7 @@ const selectedTestCase = ref<TestCase | null>(null); // Store selected test case
 // Composables
 const batchPersistence = useBatchRunPersistence();
 const providersStore = useProvidersStore();
+const csvExport = useCsvExport();
 
 // Computed
 const batchRuns = computed(() => batchPersistence.recentSessions.value);
@@ -337,23 +338,11 @@ const closeBatchRunDetails = (): void => {
 };
 
 const exportResults = (batchRun: BatchRunSession): void => {
-  const csvContent =
-    "data:text/csv;charset=utf-8," +
-    "Run,Status,Duration,Cost,Passed,Response\n" +
-    batchRun.results
-      .map(
-        (r: BatchRunResult) =>
-          `${r.runIndex + 1},${r.status},${r.duration || 0},${r.cost || 0},${r.passed},${r.response?.replace(/,/g, ";") || ""}`,
-      )
-      .join("\n");
-
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", `batch_results_${batchRun.id}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const testCaseName = getTestCaseName(batchRun);
+  csvExport.exportBatchResults(batchRun.results, {
+    batchRunId: batchRun.id,
+    testCaseName: testCaseName
+  });
 };
 
 const deleteBatchRun = async (batchRun: BatchRunSession): Promise<void> => {

@@ -127,6 +127,7 @@ import SaveTestCaseDialog from "./components/SaveTestCaseDialog.vue";
 import BatchRunner from "./components/BatchRunner.vue";
 import { useRulesUtils } from "../../composables/useRulesUtils";
 import { useRulesEngine } from "../../composables/useRulesEngine";
+import { useCsvExport } from "../../composables/useCsvExport";
 import { testDB } from "../../services/testManagementDatabase";
 import type { ProviderSelection } from "./components/ProviderSelector.vue";
 import type { RuleSet, RuleSetResult } from "../../types/rules";
@@ -174,6 +175,7 @@ const isUpdateMode = computed(() => !!currentTestCaseId.value);
 // Composables
 const promptRunner = usePromptRunner();
 const rulesEngine = useRulesEngine();
+const csvExport = useCsvExport();
 
 // Computed properties
 const canRunPrompt = computed(() => {
@@ -299,25 +301,11 @@ const onBatchCancelled = (): void => {
 };
 
 const onExportResults = (results: BatchRunResult[]): void => {
-  console.log("Exporting batch results", results);
-  // TODO: Implement CSV export or similar
-  const csvContent =
-    "data:text/csv;charset=utf-8," +
-    "Run,Status,Duration,Cost,Passed,Response\n" +
-    results
-      .map(
-        (r) =>
-          `${r.runIndex},${r.status},${r.duration || 0},${r.cost || 0},${r.passed},${r.response?.replace(/,/g, ";") || ""}`,
-      )
-      .join("\n");
-
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "batch_results.csv");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const testCaseName = testCaseForBatch.value.name;
+  csvExport.exportBatchResults(results, {
+    testCaseName: testCaseName,
+    batchRunId: `editor-batch-${Date.now()}`
+  });
 };
 
 // Initialize providers and handle test case prefilling on mount

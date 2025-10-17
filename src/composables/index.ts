@@ -6,6 +6,7 @@
 // Core editor composables
 export { usePromptRunner } from "./usePromptRunner";
 export { useCostEstimator } from "./useCostEstimator";
+export { useCsvExport } from "./useCsvExport";
 
 // Test Management composables
 export { useTestManagement } from "./useTestManagement";

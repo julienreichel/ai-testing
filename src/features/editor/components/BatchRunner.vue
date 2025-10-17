@@ -267,7 +267,6 @@ watch(
 
 <style scoped>
 .batch-runner {
-  max-width: 56rem;
   margin: 0 auto;
   color: #000;
 }
