@@ -8,27 +8,15 @@
     "outOf": "out of {total}",
     "testCasesReady": "ready to run",
     "last24Hours": "last 24 hours",
-    "providerOverview": "Provider Overview",
-    "manageProviders": "Manage Providers",
-    "noProviders": "No providers configured",
-    "noProvidersDescription": "Add your first AI provider to start testing",
-    "addFirstProvider": "Add First Provider",
-    "summary": {
-      "configured": "Configured",
-      "active": "Active",
-      "errors": "Errors"
-    },
+    "summary": {},
     "quickActions": "Quick Actions",
     "createTest": "Create Test Case",
     "createTestDescription": "Design new test scenarios for your AI models",
-    "runTests": "Run Tests",
-    "runTestsDescription": "Execute test cases against your configured providers",
     "viewResults": "View Results",
     "viewResultsDescription": "Analyze test run results and performance metrics"
   },
   "providers": {
     "title": "AI Providers",
-    "description": "Manage your AI provider configurations",
     "addProvider": "Add Provider",
     "securityNotice": {
       "title": "Security Notice",
@@ -49,7 +37,6 @@
     "valid": "Valid",
     "invalid": "Invalid",
     "notTested": "Not Tested",
-    "validating": "Validating...",
     "lastTested": "Last Tested",
     "testing": "Testing...",
     "test": "Test",
@@ -59,28 +46,13 @@
     "testFailedMessage": "Provider connection test failed. Please check your configuration.",
     "edit": "Edit",
     "editTypeNotice": "Provider type cannot be changed when editing",
-    "statusLabel": "Status",
-    "testConnection": "Test Connection",
-    "configure": "Configure",
-    "custom": "Custom",
-    "status": {
-      "active": "Active",
-      "inactive": "Inactive",
-      "error": "Error",
-      "untested": "Untested",
-      "noKey": "No API Key"
-    },
-    "keyStatus": {
-      "configured": "Configured",
-      "missing": "Missing"
-    },
+    "status": {},
+    "keyStatus": {},
     "remove": "Remove",
     "deleteSuccess": "Provider Deleted",
     "deleteSuccessMessage": "Provider has been successfully removed",
     "addSuccess": "Provider Added",
     "addSuccessMessage": "Provider has been successfully added",
-    "updateSuccess": "Provider Updated",
-    "updateSuccessMessage": "Provider has been successfully updated",
     "error": "Error",
     "unknownError": "An unknown error occurred",
     "confirmDelete": "Are you sure you want to delete {name}?",
@@ -93,17 +65,9 @@
     "baseUrl": "Base URL",
     "baseUrlHint": "Custom API endpoint (leave empty for default)",
     "baseUrlPlaceholder": "https://api.provider.com/v1",
-    "optional": "optional",
-    "add": "Add",
-    "adding": "Adding...",
-    "editProvider": "Edit Provider",
-    "update": "Update",
-    "updating": "Updating..."
+    "editProvider": "Edit Provider"
   },
-  "editor": {
-    "title": "Test Editor",
-    "description": "Create and edit test cases"
-  },
+  "editor": {},
   "promptEditor": {
     "title": "Prompt Editor",
     "provider": "Provider",
@@ -123,13 +87,11 @@
     "maxTokensHint": "Maximum length of the response",
     "estimatedTokens": "Estimated tokens",
     "runOnce": "Run Once",
-    "clear": "Clear",
     "saveAsTestCase": "Save as Test Case",
     "generatingResponse": "Generating Response",
     "pleaseWait": "Please wait while we process your request",
     "executionError": "Execution Error",
     "response": "Response",
-    "latency": "Latency",
     "inputTokens": "Input Tokens",
     "outputTokens": "Output Tokens",
     "totalTokens": "Total Tokens",
@@ -146,16 +108,9 @@
   "runs": {
     "title": "Test Runs",
     "description": "View test run results and history",
-    "tabs": {
-      "batchRuns": "Batch Runs",
-      "individualRuns": "Individual Runs"
-    },
-    "individualRuns": {
-      "title": "Individual Test Runs",
-      "description": "View and manage individual test executions and their detailed results."
-    },
+    "tabs": {},
+    "individualRuns": {},
     "filter": {
-      "project": "Filter by Project",
       "allProjects": "All Projects",
       "search": "Search test name, provider, or model...",
       "noResults": "No results found for your search"
@@ -186,24 +141,11 @@
   },
   "common": {
     "cancel": "Cancel",
-    "submit": "Submit",
     "save": "Save",
     "delete": "Delete",
-    "edit": "Edit",
     "add": "Add",
     "update": "Update",
-    "remove": "Remove",
-    "test": "Test",
     "loading": "Loading...",
-    "error": "Error",
-    "success": "Success",
-    "info": "Info",
-    "warning": "Warning",
-    "never": "Never",
-    "justNow": "Just now",
-    "minutesAgo": "{count} minutes ago",
-    "hoursAgo": "{count} hours ago",
-    "daysAgo": "{count} days ago",
     "copy": "Copy",
     "clear": "Clear",
     "retry": "Retry",
@@ -213,69 +155,18 @@
     "viewDetails": "View Details",
     "close": "Close",
     "yes": "Yes",
-    "no": "No",
-    "comingSoon": "Coming Soon"
+    "no": "No"
   },
   "rules": {
-    "title": "Validation Rules",
-    "description": "Define rules to automatically validate AI output quality",
-    "addRule": "Add Rule",
     "types": {
-      "equals": {
-        "label": "Equals",
-        "description": "Text must match exactly"
-      },
-      "contains": {
-        "label": "Contains",
-        "description": "Text must contain the specified value"
-      },
-      "startsWith": {
-        "label": "Starts With",
-        "description": "Text must start with the specified value"
-      },
-      "endsWith": {
-        "label": "Ends With",
-        "description": "Text must end with the specified value"
-      },
-      "regex": {
-        "label": "Regex",
-        "description": "Text must match the regular expression pattern"
-      },
-      "length": {
-        "label": "Length",
-        "description": "Text length must be within specified range"
-      }
+      "equals": {},
+      "contains": {},
+      "startsWith": {},
+      "endsWith": {},
+      "regex": {},
+      "length": {}
     },
-    "addFirstRule": "Add First Rule",
-    "testRules": "Test Rules",
-    "noRules": "No Rules Defined",
-    "noRulesDescription": "Create validation rules to automatically check AI output quality",
-    "ruleName": "Rule Name",
-    "ruleNamePlaceholder": "Enter a descriptive name for this rule",
-    "enabled": "Enabled",
-    "ruleType": "Rule Type",
-    "value": "Value",
-    "valuePlaceholder": "Enter the text to match",
-    "caseSensitive": "Case Sensitive",
-    "pattern": "Pattern",
-    "patternPlaceholder": "Enter regex pattern (e.g., ^[A-Z].*)",
-    "flags": "Flags",
-    "flagsPlaceholder": "i",
-    "minLength": "Min Length",
-    "minLengthPlaceholder": "0",
-    "maxLength": "Max Length",
-    "maxLengthPlaceholder": "1000",
-    "ruleSetName": "Rule Set Name",
-    "ruleSetNamePlaceholder": "Enter a name for this rule set",
-    "aggregation": "Aggregation",
-    "aggregationAnd": "AND (All rules must pass)",
-    "aggregationOr": "OR (At least one rule must pass)",
     "testResults": "Test Results",
-    "testInput": "Test Input",
-    "testInputLabel": "Test Text",
-    "testInputPlaceholder": "Enter text to test against your rules",
-    "testRulesDialog": "Test Validation Rules",
-    "runTest": "Run Test",
     "passed": "Passed",
     "failed": "Failed",
     "validation": {
@@ -324,24 +215,19 @@
   },
   "validation": {
     "required": "This field is required",
-    "invalidUrl": "Please enter a valid URL",
-    "emailInvalid": "Please enter a valid email address"
+    "invalidUrl": "Please enter a valid URL"
   },
   "testManagement": {
     "title": "Test Management",
     "createProject": "Create Project",
     "testCases": "test cases",
-    "runs": "runs",
     "addTestCase": "Add Test Case",
-    "noProjects": "No projects found",
-    "createFirstProject": "Create your first project to get started",
     "import": "Import",
     "export": "Export",
     "exportProject": "Export Project",
     "importProject": "Import Project",
     "selectProject": "Select Project",
     "chooseProject": "Choose a project...",
-    "includeTestRuns": "Include Test Runs",
     "selectFile": "Select File",
     "importPreview": "Import Preview",
     "projectName": "Project Name",
@@ -352,10 +238,6 @@
     "enterTestCaseName": "Enter test case name",
     "enterDescription": "Enter description (optional)",
     "project": "Project",
-    "chooseOption": "Choose an option...",
-    "useExistingProject": "Use existing project",
-    "createNewProject": "Create new project",
-    "selectExistingProject": "Select Existing Project",
     "enterProjectName": "Enter project name",
     "projectDescription": "Project Description",
     "enterProjectDescription": "Enter project description (optional)",
@@ -384,8 +266,6 @@
     "stats": {
       "passed": "Passed",
       "failed": "Failed",
-      "passRate": "Pass Rate",
-      "provider": "Provider",
       "avgLatency": "Avg Latency",
       "totalCost": "Total Cost"
     },
@@ -399,15 +279,9 @@
       "export": "Export Results"
     },
     "charts": {
-      "passRate": {
-        "title": "Pass Rate Distribution"
-      },
-      "latency": {
-        "title": "Response Time Distribution"
-      },
-      "cost": {
-        "title": "Cost Analysis"
-      },
+      "passRate": {},
+      "latency": {},
+      "cost": {},
       "timeline": {
         "title": "Progress Timeline"
       },
