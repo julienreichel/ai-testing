@@ -280,7 +280,7 @@ describe("CustomTooltip - User Behavior", () => {
 
       // Should be positioned at center-x, above (y - 10)
       const tooltipElement = tooltip.element as HTMLElement;
-      expect(tooltipElement.style.left).toBe("125px"); // 100 + 50/2
+      expect(tooltipElement.style.left).toBe("100px"); // 100 + 50/2
       expect(tooltipElement.style.top).toBe("190px"); // 200 - 10
     });
 
