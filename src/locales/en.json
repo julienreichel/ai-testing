@@ -158,13 +158,34 @@
     "no": "No"
   },
   "rules": {
+    "title": "Validation Rules",
+    "description": "Define rules to automatically validate AI output quality",
+    "addRule": "Add Rule",
     "types": {
-      "equals": {},
-      "contains": {},
-      "startsWith": {},
-      "endsWith": {},
-      "regex": {},
-      "length": {}
+      "equals": {
+        "label": "Equals",
+        "description": "Text must match exactly"
+      },
+      "contains": {
+        "label": "Contains",
+        "description": "Text must contain the specified value"
+      },
+      "startsWith": {
+        "label": "Starts With",
+        "description": "Text must start with the specified value"
+      },
+      "endsWith": {
+        "label": "Ends With",
+        "description": "Text must end with the specified value"
+      },
+      "regex": {
+        "label": "Regex",
+        "description": "Text must match the regular expression pattern"
+      },
+      "length": {
+        "label": "Length",
+        "description": "Text length must be within specified range"
+      }
     },
     "testResults": "Test Results",
     "passed": "Passed",
