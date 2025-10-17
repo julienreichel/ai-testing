@@ -19,13 +19,14 @@ import { ref, computed } from "vue";
 
 interface Props {
   text: string;
-  maxWidth?: number;
-  maxHeight?: number;
+  maxWidth?: number | undefined;
+  maxHeight?: number | undefined;
   delay?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-
+  maxWidth: undefined,
+  maxHeight: undefined,
   delay: 0,
 });
 
