@@ -228,3 +228,11 @@ const progressBarStyle = computed(() => ({
   white-space: nowrap;
 }
 </style>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "BatchProgressSection",
+});
+</script>
