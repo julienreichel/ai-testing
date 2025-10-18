@@ -2,70 +2,114 @@
   <base-dialog
     v-model="dialogOpen"
     :title="$t('quickRun.title')"
-    size="lg"
+    size="xl"
     @close="handleClose"
   >
     <div class="quick-run-dialog">
-      <!-- Configuration Section -->
-      <div class="config-section">
-
-        <base-input-field
-          v-model="runCount"
-          :label="$t('quickRun.numberOfRuns')"
-          type="number"
-          :min="1"
-          :max="20"
-          :disabled="isRunning"
-        />
-
-        <!-- Provider Selection -->
-        <div class="provider-selection">
-          <provider-selector
-            v-model="selectedProvider"
-            :is-running="isRunning"
+      <!-- Global Configuration Section -->
+      <div class="global-config-section">
+        <h3>{{ $t('quickRun.globalSettings') }}</h3>
+        <div class="global-config-row">
+          <base-input-field
+            v-model="runCount"
+            :label="$t('quickRun.numberOfRuns')"
+            type="number"
+            :min="1"
+            :max="20"
+            :disabled="isRunning"
           />
         </div>
+      </div>
 
-        <!-- Run Configuration -->
-        <div class="run-config">
-          <div class="config-row">
-            <base-input-field
-              v-model="maxTokens"
-              :label="$t('promptEditor.maxTokens')"
-              type="number"
-              :min="1"
-              :max="8192"
-              :disabled="isRunning"
-            />
-            <div class="parallel-toggle">
-              <input
-                id="parallel-execution"
-                v-model="allowParallel"
-                type="checkbox"
+      <!-- Provider Configurations -->
+      <div class="providers-section">
+        <div class="providers-header">
+          <h3>{{ $t('quickRun.providers') }}</h3>
+          <base-button
+            variant="outline"
+            size="sm"
+            :disabled="isRunning"
+            @click="addProvider"
+          >
+            {{ $t('quickRun.addProvider') }}
+          </base-button>
+        </div>
+
+        <div v-if="providerConfigs.length === 0" class="empty-providers">
+          <p>{{ $t('quickRun.noProvidersConfigured') }}</p>
+        </div>
+
+        <div v-else class="providers-list">
+          <div
+            v-for="(config, index) in providerConfigs"
+            :key="config.id"
+            class="provider-config"
+          >
+            <div class="provider-header">
+              <h4>{{ $t('quickRun.provider') }} {{ index + 1 }}</h4>
+              <base-button
+                variant="danger"
+                size="sm"
                 :disabled="isRunning"
-                class="parallel-checkbox"
-              />
-              <label for="parallel-execution" class="parallel-label">
-                {{ $t("quickRun.enableParallel") }}
-              </label>
+                @click="removeProvider(config.id)"
+              >
+                {{ $t('common.remove') }}
+              </base-button>
             </div>
 
-            <base-input-field
-              v-if="allowParallel"
-              v-model="concurrency"
-              :label="$t('quickRun.concurrency')"
-              type="number"
-              :min="1"
-              :max="10"
-              :disabled="isRunning"
-              class="concurrency-input"
-            />
+            <!-- Provider Selection -->
+            <div class="provider-selection">
+              <provider-selector
+                :model-value="{ providerId: config.providerId, model: config.model }"
+                :is-running="isRunning"
+                @update:model-value="updateProviderSelection(config.id, $event)"
+              />
+            </div>
+
+            <!-- Provider Options -->
+            <div class="provider-options">
+              <div class="options-row">
+                <base-input-field
+                  :model-value="config.maxTokens"
+                  :label="$t('promptEditor.maxTokens')"
+                  type="number"
+                  :min="1"
+                  :max="8192"
+                  :disabled="isRunning"
+                  @update:model-value="updateProviderConfig(config.id, 'maxTokens', $event)"
+                />
+                <div class="parallel-toggle">
+                  <input
+                    :id="`parallel-${config.id}`"
+                    :checked="config.allowParallel"
+                    type="checkbox"
+                    :disabled="isRunning"
+                    class="parallel-checkbox"
+                    @change="handleParallelToggle(config.id, $event)"
+                  />
+                  <label :for="`parallel-${config.id}`" class="parallel-label">
+                    {{ $t("quickRun.enableParallel") }}
+                  </label>
+                </div>
+                <base-input-field
+                  v-if="config.allowParallel"
+                  :model-value="config.parallelConcurrency"
+                  :label="$t('quickRun.concurrency')"
+                  type="number"
+                  :min="1"
+                  :max="10"
+                  :disabled="isRunning"
+                  class="concurrency-input"
+                  @update:model-value="updateProviderConfig(config.id, 'parallelConcurrency', $event)"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Progress Section (shown when running) -->
-      <div v-if="isRunning || completedRuns > 0" class="progress-wrapper">
+      <!-- Multi-Provider Progress Section -->
+      <div v-if="isRunning || hasAnyResults" class="progress-wrapper">
         <div class="progress-header">
           <h3>{{ $t("quickRun.progress") }}</h3>
           <base-badge variant="warning">
@@ -73,15 +117,33 @@
           </base-badge>
         </div>
 
-        <batch-progress-section
-          :completed-runs="completedRuns"
-          :total-runs="batchRunner.state.totalRuns"
-          :progress-percentage="progressPercentage"
-          :show-statistics="true"
-          :show-results-preview="true"
-          :statistics="batchRunner.statistics.value"
-          :recent-results="recentResults"
-        />
+        <!-- Individual Provider Progress -->
+        <div class="providers-progress">
+          <div
+            v-for="runner in batchRunners"
+            :key="runner.providerId"
+            class="provider-progress"
+          >
+            <div class="provider-progress-header">
+              <h4>{{ getProviderDisplayName(runner.providerId) }}</h4>
+              <base-badge
+                :variant="getProviderStatusVariant(runner.runner.state.isRunning, runner.runner.state.results.length > 0)"
+              >
+                {{ getProviderStatusText(runner.runner.state.isRunning, runner.runner.state.results.length > 0) }}
+              </base-badge>
+            </div>
+
+            <batch-progress-section
+              :completed-runs="runner.runner.state.completedRuns"
+              :total-runs="runner.runner.state.totalRuns"
+              :progress-percentage="getRunnerProgress(runner)"
+              :show-statistics="true"
+              :show-results-preview="providerConfigs.length === 1"
+              :statistics="getRunnerStatistics(runner)"
+              :recent-results="getProviderRecentResults(runner)"
+            />
+          </div>
+        </div>
       </div>
 
       <!-- Action Buttons -->
@@ -118,6 +180,7 @@ import {
   type BatchRunResult,
 } from "../../../composables/useBatchRunner";
 import type { TestCase } from "../../../types/testManagement";
+import type { QuickRunProviderConfig } from "../../../types/quickRun";
 import { useProvidersStore } from "../../../store/providers";
 import {
   BaseDialog,
@@ -139,96 +202,209 @@ interface Emits {
   (e: "completed", results: BatchRunResult[]): void;
 }
 
+interface BatchRunnerWithProvider {
+  providerId: string;
+  runner: ReturnType<typeof useBatchRunner>;
+}
+
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
-
-// Translations available via $t in template
 
 // Default values
 const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_CONCURRENCY = 3;
 const DEFAULT_RUNS_COUNT = 5;
+const DEFAULT_TEMPERATURE = 0.7;
+const SMALL_DELAY = 100;
+const HISTORY_SIZE = 3;
 
-// Configuration state
-const selectedProvider = ref<ProviderSelection>({
-  providerId: "",
-  model: "",
-});
-
+// Global configuration
 const runCount = ref(DEFAULT_RUNS_COUNT);
-const maxTokens = ref(DEFAULT_MAX_TOKENS);
-const allowParallel = ref(false);
-const concurrency = ref(DEFAULT_CONCURRENCY);
+
+// Provider configurations
+const providerConfigs = ref<QuickRunProviderConfig[]>([]);
 
 // Dialog state (needs to be reactive for v-model)
 const dialogOpen = ref(false);
 
-// Batch runner composable
-const batchRunner = useBatchRunner();
+// Batch runners for each provider
+const batchRunners = ref<BatchRunnerWithProvider[]>([]);
 
 // Providers store
 const providersStore = useProvidersStore();
 
 // Computed properties
-const isRunning = computed(() => batchRunner.state.isRunning);
+const isRunning = computed(() =>
+  batchRunners.value.some(runner => runner.runner.state.isRunning)
+);
+
+const hasAnyResults = computed(() =>
+  batchRunners.value.some(runner => runner.runner.state.results.length > 0)
+);
 
 const canRun = computed(() => {
   return (
-    selectedProvider.value.providerId &&
-    selectedProvider.value.model &&
+    providerConfigs.value.length > 0 &&
+    providerConfigs.value.every(config =>
+      config.providerId && config.model
+    ) &&
     runCount.value > 0 &&
     props.testCase &&
     !isRunning.value
   );
 });
 
-const completedRuns = computed(() => batchRunner.state.completedRuns);
-const progressPercentage = computed(() => batchRunner.progress.value);
+// Helper functions to safely extract computed values
+const getRunnerProgress = (runner: any): number => {
+  const progress = runner.runner.progress;
+  return typeof progress === 'object' && 'value' in progress ? progress.value : progress;
+};
 
-const HISTORY_SIZE = 3;
-const recentResults = computed(() =>
-  batchRunner.state.results.slice(-HISTORY_SIZE).map(result => ({
-    content: result.response || result.error || "No content"
-  }))
-);
+const getRunnerStatistics = (runner: any): any => {
+  const statistics = runner.runner.statistics;
+  return typeof statistics === 'object' && 'value' in statistics ? statistics.value : statistics;
+};
 
-// Watch for completion
-watch(
-  () => batchRunner.state.isRunning,
-  (isRunning, wasRunning) => {
-    if (wasRunning && !isRunning && !batchRunner.state.isCancelled) {
-      // Execution completed successfully
-      emit("completed", batchRunner.state.results);
-    }
+// Provider configuration methods
+const addProvider = (): void => {
+  const newId = `provider-${Date.now()}`;
+  const newConfig: QuickRunProviderConfig = {
+    id: newId,
+    providerId: "",
+    model: "",
+    temperature: DEFAULT_TEMPERATURE,
+    maxTokens: DEFAULT_MAX_TOKENS,
+    allowParallel: false,
+    parallelConcurrency: DEFAULT_CONCURRENCY,
+  };
+
+  providerConfigs.value.push(newConfig);
+
+  // Create corresponding batch runner
+  const batchRunner = useBatchRunner();
+  batchRunners.value.push({
+    providerId: newId,
+    runner: batchRunner as any,
+  });
+};
+
+const removeProvider = (configId: string): void => {
+  const configIndex = providerConfigs.value.findIndex(c => c.id === configId);
+  if (configIndex !== -1) {
+    providerConfigs.value.splice(configIndex, 1);
   }
+
+  const runnerIndex = batchRunners.value.findIndex(r => r.providerId === configId);
+  if (runnerIndex !== -1) {
+    // Cancel any running batch for this provider
+    const runner = batchRunners.value[runnerIndex];
+    if (runner) {
+      runner.runner.cancelBatch();
+    }
+    batchRunners.value.splice(runnerIndex, 1);
+  }
+};
+
+const updateProviderSelection = (configId: string, selection: ProviderSelection): void => {
+  const config = providerConfigs.value.find(c => c.id === configId);
+  if (config) {
+    config.providerId = selection.providerId;
+    config.model = selection.model;
+  }
+};
+
+const updateProviderConfig = (configId: string, field: keyof QuickRunProviderConfig, value: any): void => {
+  const config = providerConfigs.value.find(c => c.id === configId);
+  if (config) {
+    (config as any)[field] = value;
+  }
+};
+
+const handleParallelToggle = (configId: string, event: Event): void => {
+  const target = event.target as HTMLInputElement;
+  updateProviderConfig(configId, 'allowParallel', target.checked);
+};
+
+// Utility methods for template
+const getProviderDisplayName = (runnerId: string): string => {
+  const config = providerConfigs.value.find(c => c.id === runnerId);
+  if (!config || !config.providerId) return "Provider";
+
+  const provider = providersStore.providerConfigs.find(p => p.id === config.providerId);
+  return provider ? `${provider.name} (${config.model})` : config.providerId;
+};
+
+const getProviderStatusVariant = (isRunning: boolean, hasResults: boolean): "warning" | "success" | "info" => {
+  if (isRunning) return "warning";
+  if (hasResults) return "success";
+  return "info";
+};
+
+const getProviderStatusText = (isRunning: boolean, hasResults: boolean): string => {
+  if (isRunning) return "Running";
+  if (hasResults) return "Completed";
+  return "Pending";
+};
+
+const getProviderRecentResults = (runner: any) => {
+  return runner.runner.state.results.slice(-HISTORY_SIZE).map((result: any) => ({
+    content: result.response || result.error || "No content"
+  }));
+};
+
+// Watch for completion across all providers
+watch(
+  () => batchRunners.value.map(r => r.runner.state.isRunning),
+  (currentRunning, previousRunning) => {
+    const wasAnyRunning = previousRunning?.some(Boolean) || false;
+    const isAnyRunning = currentRunning.some(Boolean);
+
+    if (wasAnyRunning && !isAnyRunning) {
+      // All providers completed - collect all results
+      const allResults = batchRunners.value.flatMap(runner => runner.runner.state.results);
+      emit("completed", allResults);
+    }
+  },
+  { deep: true }
 );
 
 // Action handlers
 const startRun = async (): Promise<void> => {
   if (!canRun.value || !props.testCase) return;
 
-  const SMALL_DELAY = 100;
-  // Create batch configuration
-  const batchConfig: BatchRunConfig = {
-    testCase: props.testCase,
-    providerId: selectedProvider.value.providerId,
-    model: selectedProvider.value.model,
-    runCount: runCount.value,
-    maxRetries: 2, // Default retry count
-    delayMs: allowParallel.value ? 0 : SMALL_DELAY, // No delay for parallel, small delay for sequential
-    temperature: 0.7, // Default temperature (not exposed to user)
-    maxTokens: maxTokens.value,
-  };
+  // Create batch configurations for each provider
+  const batchPromises = providerConfigs.value.map(async (config, index) => {
+    const runner = batchRunners.value[index];
+    if (!runner) return;
 
-  try {
-    await batchRunner.runBatch(batchConfig);
-  } catch (error) {
-    console.error("Failed to start quick run:", error);
-  }
+    const batchConfig: BatchRunConfig = {
+      testCase: props.testCase!,
+      providerId: config.providerId,
+      model: config.model,
+      runCount: runCount.value,
+      maxRetries: 2, // Default retry count
+      delayMs: config.allowParallel ? 0 : SMALL_DELAY,
+      temperature: config.temperature,
+      maxTokens: config.maxTokens,
+      allowParallel: config.allowParallel,
+      parallelConcurrency: config.parallelConcurrency,
+    };
+
+    try {
+      await runner.runner.runBatch(batchConfig);
+    } catch (error) {
+      console.error(`Failed to run batch for provider ${config.providerId}:`, error);
+    }
+  });
+
+  // Run all providers in parallel
+  await Promise.all(batchPromises);
 };
 
 const cancelRun = (): void => {
-  batchRunner.cancelBatch();
+  batchRunners.value.forEach(runner => {
+    runner.runner.cancelBatch();
+  });
 };
 
 const handleClose = (): void => {
@@ -245,12 +421,12 @@ watch(
     dialogOpen.value = isOpen;
     if (isOpen) {
       // Reset configuration
-      selectedProvider.value = { providerId: "", model: "" };
+      providerConfigs.value = [];
+      batchRunners.value = [];
       runCount.value = DEFAULT_RUNS_COUNT;
-      maxTokens.value = DEFAULT_MAX_TOKENS;
-      allowParallel.value = false;
-      concurrency.value = DEFAULT_CONCURRENCY;
-      batchRunner.resetBatch();
+
+      // Add initial provider
+      addProvider();
     }
   },
   { immediate: true }
@@ -282,41 +458,41 @@ onMounted(() => {
   overflow-y: auto;
 }
 
-.config-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* Global Configuration Section */
+.global-config-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #f9fafb;
 }
 
-.config-card {
-  margin-bottom: 0;
-}
-
-.config-card h3 {
-  margin: 0;
+.global-config-section h3 {
+  margin: 0 0 1rem 0;
   font-size: 1.125rem;
   font-weight: 600;
   color: #111827;
 }
 
-.global-config {
+.global-config-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
+  max-width: 300px;
 }
 
-.runs-input {
-  max-width: 200px;
-}
-
-.providers-card {
-  margin-bottom: 0;
+/* Providers Section */
+.providers-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #ffffff;
 }
 
 .providers-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 1rem;
 }
 
 .providers-header h3 {
@@ -327,7 +503,10 @@ onMounted(() => {
 }
 
 .empty-providers {
-  padding: 2rem 0;
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
 }
 
 .providers-list {
@@ -336,6 +515,7 @@ onMounted(() => {
   gap: 1.5rem;
 }
 
+/* Individual Provider Configuration */
 .provider-config {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -357,20 +537,17 @@ onMounted(() => {
   color: #374151;
 }
 
+.provider-selection {
+  margin-bottom: 1rem;
+}
+
 .provider-options {
   margin-top: 1rem;
 }
 
 .options-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.config-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr auto 1fr;
   gap: 1rem;
   align-items: end;
 }
@@ -379,6 +556,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.5rem;
 }
 
 .parallel-checkbox {
@@ -391,15 +569,19 @@ onMounted(() => {
   font-weight: 500;
   color: #374151;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .concurrency-input {
   max-width: 120px;
 }
 
-/* Progress wrapper styling */
+/* Multi-Provider Progress Section */
 .progress-wrapper {
-  margin-top: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #f9fafb;
 }
 
 .progress-header {
@@ -416,6 +598,34 @@ onMounted(() => {
   color: #111827;
 }
 
+.providers-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.provider-progress {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 1rem;
+  background: #ffffff;
+}
+
+.provider-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.provider-progress-header h4 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Dialog Actions */
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
@@ -424,26 +634,45 @@ onMounted(() => {
   border-top: 1px solid #e5e7eb;
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
-  .global-config,
+  .global-config-row {
+    max-width: none;
+  }
+
   .options-row {
     grid-template-columns: 1fr;
-  }
-
-  .parallel-config {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .provider-progress-item {
-    flex-direction: column;
-    align-items: flex-start;
     gap: 0.75rem;
   }
 
-  .provider-stats {
-    width: 100%;
-    justify-content: space-between;
+  .parallel-toggle {
+    justify-content: flex-start;
+  }
+
+  .providers-progress {
+    gap: 1rem;
+  }
+
+  .provider-progress {
+    padding: 0.75rem;
+  }
+
+  .dialog-actions {
+    flex-direction: column-reverse;
+  }
+}
+
+@media (max-width: 480px) {
+  .providers-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .provider-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
   }
 }
 </style>

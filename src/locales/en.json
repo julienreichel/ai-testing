@@ -309,6 +309,11 @@
   "quickRun": {
     "title": "Quick Run",
     "configuration": "Configuration",
+    "globalSettings": "Global Settings",
+    "providers": "Providers",
+    "provider": "Provider",
+    "addProvider": "Add Provider",
+    "noProvidersConfigured": "No providers configured. Click 'Add Provider' to begin.",
     "numberOfRuns": "Number of Runs",
     "enableParallel": "Enable Parallel Execution",
     "concurrency": "Concurrency",
