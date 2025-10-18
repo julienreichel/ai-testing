@@ -90,46 +90,6 @@
         </div>
       </div>
 
-      <!-- Execution Mode Info Panel -->
-      <div class="config-info">
-        <div
-          v-if="config.allowParallel && config.runCount > 1"
-          class="info-panel parallel"
-        >
-          <span class="info-icon">⚡</span>
-          <div class="info-content">
-            <div class="info-title">
-              {{ $t("promptEditor.parallelExecution") }}
-            </div>
-            <div class="info-text">
-              {{
-                $t("promptEditor.parallelInfo", {
-                  runs: config.runCount,
-                  concurrency: config.parallelConcurrency,
-                })
-              }}
-            </div>
-          </div>
-        </div>
-
-        <div v-else-if="config.runCount > 1" class="info-panel sequential">
-          <span class="info-icon">📋</span>
-          <div class="info-content">
-            <div class="info-title">
-              {{ $t("promptEditor.sequentialExecution") }}
-            </div>
-            <div class="info-text">
-              {{
-                $t("promptEditor.sequentialInfo", {
-                  runs: config.runCount,
-                  delay: config.delayMs,
-                })
-              }}
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Progress Section -->
       <batch-progress-section
         v-if="batchRunner.state.totalRuns > 0"

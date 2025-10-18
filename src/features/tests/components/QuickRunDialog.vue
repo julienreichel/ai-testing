@@ -75,10 +75,11 @@
 
         <batch-progress-section
           :completed-runs="completedRuns"
-          :total-runs="runCount"
+          :total-runs="batchRunner.state.totalRuns"
           :progress-percentage="progressPercentage"
-          :show-statistics="false"
+          :show-statistics="true"
           :show-results-preview="true"
+          :statistics="batchRunner.statistics.value"
           :recent-results="recentResults"
         />
       </div>
@@ -112,6 +113,12 @@
 import { ref, computed, watch } from "vue";
 // Vue i18n translations available via $t in template
 import {
+  useBatchRunner,
+  type BatchRunConfig,
+  type BatchRunResult,
+} from "../../../composables/useBatchRunner";
+import type { TestCase } from "../../../types/testManagement";
+import {
   BaseDialog,
   BaseButton,
   BaseInputField,
@@ -119,10 +126,7 @@ import {
   BatchProgressSection,
 } from "../../../components/ui";
 import { ProviderSelector } from "../../editor/components";
-import type { TestCase } from "../../../types/testManagement";
 import type { ProviderSelection } from "../../editor/components/ProviderSelector.vue";
-import type { ProviderRequest, ProviderResponse } from "../../../types/providers";
-import { usePromptRunner } from "../../../composables/usePromptRunner";
 
 interface Props {
   isOpen: boolean;
@@ -131,7 +135,7 @@ interface Props {
 
 interface Emits {
   (e: "close"): void;
-  (e: "completed", results: ProviderResponse[]): void;
+  (e: "completed", results: BatchRunResult[]): void;
 }
 
 const props = defineProps<Props>();
@@ -158,12 +162,11 @@ const concurrency = ref(DEFAULT_CONCURRENCY);
 // Dialog state (needs to be reactive for v-model)
 const dialogOpen = ref(false);
 
-// Execution state
-const { state, runRepeated, cancelRun: cancelPromptRun } = usePromptRunner();
-const results = ref<ProviderResponse[]>([]);
+// Batch runner composable
+const batchRunner = useBatchRunner();
 
 // Computed properties
-const isRunning = computed(() => state.value.isRunningRepeated);
+const isRunning = computed(() => batchRunner.state.isRunning);
 
 const canRun = computed(() => {
   return (
@@ -175,40 +178,22 @@ const canRun = computed(() => {
   );
 });
 
-const completedRuns = computed(() => state.value.completedRuns);
-const progressPercentage = computed(() => {
-  if (runCount.value === 0) return 0;
-  return Math.round((completedRuns.value / runCount.value) * 100);
-});
+const completedRuns = computed(() => batchRunner.state.completedRuns);
+const progressPercentage = computed(() => batchRunner.progress.value);
 
-const recentResults = computed(() => 
-  results.value.slice(-3).map(result => ({ content: result.content }))
-);
-
-// Watch for test case changes
-watch(
-  () => props.testCase,
-  () => {
-    // Reset results when test case changes
-    results.value = [];
-  }
-);
-
-// Watch for completed runs
-watch(
-  () => state.value.repeatedResults,
-  (newResults) => {
-    results.value = [...newResults];
-  }
+const recentResults = computed(() =>
+  batchRunner.state.results.slice(-3).map(result => ({ 
+    content: result.response || result.error || "No content" 
+  }))
 );
 
 // Watch for completion
 watch(
-  () => state.value.isRunningRepeated,
+  () => batchRunner.state.isRunning,
   (isRunning, wasRunning) => {
-    if (wasRunning && !isRunning) {
-      // Execution completed
-      emit("completed", results.value);
+    if (wasRunning && !isRunning && !batchRunner.state.isCancelled) {
+      // Execution completed successfully
+      emit("completed", batchRunner.state.results);
     }
   }
 );
@@ -217,36 +202,27 @@ watch(
 const startRun = async (): Promise<void> => {
   if (!canRun.value || !props.testCase) return;
 
-  // Clear previous results
-  results.value = [];
-
-  // Create request
-  const request: ProviderRequest = {
+  // Create batch configuration
+  const batchConfig: BatchRunConfig = {
+    testCase: props.testCase,
+    providerId: selectedProvider.value.providerId,
     model: selectedProvider.value.model,
-    messages: [
-      {
-        role: "user" as const,
-        content: props.testCase.prompt,
-      },
-    ],
+    runCount: runCount.value,
+    maxRetries: 2, // Default retry count
+    delayMs: allowParallel.value ? 0 : 100, // No delay for parallel, small delay for sequential
     temperature: 0.7, // Default temperature (not exposed to user)
     maxTokens: maxTokens.value,
   };
 
   try {
-    await runRepeated(selectedProvider.value.providerId, request, {
-      runCount: runCount.value,
-      allowParallel: allowParallel.value,
-      parallelConcurrency: concurrency.value,
-      delayMs: 0,
-    });
+    await batchRunner.runBatch(batchConfig);
   } catch (error) {
     console.error("Failed to start quick run:", error);
   }
 };
 
 const cancelRun = (): void => {
-  cancelPromptRun();
+  batchRunner.cancelBatch();
 };
 
 const handleClose = (): void => {
@@ -268,7 +244,7 @@ watch(
       maxTokens.value = DEFAULT_MAX_TOKENS;
       allowParallel.value = false;
       concurrency.value = DEFAULT_CONCURRENCY;
-      results.value = [];
+      batchRunner.resetBatch();
     }
   },
   { immediate: true }
