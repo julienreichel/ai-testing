@@ -61,7 +61,7 @@ const handleDelete = async (): Promise<void> => {
   if (!props.testCase) return;
 
   isLoading.value = true;
-  
+
   try {
     emit("delete", props.testCase);
     // Don't close the dialog here - let the parent handle success/error

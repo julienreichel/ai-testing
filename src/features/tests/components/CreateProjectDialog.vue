@@ -73,13 +73,13 @@ const handleCreate = async (): Promise<void> => {
   if (!projectName.value.trim()) return;
 
   isLoading.value = true;
-  
+
   try {
     emit("create", {
       name: projectName.value.trim(),
       description: projectDescription.value.trim() || undefined,
     });
-    
+
     // Don't close the dialog here - let the parent handle success/error
     // and close the dialog after successful creation
   } finally {

@@ -272,7 +272,7 @@ import {
   BaseCard,
   BaseEmptyState,
 } from "../../components/ui";
-import { 
+import {
   TestExportImport,
   CreateProjectDialog,
   DeleteProjectDialog,
@@ -433,12 +433,12 @@ const handleDeleteTestCase = async (testCase: TestCase): Promise<void> => {
   try {
     deleteTestCaseDialogRef.value?.setLoading(true);
     await testManager.deleteTestCase(testCase.id);
-    
+
     // Clear selected test case if it was deleted
     if (selectedTestCase.value?.id === testCase.id) {
       selectedTestCase.value = null;
     }
-    
+
     deleteTestCaseDialogRef.value?.closeDialog();
     testCaseToDelete.value = null;
   } catch (error) {
