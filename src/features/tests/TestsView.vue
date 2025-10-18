@@ -238,113 +238,26 @@
     </div>
 
     <!-- Create Project Dialog -->
-    <base-dialog
+    <create-project-dialog
+      ref="createProjectDialogRef"
       v-model="showCreateProject"
-      title="Create New Project"
-      size="md"
-    >
-      <div class="create-project-form">
-        <div class="form-group">
-          <label for="projectName">Project Name *</label>
-          <base-input-field
-            id="projectName"
-            v-model="newProjectName"
-            placeholder="Enter project name"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="projectDescription">Description</label>
-          <base-input-field
-            id="projectDescription"
-            v-model="newProjectDescription"
-            placeholder="Enter project description (optional)"
-            type="textarea"
-            :rows="3"
-          />
-        </div>
-        <div class="dialog-actions">
-          <base-button
-            variant="primary"
-            :disabled="!newProjectName.trim() || isCreatingProject"
-            :loading="isCreatingProject"
-            @click="createProject"
-          >
-            Create Project
-          </base-button>
-          <base-button variant="outline" @click="cancelCreateProject">
-            Cancel
-          </base-button>
-        </div>
-      </div>
-    </base-dialog>
+      @create="handleCreateProject"
+    />
 
-    <!-- Delete Confirmation Dialog -->
-    <!-- Delete Project Dialog -->
-    <base-dialog
+    <!-- Delete Dialogs -->
+    <delete-project-dialog
+      ref="deleteProjectDialogRef"
       v-model="showDeleteProjectDialog"
-      title="Delete Project"
-      class="delete-dialog"
-    >
-      <div>
-        <p v-if="projectToDelete">
-          Are you sure you want to delete "<strong>{{
-            projectToDelete.name
-          }}</strong
-          >"? This will also delete all test cases in this project.
-        </p>
+      :project="projectToDelete"
+      @delete="handleDeleteProject"
+    />
 
-        <div class="dialog-actions">
-          <base-button
-            variant="outline"
-            @click="cancelDelete"
-            :disabled="isDeleting"
-          >
-            Cancel
-          </base-button>
-          <base-button
-            variant="danger"
-            @click="performDelete"
-            :loading="isDeleting"
-          >
-            Delete Project
-          </base-button>
-        </div>
-      </div>
-    </base-dialog>
-
-    <!-- Delete Test Case Dialog -->
-    <base-dialog
+    <delete-test-case-dialog
+      ref="deleteTestCaseDialogRef"
       v-model="showDeleteTestCaseDialog"
-      title="Delete Test Case"
-      class="delete-dialog"
-    >
-      <div>
-        <p v-if="testCaseToDelete">
-          Are you sure you want to delete "<strong>{{
-            testCaseToDelete.name
-          }}</strong
-          >"? This action cannot be undone.
-        </p>
-
-        <div class="dialog-actions">
-          <base-button
-            variant="outline"
-            @click="cancelDelete"
-            :disabled="isDeleting"
-          >
-            Cancel
-          </base-button>
-          <base-button
-            variant="danger"
-            @click="performDelete"
-            :loading="isDeleting"
-          >
-            Delete Test Case
-          </base-button>
-        </div>
-      </div>
-    </base-dialog>
+      :test-case="testCaseToDelete"
+      @delete="handleDeleteTestCase"
+    />
   </div>
 </template>
 
@@ -355,13 +268,16 @@ import { useTestManagement } from "../../composables/useTestManagement";
 import { testDB } from "../../services/testManagementDatabase";
 import {
   BaseButton,
-  BaseInputField,
-  BaseDialog,
   BaseSpinner,
   BaseCard,
   BaseEmptyState,
 } from "../../components/ui";
-import { TestExportImport } from "./components";
+import { 
+  TestExportImport,
+  CreateProjectDialog,
+  DeleteProjectDialog,
+  DeleteTestCaseDialog,
+} from "./components";
 import type { Rule } from "../../types/rules";
 import type { Project, TestCase } from "../../types/testManagement";
 
@@ -377,11 +293,10 @@ const showDeleteTestCaseDialog = ref(false);
 const projectToDelete = ref<Project | null>(null);
 const testCaseToDelete = ref<TestCase | null>(null);
 
-// Create project form
-const newProjectName = ref("");
-const newProjectDescription = ref("");
-const isCreatingProject = ref(false);
-const isDeleting = ref(false);
+// Component refs for controlling dialog state
+const createProjectDialogRef = ref<InstanceType<typeof CreateProjectDialog>>();
+const deleteProjectDialogRef = ref<InstanceType<typeof DeleteProjectDialog>>();
+const deleteTestCaseDialogRef = ref<InstanceType<typeof DeleteTestCaseDialog>>();
 
 // Test management state
 const { projects, isLoading, error } = testManager;
@@ -476,29 +391,16 @@ const openTestCaseInEditor = (testCase?: TestCase): void => {
 };
 
 // Project management
-const createProject = async (): Promise<void> => {
-  if (!newProjectName.value.trim()) return;
-
+const handleCreateProject = async (data: { name: string; description?: string }): Promise<void> => {
   try {
-    isCreatingProject.value = true;
-    await testManager.createProject({
-      name: newProjectName.value.trim(),
-      description: newProjectDescription.value.trim() || undefined,
-    });
-
-    // Reset form and close dialog
-    cancelCreateProject();
+    createProjectDialogRef.value?.setLoading(true);
+    await testManager.createProject(data);
+    createProjectDialogRef.value?.closeDialog();
   } catch (err) {
     console.error("Failed to create project:", err);
   } finally {
-    isCreatingProject.value = false;
+    createProjectDialogRef.value?.setLoading(false);
   }
-};
-
-const cancelCreateProject = (): void => {
-  showCreateProject.value = false;
-  newProjectName.value = "";
-  newProjectDescription.value = "";
 };
 
 // Delete operations
@@ -514,34 +416,36 @@ const confirmDeleteTestCase = (): void => {
   }
 };
 
-const performDelete = async (): Promise<void> => {
-  isDeleting.value = true;
+const handleDeleteProject = async (project: Project): Promise<void> => {
   try {
-    if (projectToDelete.value) {
-      await testManager.deleteProject(projectToDelete.value.id);
-      projectToDelete.value = null;
-      showDeleteProjectDialog.value = false;
-    } else if (testCaseToDelete.value) {
-      await testManager.deleteTestCase(testCaseToDelete.value.id);
-      // Clear selected test case if it was deleted
-      if (selectedTestCase.value?.id === testCaseToDelete.value.id) {
-        selectedTestCase.value = null;
-      }
-      testCaseToDelete.value = null;
-      showDeleteTestCaseDialog.value = false;
-    }
+    deleteProjectDialogRef.value?.setLoading(true);
+    await testManager.deleteProject(project.id);
+    deleteProjectDialogRef.value?.closeDialog();
+    projectToDelete.value = null;
   } catch (error) {
-    console.error("Failed to delete item:", error);
+    console.error("Failed to delete project:", error);
   } finally {
-    isDeleting.value = false;
+    deleteProjectDialogRef.value?.setLoading(false);
   }
 };
 
-const cancelDelete = (): void => {
-  showDeleteProjectDialog.value = false;
-  showDeleteTestCaseDialog.value = false;
-  projectToDelete.value = null;
-  testCaseToDelete.value = null;
+const handleDeleteTestCase = async (testCase: TestCase): Promise<void> => {
+  try {
+    deleteTestCaseDialogRef.value?.setLoading(true);
+    await testManager.deleteTestCase(testCase.id);
+    
+    // Clear selected test case if it was deleted
+    if (selectedTestCase.value?.id === testCase.id) {
+      selectedTestCase.value = null;
+    }
+    
+    deleteTestCaseDialogRef.value?.closeDialog();
+    testCaseToDelete.value = null;
+  } catch (error) {
+    console.error("Failed to delete test case:", error);
+  } finally {
+    deleteTestCaseDialogRef.value?.setLoading(false);
+  }
 };
 
 // Load all test cases from all projects
@@ -948,28 +852,5 @@ onMounted(async () => {
   font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
 }
 
-/* Form styles */
-.create-project-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-group label {
-  font-weight: 600;
-  color: #374151;
-}
-
-.dialog-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 1.5rem;
-}
 </style>
