@@ -65,7 +65,7 @@
       </div>
 
       <!-- Progress Section (shown when running) -->
-      <div v-if="isRunning" class="progress-wrapper">
+      <div v-if="isRunning || completedRuns > 0" class="progress-wrapper">
         <div class="progress-header">
           <h3>{{ $t("quickRun.progress") }}</h3>
           <base-badge variant="warning">

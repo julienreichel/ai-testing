@@ -70,7 +70,6 @@
       :is-open="showRunQuick"
       :test-case="testCaseForQuickRun"
       @close="showRunQuick = false"
-      @completed="handleQuickRunCompleted"
     />
   </div>
 </template>
@@ -147,13 +146,6 @@ const openTestCaseInEditor = (testCase?: TestCase): void => {
 const handleQuickRun = (testCase: TestCase): void => {
   testCaseForQuickRun.value = testCase;
   showRunQuick.value = true;
-};
-
-const handleQuickRunCompleted = (results: unknown): void => {
-  // TODO: Handle persistence of quick run results
-  console.log("Quick run completed with results:", results);
-  showRunQuick.value = false;
-  testCaseForQuickRun.value = null;
 };
 
 // Project management
