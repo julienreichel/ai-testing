@@ -10,6 +10,7 @@ import BaseForm from "./BaseForm.vue";
 import BaseInputField from "./BaseInputField.vue";
 import BaseEmptyState from "./BaseEmptyState.vue";
 import DeleteConfirmationDialog from "./DeleteConfirmationDialog.vue";
+import BatchProgressSection from "./BatchProgressSection.vue";
 
 export {
   BaseButton,
@@ -23,6 +24,7 @@ export {
   BaseInputField,
   BaseEmptyState,
   DeleteConfirmationDialog,
+  BatchProgressSection,
 };
 
 // Type exports

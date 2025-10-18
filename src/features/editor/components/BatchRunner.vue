@@ -131,49 +131,14 @@
       </div>
 
       <!-- Progress Section -->
-      <div v-if="batchRunner.state.totalRuns > 0" class="progress-section">
-        <div class="progress-header">
-          <span>{{
-            $t("batch.progress.completed", {
-              completed: batchRunner.state.completedRuns,
-              total: batchRunner.state.totalRuns,
-            })
-          }}</span>
-          <span>{{ batchRunner.progress }}%</span>
-        </div>
-
-        <div class="progress-bar-container">
-          <div class="progress-bar" :style="progressBarStyle"></div>
-        </div>
-
-        <!-- Real-time Statistics -->
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-value stat-success">
-              {{ batchRunner.statistics.value.passedRuns }}
-            </div>
-            <div class="stat-label">{{ $t("batch.stats.passed") }}</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value stat-error">
-              {{ batchRunner.statistics.value.failedRuns }}
-            </div>
-            <div class="stat-label">{{ $t("batch.stats.failed") }}</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value stat-info">
-              {{ Math.round(batchRunner.statistics.value.avgDuration) }}ms
-            </div>
-            <div class="stat-label">{{ $t("batch.stats.avgLatency") }}</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value stat-purple">
-              ${{ batchRunner.statistics.value.totalCost.toFixed(4) }}
-            </div>
-            <div class="stat-label">{{ $t("batch.stats.totalCost") }}</div>
-          </div>
-        </div>
-      </div>
+      <batch-progress-section
+        v-if="batchRunner.state.totalRuns > 0"
+        :completed-runs="batchRunner.state.completedRuns"
+        :total-runs="batchRunner.state.totalRuns"
+        :progress-percentage="batchRunner.progress.value"
+        :show-statistics="true"
+        :statistics="batchRunner.statistics.value"
+      />
 
       <!-- Error Messages -->
       <div v-if="batchRunner.state.errors.length > 0" class="error-section">
@@ -247,6 +212,7 @@ import BaseCard from "../../../components/ui/BaseCard.vue";
 import BaseInputField from "../../../components/ui/BaseInputField.vue";
 import BaseButton from "../../../components/ui/BaseButton.vue";
 import BaseBadge from "../../../components/ui/BaseBadge.vue";
+import BatchProgressSection from "../../../components/ui/BatchProgressSection.vue";
 
 // Constants to avoid magic numbers
 const DEFAULT_TEMPERATURE = 0.7;
@@ -314,10 +280,6 @@ const canStart = computed(() => {
     !batchRunner.state.isRunning
   );
 });
-
-const progressBarStyle = computed(() => ({
-  width: `${batchRunner.progress.value}%`,
-}));
 
 // Methods
 const startBatch = async (): Promise<void> => {
@@ -418,79 +380,6 @@ watch(
   .config-grid {
     grid-template-columns: 1fr 1fr 1fr;
   }
-}
-
-/* Progress Section */
-.progress-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.progress-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.progress-bar-container {
-  width: 100%;
-  height: 0.5rem;
-  background-color: #e5e7eb;
-  border-radius: 9999px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  background-color: #2563eb;
-  border-radius: 9999px;
-  transition: width 0.3s ease;
-}
-
-/* Statistics Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  font-size: 0.875rem;
-}
-
-@media (min-width: 768px) {
-  .stats-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.stat-item {
-  text-align: center;
-}
-
-.stat-value {
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.stat-success {
-  color: #059669;
-}
-
-.stat-error {
-  color: #dc2626;
-}
-
-.stat-info {
-  color: #2563eb;
-}
-
-.stat-purple {
-  color: #7c3aed;
-}
-
-.stat-label {
-  color: #6b7280;
 }
 
 /* Error Section */

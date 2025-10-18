@@ -65,7 +65,7 @@
       </div>
 
       <!-- Progress Section (shown when running) -->
-      <div v-if="isRunning" class="progress-section">
+      <div v-if="isRunning" class="progress-wrapper">
         <div class="progress-header">
           <h3>{{ $t("quickRun.progress") }}</h3>
           <base-badge variant="warning">
@@ -73,33 +73,14 @@
           </base-badge>
         </div>
 
-        <div class="progress-info">
-          <div class="progress-text">
-            {{ $t("quickRun.completedRuns") }}: {{ completedRuns }}/{{ runCount }}
-          </div>
-          <div class="progress-bar">
-            <div
-              class="progress-fill"
-              :style="{ width: `${progressPercentage}%` }"
-            ></div>
-          </div>
-        </div>
-
-        <div v-if="results.length > 0" class="results-preview">
-          <h4>{{ $t("quickRun.latestResults") }}</h4>
-          <div class="results-list">
-            <div
-              v-for="(result, index) in results.slice(-3)"
-              :key="index"
-              class="result-item"
-            >
-              <span class="result-index">{{ index + 1 }}</span>
-              <span class="result-preview">
-                {{ result.content.substring(0, 100) }}...
-              </span>
-            </div>
-          </div>
-        </div>
+        <batch-progress-section
+          :completed-runs="completedRuns"
+          :total-runs="runCount"
+          :progress-percentage="progressPercentage"
+          :show-statistics="false"
+          :show-results-preview="true"
+          :recent-results="recentResults"
+        />
       </div>
 
       <!-- Action Buttons -->
@@ -135,6 +116,7 @@ import {
   BaseButton,
   BaseInputField,
   BaseBadge,
+  BatchProgressSection,
 } from "../../../components/ui";
 import { ProviderSelector } from "../../editor/components";
 import type { TestCase } from "../../../types/testManagement";
@@ -198,6 +180,10 @@ const progressPercentage = computed(() => {
   if (runCount.value === 0) return 0;
   return Math.round((completedRuns.value / runCount.value) * 100);
 });
+
+const recentResults = computed(() => 
+  results.value.slice(-3).map(result => ({ content: result.content }))
+);
 
 // Watch for test case changes
 watch(
@@ -424,18 +410,16 @@ watch(
   max-width: 120px;
 }
 
-.progress-section {
+/* Progress wrapper styling */
+.progress-wrapper {
   margin-top: 1rem;
-}
-
-.progress-card {
-  margin-bottom: 0;
 }
 
 .progress-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 1rem;
 }
 
 .progress-header h3 {
@@ -443,98 +427,6 @@ watch(
   font-size: 1.125rem;
   font-weight: 600;
   color: #111827;
-}
-
-.overall-progress {
-  margin-bottom: 1.5rem;
-}
-
-.progress-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 0.5rem;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 8px;
-  background: #e5e7eb;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: #3b82f6;
-  transition: width 0.3s ease;
-}
-
-.provider-progress h4 {
-  margin: 0 0 1rem 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #374151;
-}
-
-.provider-progress-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.provider-progress-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-}
-
-.provider-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.provider-name {
-  font-weight: 500;
-  color: #111827;
-}
-
-.provider-model {
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.provider-stats {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.runs-count {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
-  min-width: 50px;
-  text-align: right;
-}
-
-.provider-progress-bar {
-  width: 100px;
-  height: 6px;
-  background: #e5e7eb;
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.provider-progress-fill {
-  height: 100%;
-  background: #10b981;
-  transition: width 0.3s ease;
 }
 
 .dialog-actions {
