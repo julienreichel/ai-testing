@@ -9,6 +9,7 @@ import type { ProviderRequest } from "../types/providers";
 import { useProvidersStore } from "../store/providers";
 import { useRulesEngine } from "./useRulesEngine";
 import { useBatchRunPersistence } from "./useBatchRunPersistence";
+import { runPool, type Task } from "../utils/taskPool";
 
 // Constants to avoid magic numbers
 const PERCENTAGE_MULTIPLIER = 100;
@@ -21,6 +22,8 @@ const UI_UPDATE_DELAY_MS = 10;
 const PROGRESS_UPDATE_INTERVAL = 5;
 const DEFAULT_TEMPERATURE = 0.7;
 const DEFAULT_MAX_TOKENS = 4096;
+const CANCEL_CHECK_INTERVAL_MS = 100;
+const DEFAULT_PARALLEL_CONCURRENCY = 5;
 
 // Configuration for batch runs
 export interface BatchRunConfig {
@@ -32,6 +35,8 @@ export interface BatchRunConfig {
   runCount: number;
   maxRetries: number;
   delayMs: number;
+  allowParallel?: boolean;
+  parallelConcurrency?: number;
 }
 
 export interface BatchRunResult {
@@ -334,6 +339,137 @@ export function useBatchRunner(): {
     return createBatchStatistics(state.results);
   });
 
+  // Execute runs in parallel using task pool
+  const executeParallelRuns = async (params: {
+    config: BatchRunConfig;
+    state: BatchRunState;
+    batchPersistence: ReturnType<typeof useBatchRunPersistence>;
+    batchSession: unknown;
+    providersStore: ReturnType<typeof useProvidersStore>;
+    rulesEngine: ReturnType<typeof useRulesEngine>;
+  }): Promise<void> => {
+    const { config, state, batchPersistence, batchSession, providersStore, rulesEngine } = params;
+    // Create AbortController for cancellation
+    const abortController = new AbortController();
+
+    // Create tasks for parallel execution
+    const tasks: Task<BatchRunResult>[] = [];
+    for (let i = 0; i < config.runCount; i++) {
+      tasks.push({
+        id: `run-${i}`,
+        execute: async () => {
+          return await executeSingleRun({
+            config,
+            runIndex: i,
+            isCancelled: () => state.isCancelled || abortController.signal.aborted,
+            providersStore,
+            rulesEngine,
+          });
+        }
+      });
+    }
+
+    // Monitor for cancellation
+    const cancelCheck = setInterval(() => {
+      if (state.isCancelled) {
+        abortController.abort();
+        clearInterval(cancelCheck);
+      }
+    }, CANCEL_CHECK_INTERVAL_MS);
+
+    try {
+      // Execute tasks in parallel with bounded concurrency
+      const results = await runPool(tasks, {
+        concurrency: config.parallelConcurrency || DEFAULT_PARALLEL_CONCURRENCY,
+        abortController
+      });
+
+      // Process results in order
+      for (let i = 0; i < results.length; i++) {
+        const taskResult = results[i];
+        if (taskResult?.result) {
+          state.results.push(taskResult.result);
+          state.completedRuns++;
+
+          if (taskResult.result.status === "failed" && taskResult.result.error) {
+            state.errors.push(`Run ${i}: ${taskResult.result.error}`);
+          }
+        } else if (taskResult?.status === 'cancelled') {
+          // Handle cancelled task
+          const cancelledResult: BatchRunResult = {
+            id: crypto.randomUUID(),
+            runIndex: i,
+            status: "cancelled",
+            startTime: new Date(),
+            endTime: new Date(),
+            duration: 0,
+            retryCount: 0,
+          };
+          state.results.push(cancelledResult);
+          state.completedRuns++;
+        }
+
+        // Allow Vue reactivity to update the UI
+        await new Promise((resolve) => setTimeout(resolve, UI_UPDATE_DELAY_MS));
+      }
+
+      // Update persistence with final results
+      await updatePersistenceProgress(
+        batchPersistence,
+        batchSession,
+        state.results,
+      );
+
+    } finally {
+      clearInterval(cancelCheck);
+    }
+  };
+
+  // Execute runs sequentially (original logic)
+  const executeSequentialRuns = async (params: {
+    config: BatchRunConfig;
+    state: BatchRunState;
+    batchPersistence: ReturnType<typeof useBatchRunPersistence>;
+    batchSession: unknown;
+    providersStore: ReturnType<typeof useProvidersStore>;
+    rulesEngine: ReturnType<typeof useRulesEngine>;
+  }): Promise<void> => {
+    const { config, state, batchPersistence, batchSession, providersStore, rulesEngine } = params;
+    for (let i = 0; i < config.runCount; i++) {
+      if (state.isCancelled) break;
+
+      if (i > 0 && config.delayMs > 0) {
+        await sleep(config.delayMs);
+      }
+
+      const result = await executeSingleRun({
+        config,
+        runIndex: i,
+        isCancelled: () => state.isCancelled,
+        providersStore,
+        rulesEngine,
+      });
+      state.results.push(result);
+      state.completedRuns++;
+
+      if (result.status === "failed" && result.error) {
+        state.errors.push(`Run ${i}: ${result.error}`);
+      }
+
+      // Allow Vue reactivity to update the UI
+      await new Promise((resolve) => setTimeout(resolve, UI_UPDATE_DELAY_MS));
+
+      // Update persistence with progress (every few runs to avoid too many DB writes)
+      if (i % PROGRESS_UPDATE_INTERVAL === 0 || i === config.runCount - 1) {
+        await updatePersistenceProgress(
+          batchPersistence,
+          batchSession,
+          state.results,
+        );
+      }
+    }
+  };
+
   const runBatch = async (config: BatchRunConfig): Promise<void> => {
     // Reset state
     state.isRunning = true;
@@ -358,38 +494,25 @@ export function useBatchRunner(): {
     }
 
     try {
-      for (let i = 0; i < config.runCount; i++) {
-        if (state.isCancelled) break;
-
-        if (i > 0 && config.delayMs > 0) {
-          await sleep(config.delayMs);
-        }
-
-        const result = await executeSingleRun({
+      // Use parallel execution if configured and supported
+      if (config.allowParallel && config.runCount > 1) {
+        await executeParallelRuns({
           config,
-          runIndex: i,
-          isCancelled: () => state.isCancelled,
+          state,
+          batchPersistence,
+          batchSession,
           providersStore,
-          rulesEngine,
+          rulesEngine
         });
-        state.results.push(result);
-        state.completedRuns++;
-
-        if (result.status === "failed" && result.error) {
-          state.errors.push(`Run ${i}: ${result.error}`);
-        }
-
-        // Allow Vue reactivity to update the UI
-        await new Promise((resolve) => setTimeout(resolve, UI_UPDATE_DELAY_MS));
-
-        // Update persistence with progress (every few runs to avoid too many DB writes)
-        if (i % PROGRESS_UPDATE_INTERVAL === 0 || i === config.runCount - 1) {
-          await updatePersistenceProgress(
-            batchPersistence,
-            batchSession,
-            state.results,
-          );
-        }
+      } else {
+        await executeSequentialRuns({
+          config,
+          state,
+          batchPersistence,
+          batchSession,
+          providersStore,
+          rulesEngine
+        });
       }
 
       // Complete batch run in database

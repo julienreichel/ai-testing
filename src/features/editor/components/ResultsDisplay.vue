@@ -1,6 +1,6 @@
 <template>
   <div class="results-display">
-    <!-- Loading State -->
+    <!-- Loading State - Single Run -->
     <div v-if="isRunning" class="result-state">
       <div class="result-header">
         <div class="header-left">
@@ -19,6 +19,35 @@
       <div class="result-content">
         <div class="loading-placeholder">
           <p>{{ $t("promptEditor.pleaseWait") }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State - Multiple Runs -->
+    <div v-else-if="isRunningRepeated" class="result-state">
+      <div class="result-header">
+        <div class="header-left">
+          <span class="response-label">{{
+            $t("promptEditor.generatingMultipleResponses")
+          }}</span>
+          <base-spinner size="sm" class="header-spinner" />
+        </div>
+        <div class="header-right">
+          <base-button variant="outline" size="sm" @click="$emit('cancel')">
+            {{ $t("common.cancel") }}
+          </base-button>
+        </div>
+      </div>
+
+      <div class="result-content">
+        <div class="loading-placeholder">
+          <p>{{ $t("promptEditor.pleaseWaitMultiple", { completed: completedRuns || 0, total: totalRuns || 0 }) }}</p>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              :style="{ width: `${((completedRuns || 0) / (totalRuns || 1)) * 100}%` }"
+            ></div>
+          </div>
         </div>
       </div>
     </div>
@@ -146,6 +175,73 @@
       </div>
     </div>
 
+    <!-- Multiple Results Display -->
+    <div v-else-if="repeatedResults && repeatedResults.length > 0" class="result-state multi-results">
+      <div class="result-header">
+        <div class="header-left">
+          <span class="response-label">{{ $t("promptEditor.multipleResults") }}</span>
+          <span class="results-count">{{ repeatedResults.length }} results</span>
+          <span v-if="repeatedErrors && repeatedErrors.length > 0" class="error-count">
+            ({{ repeatedErrors.length }} errors)
+          </span>
+        </div>
+        <div class="header-right">
+          <base-button variant="primary" size="sm" @click="$emit('saveAsTest')">
+            {{ $t("promptEditor.saveAsTestCase") }}
+          </base-button>
+          <base-button
+            variant="outline"
+            size="sm"
+            @click="$emit('clearResults')"
+          >
+            {{ $t("common.clear") }}
+          </base-button>
+        </div>
+      </div>
+
+      <div class="result-content">
+        <!-- Results Summary -->
+        <div class="results-summary">
+          <div class="summary-stats">
+            <div class="stat">
+              <span class="stat-label">Success Rate:</span>
+              <span class="stat-value">{{ Math.round((repeatedResults.length / ((repeatedResults.length || 0) + (repeatedErrors?.length || 0))) * 100) }}%</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Avg Latency:</span>
+              <span class="stat-value">{{ formatAverageLatency(repeatedResults) }}ms</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Total Cost:</span>
+              <span class="stat-value">${{ formatTotalCost(repeatedResults) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Individual Results -->
+        <div class="individual-results">
+          <div v-for="(result, index) in repeatedResults" :key="`result-${index}`" class="result-item">
+            <div class="result-item-header">
+              <span class="result-index">Run {{ index + 1 }}</span>
+              <span class="result-latency">{{ formatLatency(result.metadata.latency) }}</span>
+              <span class="result-cost">${{ result.cost.totalCost.toFixed(4) }}</span>
+            </div>
+            <div class="result-item-content">
+              <pre>{{ result.content.substring(0, PREVIEW_LENGTH) }}{{ result.content.length > PREVIEW_LENGTH ? '...' : '' }}</pre>
+            </div>
+          </div>
+
+          <!-- Error Results -->
+          <div v-if="repeatedErrors && repeatedErrors.length > 0" class="error-results">
+            <h4>Errors ({{ repeatedErrors.length }})</h4>
+            <div v-for="(error, index) in repeatedErrors" :key="`error-${index}`" class="error-item">
+              <span class="error-text">{{ error }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Empty State -->
     <div v-else class="result-empty">
       <base-empty-state
@@ -171,6 +267,12 @@ interface ResultsDisplayProps {
   error: string | null;
   isRunning: boolean;
   validationResult?: RuleSetResult | null;
+  // Multi-run support
+  isRunningRepeated?: boolean;
+  repeatedResults?: ProviderResponse[];
+  repeatedErrors?: string[];
+  completedRuns?: number;
+  totalRuns?: number;
 }
 
 defineProps<ResultsDisplayProps>();
@@ -183,12 +285,26 @@ defineEmits<{
 }>();
 
 const MILLISECONDS_PER_SECOND = 1000;
+const DECIMAL_PLACES = 4;
+const PREVIEW_LENGTH = 200;
 
 const formatLatency = (latencyMs: number): string => {
   if (latencyMs < MILLISECONDS_PER_SECOND) {
     return `${Math.round(latencyMs)}ms`;
   }
   return `${(latencyMs / MILLISECONDS_PER_SECOND).toFixed(1)}s`;
+};
+
+const formatAverageLatency = (results: ProviderResponse[]): string => {
+  if (results.length === 0) return "0";
+  const totalLatency = results.reduce((sum, result) => sum + result.metadata.latency, 0);
+  const avgLatency = totalLatency / results.length;
+  return Math.round(avgLatency).toString();
+};
+
+const formatTotalCost = (results: ProviderResponse[]): string => {
+  const totalCost = results.reduce((sum, result) => sum + result.cost.totalCost, 0);
+  return totalCost.toFixed(DECIMAL_PLACES);
 };
 </script>
 
@@ -469,5 +585,149 @@ const formatLatency = (latencyMs: number): string => {
   .metric {
     justify-content: space-between;
   }
+}
+
+/* Multi-results styles */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  transition: width 0.3s ease;
+}
+
+.multi-results .result-header {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.results-count,
+.error-count {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.error-count {
+  color: #ef4444;
+}
+
+.results-summary {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.individual-results {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.result-item {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem;
+}
+
+.result-item:last-child {
+  border-bottom: none;
+}
+
+.result-item-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.result-index {
+  font-weight: 600;
+  color: #374151;
+}
+
+.result-latency,
+.result-cost {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.result-item-content pre {
+  margin: 0;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.error-results {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+}
+
+.error-results h4 {
+  margin: 0 0 1rem 0;
+  color: #dc2626;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.error-item {
+  padding: 0.5rem;
+  background: white;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.error-item:last-child {
+  margin-bottom: 0;
+}
+
+.error-text {
+  color: #dc2626;
+  font-size: 0.875rem;
 }
 </style>

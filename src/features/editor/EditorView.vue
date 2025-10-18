@@ -55,7 +55,7 @@
           <base-button
             variant="primary"
             :disabled="!canRunPrompt"
-            :loading="promptRunner.state.value.isRunning"
+            :loading="promptRunner.state.value.isRunning || promptRunner.state.value.isRunningRepeated"
             @click="runPrompt"
           >
             {{ $t("promptEditor.runOnce") }}
@@ -97,6 +97,11 @@
           :result="promptRunner.state.value.result"
           :error="promptRunner.state.value.error"
           :is-running="promptRunner.state.value.isRunning"
+          :is-running-repeated="promptRunner.state.value.isRunningRepeated"
+          :repeated-results="promptRunner.state.value.repeatedResults"
+          :repeated-errors="promptRunner.state.value.repeatedErrors"
+          :completed-runs="promptRunner.state.value.completedRuns"
+          :total-runs="promptRunner.state.value.totalRuns"
           :validation-result="validationResult"
           @cancel="promptRunner.cancelRun"
           @retry="runPrompt"
@@ -193,7 +198,8 @@ const canRunBatch = computed(() => {
   return (
     canRunPrompt.value &&
     validationRules.value.rules.length > 0 &&
-    !promptRunner.state.value.isRunning
+    !promptRunner.state.value.isRunning &&
+    !promptRunner.state.value.isRunningRepeated
   );
 });
 
@@ -235,6 +241,7 @@ const runPrompt = async (): Promise<void> => {
     maxTokens: promptData.value.maxTokens,
   };
 
+  // Single run only - multi-runs are handled by BatchRunner
   await promptRunner.runPrompt(providerSelection.value.providerId, request);
 
   // Run rule validation if we have a successful result

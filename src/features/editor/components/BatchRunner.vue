@@ -25,32 +25,98 @@
     <!-- Configuration Section -->
     <div class="content-container">
       <div class="config-grid">
-        <base-input-field
-          v-model="config.runCount"
-          :label="$t('batch.config.runCount')"
-          type="number"
-          :min="1"
-          :max="100"
-          :disabled="batchRunner.state.isRunning"
-        />
+        <!-- Row 1: Run Count + Parallel Checkbox -->
+        <div class="config-row">
+          <base-input-field
+            v-model="config.runCount"
+            :label="$t('batch.config.runCount')"
+            type="number"
+            :min="1"
+            :max="100"
+            :disabled="batchRunner.state.isRunning"
+            class="config-field"
+          />
 
-        <base-input-field
-          v-model="config.maxRetries"
-          :label="$t('batch.config.maxRetries')"
-          type="number"
-          :min="0"
-          :max="5"
-          :disabled="batchRunner.state.isRunning"
-        />
+          <div class="checkbox-field config-field">
+            <label class="checkbox-label">
+              <input
+                v-model="config.allowParallel"
+                type="checkbox"
+                :disabled="batchRunner.state.isRunning || !canUseParallel"
+              />
+              <span class="checkbox-text">
+                {{ $t("promptEditor.runInParallel") }}
+              </span>
+            </label>
+            <div v-if="!canUseParallel" class="checkbox-help">
+              {{ $t("promptEditor.parallelRequiresMultipleRuns") }}
+            </div>
+          </div>
+        </div>
 
-        <base-input-field
-          v-model="config.delayMs"
-          :label="$t('batch.config.delayMs')"
-          type="number"
-          :min="0"
-          :max="10000"
-          :disabled="batchRunner.state.isRunning"
-        />
+        <!-- Row 2: Max Retries + Delay/Concurrency -->
+        <div class="config-row">
+          <base-input-field
+            v-model="config.maxRetries"
+            :label="$t('batch.config.maxRetries')"
+            type="number"
+            :min="0"
+            :max="5"
+            :disabled="batchRunner.state.isRunning"
+            class="config-field"
+          />
+
+          <!-- Concurrency (when parallel) or Delay (when sequential) - same position -->
+          <base-input-field
+            v-if="config.allowParallel"
+            v-model="config.parallelConcurrency"
+            :label="$t('promptEditor.concurrency')"
+            type="select"
+            :options="concurrencyOptions"
+            :disabled="batchRunner.state.isRunning"
+            class="config-field"
+          />
+
+          <base-input-field
+            v-else
+            v-model="config.delayMs"
+            :label="$t('batch.config.delayMs')"
+            type="number"
+            :min="0"
+            :max="10000"
+            :disabled="batchRunner.state.isRunning"
+            class="config-field"
+          />
+        </div>
+      </div>
+
+      <!-- Execution Mode Info Panel -->
+      <div class="config-info">
+        <div v-if="config.allowParallel && config.runCount > 1" class="info-panel parallel">
+          <span class="info-icon">⚡</span>
+          <div class="info-content">
+            <div class="info-title">{{ $t("promptEditor.parallelExecution") }}</div>
+            <div class="info-text">
+              {{ $t("promptEditor.parallelInfo", {
+                runs: config.runCount,
+                concurrency: config.parallelConcurrency
+              }) }}
+            </div>
+          </div>
+        </div>
+
+        <div v-else-if="config.runCount > 1" class="info-panel sequential">
+          <span class="info-icon">📋</span>
+          <div class="info-content">
+            <div class="info-title">{{ $t("promptEditor.sequentialExecution") }}</div>
+            <div class="info-text">
+              {{ $t("promptEditor.sequentialInfo", {
+                runs: config.runCount,
+                delay: config.delayMs
+              }) }}
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Progress Section -->
@@ -198,15 +264,33 @@ const emit = defineEmits<Emits>();
 const batchRunner = useBatchRunner();
 
 // Configuration state
-const config = ref<Omit<BatchRunConfig, "testCase" | "providerId" | "model">>({
+const config = ref<Omit<BatchRunConfig, "testCase" | "providerId" | "model"> & {
+  allowParallel: boolean;
+  parallelConcurrency: number;
+}>({
   runCount: 10,
   maxRetries: 2,
   delayMs: 100,
   temperature: undefined,
   maxTokens: undefined,
+  allowParallel: false,
+  parallelConcurrency: 5,
 });
 
+// Concurrency options for parallel execution
+const CONCURRENCY_OPTIONS = [
+  { label: "1", value: 1 },
+  { label: "2", value: 2 },
+  { label: "3", value: 3 },
+  { label: "5", value: 5 },
+  { label: "10", value: 10 },
+];
+
+const concurrencyOptions = computed(() => CONCURRENCY_OPTIONS);
+
 // Computed properties
+const canUseParallel = computed(() => config.value.runCount > 1);
+
 const canStart = computed(() => {
   return (
     !props.disabled &&
@@ -293,9 +377,28 @@ watch(
 }
 
 .config-grid {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
+}
+
+.config-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.config-field {
+  width: 100%;
+}
+
+/* Responsive: Stack on smaller screens */
+@media (max-width: 768px) {
+  .config-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
 }
 
 @media (min-width: 768px) {
@@ -426,6 +529,86 @@ watch(
 /* Visualization Section */
 .visualization-section {
   margin-top: 1rem;
+}
+
+/* Parallel Execution Styles */
+.checkbox-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #2563eb;
+}
+
+.checkbox-label input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.checkbox-text {
+  user-select: none;
+}
+
+.checkbox-help {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-left: 1.5rem;
+}
+
+/* Execution Mode Info Panels */
+.config-info {
+  margin-top: 1rem;
+}
+
+.info-panel {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+}
+
+.info-panel.parallel {
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.info-panel.sequential {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.info-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.info-content {
+  flex: 1;
+}
+
+.info-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #374151;
+}
+
+.info-text {
+  font-size: 0.875rem;
+  color: #6b7280;
 }
 </style>
 
