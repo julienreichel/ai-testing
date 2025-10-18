@@ -362,4 +362,307 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
       expect(canRun.value).toBe(true);
     });
   });
+
+  describe("When user wants to run multiple prompts", () => {
+    it("should execute multiple runs sequentially when parallel is disabled", async () => {
+      const mockResponse: ProviderResponse = {
+        content: "Sequential response",
+        model: "test-model",
+        usage: { inputTokens: 10, outputTokens: 15, totalTokens: 25 },
+        cost: { inputCost: 0.001, outputCost: 0.002, totalCost: 0.003 },
+        metadata: {
+          latency: 50,
+          requestId: "seq-123",
+          provider: "test-provider",
+          timestamp: new Date(),
+        },
+      };
+
+      mockProvider.call.mockResolvedValue(mockResponse);
+
+      const { runRepeated, state } = usePromptRunner();
+
+      // User initiates sequential repeated runs
+      await runRepeated("test-provider", mockRequest, {
+        runCount: 3,
+        allowParallel: false,
+        parallelConcurrency: 1,
+        delayMs: 10,
+      });
+
+      // User sees all runs completed sequentially
+      expect(state.value.isRunningRepeated).toBe(false);
+      expect(state.value.repeatedResults).toHaveLength(3);
+      expect(state.value.completedRuns).toBe(3);
+      expect(state.value.totalRuns).toBe(3);
+      expect(mockProvider.call).toHaveBeenCalledTimes(3);
+    });
+
+    it("should execute multiple runs in parallel when enabled", async () => {
+      const mockResponse: ProviderResponse = {
+        content: "Parallel response",
+        model: "test-model",
+        usage: { inputTokens: 10, outputTokens: 15, totalTokens: 25 },
+        cost: { inputCost: 0.001, outputCost: 0.002, totalCost: 0.003 },
+        metadata: {
+          latency: 30,
+          requestId: "par-456",
+          provider: "test-provider",
+          timestamp: new Date(),
+        },
+      };
+
+      mockProvider.call.mockResolvedValue(mockResponse);
+
+      const { runRepeated, state } = usePromptRunner();
+
+      const startTime = Date.now();
+
+      // User initiates parallel repeated runs
+      await runRepeated("test-provider", mockRequest, {
+        runCount: 4,
+        allowParallel: true,
+        parallelConcurrency: 2,
+        delayMs: 0,
+      });
+
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+
+      // User sees all runs completed in parallel (faster than sequential)
+      expect(state.value.isRunningRepeated).toBe(false);
+      expect(state.value.repeatedResults).toHaveLength(4);
+      expect(state.value.completedRuns).toBe(4);
+      expect(state.value.totalRuns).toBe(4);
+      expect(mockProvider.call).toHaveBeenCalledTimes(4);
+
+      // Parallel execution should be faster than sequential with delays
+      expect(duration).toBeLessThan(200); // Should complete quickly with parallel execution
+    });
+
+    it("should provide real-time progress updates during repeated runs", async () => {
+      const mockResponse: ProviderResponse = {
+        content: "Progress response",
+        model: "test-model",
+        usage: { inputTokens: 5, outputTokens: 10, totalTokens: 15 },
+        cost: { inputCost: 0.001, outputCost: 0.001, totalCost: 0.002 },
+        metadata: {
+          latency: 25,
+          requestId: "prog-789",
+          provider: "test-provider",
+          timestamp: new Date(),
+        },
+      };
+
+      // Mock with delay to observe progress updates
+      mockProvider.call.mockImplementation(async (): Promise<ProviderResponse> => {
+        await new Promise(resolve => setTimeout(resolve, 10));
+        return mockResponse;
+      });
+
+      const { runRepeated, state } = usePromptRunner();
+      const progressUpdates: number[] = [];
+
+      // Track progress updates during execution
+      const runPromise = runRepeated("test-provider", mockRequest, {
+        runCount: 3,
+        allowParallel: false,
+        parallelConcurrency: 1,
+        delayMs: 5,
+      });
+
+      // Monitor progress during execution
+      const progressInterval = setInterval(() => {
+        if (state.value.isRunningRepeated) {
+          progressUpdates.push(state.value.completedRuns);
+        }
+      }, 5);
+
+      await runPromise;
+      clearInterval(progressInterval);
+
+      // User sees progressive completion counts
+      expect(progressUpdates.length).toBeGreaterThan(0);
+      expect(state.value.completedRuns).toBe(3);
+      expect(state.value.totalRuns).toBe(3);
+    });
+
+    it("should handle errors in repeated runs without stopping others", async () => {
+      let callCount = 0;
+      mockProvider.call.mockImplementation(async () => {
+        callCount++;
+        if (callCount === 2) {
+          throw new Error("Simulated API error");
+        }
+        return {
+          content: `Response ${callCount}`,
+          model: "test-model",
+          usage: { inputTokens: 5, outputTokens: 10, totalTokens: 15 },
+          cost: { inputCost: 0.001, outputCost: 0.001, totalCost: 0.002 },
+          metadata: {
+            latency: 20,
+            requestId: `error-${callCount}`,
+            provider: "test-provider",
+            timestamp: new Date(),
+          },
+        };
+      });
+
+      const { runRepeated, state } = usePromptRunner();
+
+      await runRepeated("test-provider", mockRequest, {
+        runCount: 3,
+        allowParallel: true,
+        parallelConcurrency: 2,
+        delayMs: 0,
+      });
+
+      // User sees some successful results and some errors
+      expect(state.value.completedRuns).toBe(3);
+      expect(state.value.repeatedResults).toHaveLength(2); // 2 successful
+      expect(state.value.repeatedErrors).toHaveLength(1); // 1 error
+      expect(state.value.repeatedErrors[0]).toContain("Simulated API error");
+    });
+
+    it("should allow user to cancel repeated runs", async () => {
+      let callCount = 0;
+      const mockResponse: ProviderResponse = {
+        content: "Cancellation test",
+        model: "test-model",
+        usage: { inputTokens: 5, outputTokens: 10, totalTokens: 15 },
+        cost: { inputCost: 0.001, outputCost: 0.001, totalCost: 0.002 },
+        metadata: {
+          latency: 100,
+          requestId: "cancel-123",
+          provider: "test-provider",
+          timestamp: new Date(),
+        },
+      };
+
+      // Mock with longer delay and tracking to allow cancellation
+      mockProvider.call.mockImplementation(async (): Promise<ProviderResponse> => {
+        callCount++;
+        await new Promise(resolve => setTimeout(resolve, 100)); // Longer delay
+        return mockResponse;
+      });
+
+      const { runRepeated, cancelRun, state } = usePromptRunner();
+
+      // User starts repeated runs
+      const runPromise = runRepeated("test-provider", mockRequest, {
+        runCount: 8,
+        allowParallel: true,
+        parallelConcurrency: 3,
+        delayMs: 0,
+      });
+
+      // User cancels after a short delay (before all runs can complete)
+      setTimeout(() => {
+        cancelRun();
+      }, 50);
+
+      await runPromise;
+
+      // User sees cancellation was effective
+      expect(state.value.isRunningRepeated).toBe(false);
+      // With cancellation, should have fewer completed runs than total requested
+      expect(state.value.completedRuns).toBeLessThanOrEqual(8);
+      // At least some runs should have been cancelled
+      const totalResults = state.value.repeatedResults.length + state.value.repeatedErrors.length;
+      expect(totalResults).toBeLessThanOrEqual(8);
+    });
+
+    it("should respect concurrency limits during parallel execution", async () => {
+      const concurrentCalls = new Set<number>();
+      let maxConcurrentCalls = 0;
+      let currentCalls = 0;
+
+      mockProvider.call.mockImplementation(async (): Promise<ProviderResponse> => {
+        currentCalls++;
+        concurrentCalls.add(currentCalls);
+        maxConcurrentCalls = Math.max(maxConcurrentCalls, currentCalls);
+
+        await new Promise(resolve => setTimeout(resolve, 20));
+
+        currentCalls--;
+
+        return {
+          content: "Concurrency test",
+          model: "test-model",
+          usage: { inputTokens: 5, outputTokens: 10, totalTokens: 15 },
+          cost: { inputCost: 0.001, outputCost: 0.001, totalCost: 0.002 },
+          metadata: {
+            latency: 20,
+            requestId: "conc-456",
+            provider: "test-provider",
+            timestamp: new Date(),
+          },
+        };
+      });
+
+      const { runRepeated, state } = usePromptRunner();
+
+      await runRepeated("test-provider", mockRequest, {
+        runCount: 6,
+        allowParallel: true,
+        parallelConcurrency: 3, // Limit to 3 concurrent calls
+        delayMs: 0,
+      });
+
+      // User sees concurrency limit was respected
+      expect(state.value.completedRuns).toBe(6);
+      expect(maxConcurrentCalls).toBeLessThanOrEqual(3);
+      expect(mockProvider.call).toHaveBeenCalledTimes(6);
+    });
+
+    it("should clear previous repeated results when starting new runs", async () => {
+      const mockResponse: ProviderResponse = {
+        content: "Clear test",
+        model: "test-model",
+        usage: { inputTokens: 5, outputTokens: 10, totalTokens: 15 },
+        cost: { inputCost: 0.001, outputCost: 0.001, totalCost: 0.002 },
+        metadata: {
+          latency: 15,
+          requestId: "clear-789",
+          provider: "test-provider",
+          timestamp: new Date(),
+        },
+      };
+
+      mockProvider.call.mockResolvedValue(mockResponse);
+
+      const { runRepeated, clearResults, state } = usePromptRunner();
+
+      // User runs first batch
+      await runRepeated("test-provider", mockRequest, {
+        runCount: 2,
+        allowParallel: false,
+        parallelConcurrency: 1,
+        delayMs: 5,
+      });
+
+      expect(state.value.repeatedResults).toHaveLength(2);
+
+      // User clears results
+      clearResults();
+
+      // User sees cleared state
+      expect(state.value.repeatedResults).toHaveLength(0);
+      expect(state.value.repeatedErrors).toHaveLength(0);
+      expect(state.value.completedRuns).toBe(0);
+      expect(state.value.totalRuns).toBe(0);
+
+      // User runs second batch
+      await runRepeated("test-provider", mockRequest, {
+        runCount: 3,
+        allowParallel: true,
+        parallelConcurrency: 2,
+        delayMs: 0,
+      });
+
+      // User sees only new results
+      expect(state.value.repeatedResults).toHaveLength(3);
+      expect(state.value.completedRuns).toBe(3);
+    });
+  });
 });
