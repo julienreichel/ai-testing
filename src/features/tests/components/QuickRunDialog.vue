@@ -185,8 +185,9 @@ const canRun = computed(() => {
 const completedRuns = computed(() => batchRunner.state.completedRuns);
 const progressPercentage = computed(() => batchRunner.progress.value);
 
+const HISTORY_SIZE = 3;
 const recentResults = computed(() =>
-  batchRunner.state.results.slice(-3).map(result => ({
+  batchRunner.state.results.slice(-HISTORY_SIZE).map(result => ({
     content: result.response || result.error || "No content"
   }))
 );
@@ -206,6 +207,7 @@ watch(
 const startRun = async (): Promise<void> => {
   if (!canRun.value || !props.testCase) return;
 
+  const SMALL_DELAY = 100;
   // Create batch configuration
   const batchConfig: BatchRunConfig = {
     testCase: props.testCase,
@@ -213,7 +215,7 @@ const startRun = async (): Promise<void> => {
     model: selectedProvider.value.model,
     runCount: runCount.value,
     maxRetries: 2, // Default retry count
-    delayMs: allowParallel.value ? 0 : 100, // No delay for parallel, small delay for sequential
+    delayMs: allowParallel.value ? 0 : SMALL_DELAY, // No delay for parallel, small delay for sequential
     temperature: 0.7, // Default temperature (not exposed to user)
     maxTokens: maxTokens.value,
   };
