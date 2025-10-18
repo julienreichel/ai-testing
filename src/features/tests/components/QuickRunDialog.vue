@@ -120,7 +120,7 @@
         <!-- Individual Provider Progress -->
         <div class="providers-progress">
           <div
-            v-for="runner in batchRunners"
+            v-for="runner in activeBatchRunners"
             :key="runner.providerId"
             class="provider-progress"
           >
@@ -204,7 +204,23 @@ interface Emits {
 
 interface BatchRunnerWithProvider {
   providerId: string;
-  runner: ReturnType<typeof useBatchRunner>;
+  runner: {
+    state: {
+      isRunning: boolean;
+      isCancelled: boolean;
+      completedRuns: number;
+      totalRuns: number;
+      results: BatchRunResult[];
+      errors: string[];
+      startTime?: Date;
+      endTime?: Date;
+    };
+    progress: unknown;
+    statistics: unknown;
+    runBatch: (config: BatchRunConfig) => Promise<void>;
+    cancelBatch: () => void;
+    resetBatch: () => void;
+  };
 }
 
 const props = defineProps<Props>();
@@ -217,6 +233,7 @@ const DEFAULT_RUNS_COUNT = 5;
 const DEFAULT_TEMPERATURE = 0.7;
 const SMALL_DELAY = 100;
 const HISTORY_SIZE = 3;
+const MAX_PROVIDERS = 5; // Maximum number of providers we support
 
 // Global configuration
 const runCount = ref(DEFAULT_RUNS_COUNT);
@@ -227,22 +244,23 @@ const providerConfigs = ref<QuickRunProviderConfig[]>([]);
 // Dialog state (needs to be reactive for v-model)
 const dialogOpen = ref(false);
 
-// Batch runners for each provider
-const batchRunners = ref<BatchRunnerWithProvider[]>([]);
+// Pre-create a pool of batch runners at setup level (required for Vue composables)
+const batchRunnerPool = Array.from({ length: MAX_PROVIDERS }, () => useBatchRunner());
+
+// Active batch runners mapped to provider configs
+const activeBatchRunners = ref<BatchRunnerWithProvider[]>([]);
 
 // Providers store
 const providersStore = useProvidersStore();
 
 // Computed properties
 const isRunning = computed(() =>
-  batchRunners.value.some(runner => runner.runner.state.isRunning)
+  activeBatchRunners.value.some(runner => runner.runner.state.isRunning)
 );
 
 const hasAnyResults = computed(() =>
-  batchRunners.value.some(runner => runner.runner.state.results.length > 0)
-);
-
-const canRun = computed(() => {
+  activeBatchRunners.value.some(runner => runner.runner.state.results.length > 0)
+);const canRun = computed(() => {
   return (
     providerConfigs.value.length > 0 &&
     providerConfigs.value.every(config =>
@@ -255,18 +273,30 @@ const canRun = computed(() => {
 });
 
 // Helper functions to safely extract computed values
-const getRunnerProgress = (runner: any): number => {
+const getRunnerProgress = (runner: { runner: { progress: unknown } }): number => {
   const progress = runner.runner.progress;
-  return typeof progress === 'object' && 'value' in progress ? progress.value : progress;
+  return typeof progress === 'object' && progress !== null && 'value' in progress ? (progress as { value: number }).value : progress as number;
 };
 
-const getRunnerStatistics = (runner: any): any => {
+const getRunnerStatistics = (runner: { runner: { statistics: unknown } }): { passedRuns: number; failedRuns: number; avgDuration: number; totalCost: number } => {
   const statistics = runner.runner.statistics;
-  return typeof statistics === 'object' && 'value' in statistics ? statistics.value : statistics;
+  const defaultStats = { passedRuns: 0, failedRuns: 0, avgDuration: 0, totalCost: 0 };
+
+  if (typeof statistics === 'object' && statistics !== null && 'value' in statistics) {
+    return (statistics as { value: typeof defaultStats }).value;
+  }
+
+  return statistics as typeof defaultStats || defaultStats;
 };
 
 // Provider configuration methods
 const addProvider = (): void => {
+  // Check if we've reached the maximum providers
+  if (providerConfigs.value.length >= MAX_PROVIDERS) {
+    console.warn(`Maximum of ${MAX_PROVIDERS} providers supported`);
+    return;
+  }
+
   const newId = `provider-${Date.now()}`;
   const newConfig: QuickRunProviderConfig = {
     id: newId,
@@ -280,28 +310,32 @@ const addProvider = (): void => {
 
   providerConfigs.value.push(newConfig);
 
-  // Create corresponding batch runner
-  const batchRunner = useBatchRunner();
-  batchRunners.value.push({
-    providerId: newId,
-    runner: batchRunner as any,
-  });
-};
+  // Use a batch runner from the pre-created pool
+  const batchRunner = batchRunnerPool[activeBatchRunners.value.length];
+  if (!batchRunner) {
+    console.error("No available batch runner in pool");
+    return;
+  }
 
-const removeProvider = (configId: string): void => {
+  activeBatchRunners.value.push({
+    providerId: newId,
+    runner: batchRunner as unknown as BatchRunnerWithProvider['runner'],
+  });
+};const removeProvider = (configId: string): void => {
   const configIndex = providerConfigs.value.findIndex(c => c.id === configId);
   if (configIndex !== -1) {
     providerConfigs.value.splice(configIndex, 1);
   }
 
-  const runnerIndex = batchRunners.value.findIndex(r => r.providerId === configId);
+  const runnerIndex = activeBatchRunners.value.findIndex(r => r.providerId === configId);
   if (runnerIndex !== -1) {
     // Cancel any running batch for this provider
-    const runner = batchRunners.value[runnerIndex];
+    const runner = activeBatchRunners.value[runnerIndex];
     if (runner) {
       runner.runner.cancelBatch();
+      runner.runner.resetBatch();
     }
-    batchRunners.value.splice(runnerIndex, 1);
+    activeBatchRunners.value.splice(runnerIndex, 1);
   }
 };
 
@@ -313,10 +347,10 @@ const updateProviderSelection = (configId: string, selection: ProviderSelection)
   }
 };
 
-const updateProviderConfig = (configId: string, field: keyof QuickRunProviderConfig, value: any): void => {
+const updateProviderConfig = (configId: string, field: keyof QuickRunProviderConfig, value: unknown): void => {
   const config = providerConfigs.value.find(c => c.id === configId);
   if (config) {
-    (config as any)[field] = value;
+    (config as Record<string, unknown>)[field] = value;
   }
 };
 
@@ -346,35 +380,33 @@ const getProviderStatusText = (isRunning: boolean, hasResults: boolean): string 
   return "Pending";
 };
 
-const getProviderRecentResults = (runner: any) => {
-  return runner.runner.state.results.slice(-HISTORY_SIZE).map((result: any) => ({
+const getProviderRecentResults = (runner: { runner: { state: { results: BatchRunResult[] } } }): Array<{ content: string }> => {
+  return runner.runner.state.results.slice(-HISTORY_SIZE).map((result: BatchRunResult) => ({
     content: result.response || result.error || "No content"
   }));
 };
 
 // Watch for completion across all providers
 watch(
-  () => batchRunners.value.map(r => r.runner.state.isRunning),
+  () => activeBatchRunners.value.map(r => r.runner.state.isRunning),
   (currentRunning, previousRunning) => {
     const wasAnyRunning = previousRunning?.some(Boolean) || false;
     const isAnyRunning = currentRunning.some(Boolean);
 
     if (wasAnyRunning && !isAnyRunning) {
       // All providers completed - collect all results
-      const allResults = batchRunners.value.flatMap(runner => runner.runner.state.results);
+      const allResults = activeBatchRunners.value.flatMap(runner => runner.runner.state.results);
       emit("completed", allResults);
     }
   },
   { deep: true }
-);
-
-// Action handlers
+);// Action handlers
 const startRun = async (): Promise<void> => {
   if (!canRun.value || !props.testCase) return;
 
   // Create batch configurations for each provider
   const batchPromises = providerConfigs.value.map(async (config, index) => {
-    const runner = batchRunners.value[index];
+    const runner = activeBatchRunners.value[index];
     if (!runner) return;
 
     const batchConfig: BatchRunConfig = {
@@ -402,7 +434,7 @@ const startRun = async (): Promise<void> => {
 };
 
 const cancelRun = (): void => {
-  batchRunners.value.forEach(runner => {
+  activeBatchRunners.value.forEach(runner => {
     runner.runner.cancelBatch();
   });
 };
@@ -422,17 +454,18 @@ watch(
     if (isOpen) {
       // Reset configuration
       providerConfigs.value = [];
-      batchRunners.value = [];
+      activeBatchRunners.value = [];
       runCount.value = DEFAULT_RUNS_COUNT;
+
+      // Reset all batch runners
+      batchRunnerPool.forEach(runner => runner.resetBatch());
 
       // Add initial provider
       addProvider();
     }
   },
   { immediate: true }
-);
-
-// Sync dialog close with parent
+);// Sync dialog close with parent
 watch(
   () => dialogOpen.value,
   (isOpen) => {

@@ -177,7 +177,8 @@
     "yes": "Yes",
     "no": "No",
     "backToTests": "Back to Tests",
-    "tryAgain": "Try Again"
+    "tryAgain": "Try Again",
+    "remove": "Remove"
   },
   "rules": {
     "title": "Validation Rules",
