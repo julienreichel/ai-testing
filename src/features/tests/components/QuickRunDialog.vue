@@ -110,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 // Vue i18n translations available via $t in template
 import {
   useBatchRunner,
@@ -118,6 +118,7 @@ import {
   type BatchRunResult,
 } from "../../../composables/useBatchRunner";
 import type { TestCase } from "../../../types/testManagement";
+import { useProvidersStore } from "../../../store/providers";
 import {
   BaseDialog,
   BaseButton,
@@ -165,6 +166,9 @@ const dialogOpen = ref(false);
 // Batch runner composable
 const batchRunner = useBatchRunner();
 
+// Providers store
+const providersStore = useProvidersStore();
+
 // Computed properties
 const isRunning = computed(() => batchRunner.state.isRunning);
 
@@ -182,8 +186,8 @@ const completedRuns = computed(() => batchRunner.state.completedRuns);
 const progressPercentage = computed(() => batchRunner.progress.value);
 
 const recentResults = computed(() =>
-  batchRunner.state.results.slice(-3).map(result => ({ 
-    content: result.response || result.error || "No content" 
+  batchRunner.state.results.slice(-3).map(result => ({
+    content: result.response || result.error || "No content"
   }))
 );
 
@@ -260,6 +264,11 @@ watch(
     }
   }
 );
+
+// Initialize providers store on component mount
+onMounted(() => {
+  providersStore.initialize();
+});
 </script>
 
 <style scoped>
