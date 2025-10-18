@@ -118,7 +118,12 @@
   },
   "tests": {
     "title": "Test Cases",
-    "description": "Manage your test cases"
+    "description": "Manage your test cases",
+    "unableToLoad": "Unable to Load Tests",
+    "noProjectsYet": "No Projects Yet",
+    "createFirstProject": "Create your first project to start organizing your test cases.",
+    "noTestCasesYet": "No Test Cases Yet",
+    "createTestCasesFromEditor": "Create test cases by saving prompts from the Editor."
   },
   "runs": {
     "title": "Test Runs",
@@ -170,7 +175,9 @@
     "viewDetails": "View Details",
     "close": "Close",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "backToTests": "Back to Tests",
+    "tryAgain": "Try Again"
   },
   "rules": {
     "title": "Validation Rules",
@@ -287,6 +294,11 @@
     "deleteTestCase": "Delete Test Case",
     "deleteProjectConfirmation": "Are you sure you want to delete \"{projectName}\"? This will also delete all test cases in this project.",
     "deleteTestCaseConfirmation": "Are you sure you want to delete \"{testCaseName}\"? This action cannot be undone.",
+    "openInEditor": "Open in Editor",
+    "prompt": "Prompt",
+    "ruleSet": "Rule Set {number}",
+    "runs": "runs",
+    "rules": "rules",
     "promptPreview": "Prompt Preview",
     "validationRules": "Validation Rules",
     "rulesCount": "{count} validation rules configured",
