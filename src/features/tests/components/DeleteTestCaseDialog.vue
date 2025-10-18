@@ -61,7 +61,7 @@ const isVisible = computed({
 });
 
 // Handlers
-const handleDelete = async (): Promise<void> => {
+const handleDelete = (): void => {
   if (!props.testCase) return;
 
   isLoading.value = true;

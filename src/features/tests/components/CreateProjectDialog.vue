@@ -69,7 +69,7 @@ const isVisible = computed({
 });
 
 // Form handlers
-const handleCreate = async (): Promise<void> => {
+const handleCreate = (): void => {
   if (!projectName.value.trim()) return;
 
   isLoading.value = true;
