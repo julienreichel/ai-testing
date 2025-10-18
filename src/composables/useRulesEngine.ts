@@ -49,6 +49,138 @@ function normalizeText(
 }
 
 /**
+ * Helper function to normalize text for string comparisons
+ */
+function normalizeTextForComparison(
+  text: string,
+  caseSensitive: boolean,
+  respectPunctuation: boolean,
+): string {
+  return normalizeText(text, caseSensitive, respectPunctuation);
+}
+
+/**
+ * Creates a RuleResult object for string rule validation
+ */
+function createStringRuleResult({
+  rule,
+  input,
+  pass,
+  passMessage,
+  failMessage,
+}: {
+  rule: StringRule;
+  input: string;
+  pass: boolean;
+  passMessage: string;
+  failMessage: string;
+}): RuleResult {
+  return {
+    ruleId: rule.id,
+    pass,
+    message: pass ? passMessage : failMessage,
+    actualValue: input,
+    expectedValue: rule.value,
+  };
+}
+
+/**
+ * Validates equals string rule
+ */
+function validateEqualsRule(
+  rule: StringRule,
+  input: string,
+  t: (key: string, params?: Record<string, unknown>) => string,
+): RuleResult {
+  const caseSensitive = rule.caseSensitive ?? false;
+  const respectPunctuation = rule.respectPunctuation ?? false;
+
+  const normalizedInput = normalizeTextForComparison(input, caseSensitive, respectPunctuation);
+  const normalizedTarget = normalizeTextForComparison(rule.value, caseSensitive, respectPunctuation);
+  const pass = normalizedInput === normalizedTarget;
+
+  return createStringRuleResult({
+    rule,
+    input,
+    pass,
+    passMessage: t("rules.validation.equals.pass", { value: rule.value }),
+    failMessage: t("rules.validation.equals.fail", { expected: rule.value, actual: input }),
+  });
+}
+
+/**
+ * Validates contains string rule
+ */
+function validateContainsRule(
+  rule: StringRule,
+  input: string,
+  t: (key: string, params?: Record<string, unknown>) => string,
+): RuleResult {
+  const caseSensitive = rule.caseSensitive ?? false;
+  const respectPunctuation = rule.respectPunctuation ?? false;
+
+  const normalizedInput = normalizeTextForComparison(input, caseSensitive, respectPunctuation);
+  const normalizedTarget = normalizeTextForComparison(rule.value, caseSensitive, respectPunctuation);
+  const pass = normalizedInput.includes(normalizedTarget);
+
+  return createStringRuleResult({
+    rule,
+    input,
+    pass,
+    passMessage: t("rules.validation.contains.pass", { value: rule.value }),
+    failMessage: t("rules.validation.contains.fail", { value: rule.value }),
+  });
+}
+
+/**
+ * Validates startsWith string rule
+ */
+function validateStartsWithRule(
+  rule: StringRule,
+  input: string,
+  t: (key: string, params?: Record<string, unknown>) => string,
+): RuleResult {
+  const caseSensitive = rule.caseSensitive ?? false;
+  const respectPunctuation = rule.respectPunctuation ?? false;
+
+  const normalizedInput = normalizeTextForComparison(input, caseSensitive, respectPunctuation);
+  const normalizedTarget = normalizeTextForComparison(rule.value, caseSensitive, respectPunctuation);
+  const pass = normalizedInput.startsWith(normalizedTarget);
+
+  return createStringRuleResult({
+    rule,
+    input,
+    pass,
+    passMessage: t("rules.validation.startsWith.pass", { value: rule.value }),
+    failMessage: t("rules.validation.startsWith.fail", { value: rule.value }),
+  });
+}
+
+/**
+ * Validates endsWith string rule
+ */
+function validateEndsWithRule(
+  rule: StringRule,
+  input: string,
+  t: (key: string, params?: Record<string, unknown>) => string,
+): RuleResult {
+  const caseSensitive = rule.caseSensitive ?? false;
+  const respectPunctuation = rule.respectPunctuation ?? false;
+
+  const normalizedInput = normalizeTextForComparison(input, caseSensitive, respectPunctuation);
+  const normalizedTarget = normalizeTextForComparison(rule.value, caseSensitive, respectPunctuation);
+  const pass = normalizedInput.endsWith(normalizedTarget);
+
+  return createStringRuleResult({
+    rule,
+    input,
+    pass,
+    passMessage: t("rules.validation.endsWith.pass", { value: rule.value }),
+    failMessage: t("rules.validation.endsWith.fail", { value: rule.value }),
+  });
+}
+
+/**
  * String rule validation helper
  */
 function createStringRuleValidator(
@@ -60,113 +192,10 @@ function createStringRuleValidator(
   endsWith: (rule: StringRule, input: string) => RuleResult;
 } {
   return {
-    equals: (rule: StringRule, input: string): RuleResult => {
-      const caseSensitive = rule.caseSensitive ?? false;
-      const respectPunctuation = rule.respectPunctuation ?? false;
-
-      const normalizedInput = normalizeText(
-        input,
-        caseSensitive,
-        respectPunctuation,
-      );
-      const normalizedTarget = normalizeText(
-        rule.value,
-        caseSensitive,
-        respectPunctuation,
-      );
-      const pass = normalizedInput === normalizedTarget;
-
-      return {
-        ruleId: rule.id,
-        pass,
-        message: pass
-          ? t("rules.validation.equals.pass", { value: rule.value })
-          : t("rules.validation.equals.fail", {
-              expected: rule.value,
-              actual: input,
-            }),
-        actualValue: input,
-        expectedValue: rule.value,
-      };
-    },
-    contains: (rule: StringRule, input: string): RuleResult => {
-      const caseSensitive = rule.caseSensitive ?? false;
-      const respectPunctuation = rule.respectPunctuation ?? false;
-
-      const normalizedInput = normalizeText(
-        input,
-        caseSensitive,
-        respectPunctuation,
-      );
-      const normalizedTarget = normalizeText(
-        rule.value,
-        caseSensitive,
-        respectPunctuation,
-      );
-      const pass = normalizedInput.includes(normalizedTarget);
-
-      return {
-        ruleId: rule.id,
-        pass,
-        message: pass
-          ? t("rules.validation.contains.pass", { value: rule.value })
-          : t("rules.validation.contains.fail", { value: rule.value }),
-        actualValue: input,
-        expectedValue: rule.value,
-      };
-    },
-    startsWith: (rule: StringRule, input: string): RuleResult => {
-      const caseSensitive = rule.caseSensitive ?? false;
-      const respectPunctuation = rule.respectPunctuation ?? false;
-
-      const normalizedInput = normalizeText(
-        input,
-        caseSensitive,
-        respectPunctuation,
-      );
-      const normalizedTarget = normalizeText(
-        rule.value,
-        caseSensitive,
-        respectPunctuation,
-      );
-      const pass = normalizedInput.startsWith(normalizedTarget);
-
-      return {
-        ruleId: rule.id,
-        pass,
-        message: pass
-          ? t("rules.validation.startsWith.pass", { value: rule.value })
-          : t("rules.validation.startsWith.fail", { value: rule.value }),
-        actualValue: input,
-        expectedValue: rule.value,
-      };
-    },
-    endsWith: (rule: StringRule, input: string): RuleResult => {
-      const caseSensitive = rule.caseSensitive ?? false;
-      const respectPunctuation = rule.respectPunctuation ?? false;
-
-      const normalizedInput = normalizeText(
-        input,
-        caseSensitive,
-        respectPunctuation,
-      );
-      const normalizedTarget = normalizeText(
-        rule.value,
-        caseSensitive,
-        respectPunctuation,
-      );
-      const pass = normalizedInput.endsWith(normalizedTarget);
-
-      return {
-        ruleId: rule.id,
-        pass,
-        message: pass
-          ? t("rules.validation.endsWith.pass", { value: rule.value })
-          : t("rules.validation.endsWith.fail", { value: rule.value }),
-        actualValue: input,
-        expectedValue: rule.value,
-      };
-    },
+    equals: (rule: StringRule, input: string): RuleResult => validateEqualsRule(rule, input, t),
+    contains: (rule: StringRule, input: string): RuleResult => validateContainsRule(rule, input, t),
+    startsWith: (rule: StringRule, input: string): RuleResult => validateStartsWithRule(rule, input, t),
+    endsWith: (rule: StringRule, input: string): RuleResult => validateEndsWithRule(rule, input, t),
   };
 }
 

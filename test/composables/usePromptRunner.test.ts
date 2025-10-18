@@ -491,7 +491,7 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
 
     it("should handle errors in repeated runs without stopping others", async () => {
       let callCount = 0;
-      mockProvider.call.mockImplementation(async () => {
+      mockProvider.call.mockImplementation(() => {
         callCount++;
         if (callCount === 2) {
           throw new Error("Simulated API error");
@@ -527,6 +527,7 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
     });
 
     it("should allow user to cancel repeated runs", async () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       let callCount = 0;
       const mockResponse: ProviderResponse = {
         content: "Cancellation test",
