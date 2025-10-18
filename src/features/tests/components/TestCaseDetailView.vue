@@ -17,6 +17,9 @@
         <div class="detail-title">
           <h2>{{ testCase.name }}</h2>
           <div class="detail-actions">
+            <base-button variant="primary" @click="handleQuickRun">
+              {{ $t("testManagement.quickRun") }}
+            </base-button>
             <base-button variant="outline" @click="handleOpenInEditor">
               {{ $t("testManagement.openInEditor") }}
             </base-button>
@@ -85,6 +88,7 @@ interface Props {
 
 interface Emits {
   (e: "back"): void;
+  (e: "quickRun", testCase: TestCase): void;
   (e: "openInEditor", testCase: TestCase): void;
   (e: "delete", testCase: TestCase): void;
 }
@@ -115,6 +119,10 @@ const formatRuleDetails = (rule: Rule): string => {
 // Event handlers
 const handleBack = (): void => {
   emit("back");
+};
+
+const handleQuickRun = (): void => {
+  emit("quickRun", props.testCase);
 };
 
 const handleOpenInEditor = (): void => {

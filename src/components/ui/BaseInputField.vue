@@ -219,7 +219,7 @@ const handleFocus = (event: Event): void => {
 }
 
 .input-md {
-  padding: 0.625rem 0.875rem;
+  padding: 0.625rem 0.625rem;
   font-size: 0.875rem;
 }
 

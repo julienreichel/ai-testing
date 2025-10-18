@@ -294,6 +294,7 @@
     "deleteTestCase": "Delete Test Case",
     "deleteProjectConfirmation": "Are you sure you want to delete \"{projectName}\"? This will also delete all test cases in this project.",
     "deleteTestCaseConfirmation": "Are you sure you want to delete \"{testCaseName}\"? This action cannot be undone.",
+    "quickRun": "Quick Run",
     "openInEditor": "Open in Editor",
     "prompt": "Prompt",
     "ruleSet": "Rule Set {number}",
@@ -304,6 +305,25 @@
     "rulesCount": "{count} validation rules configured",
     "updateTestCase": "Update Test Case",
     "saveAsNewTestCase": "Save as New Test Case"
+  },
+  "quickRun": {
+    "title": "Quick Run",
+    "configuration": "Configuration",
+    "numberOfRuns": "Number of Runs",
+    "enableParallel": "Enable Parallel Execution",
+    "concurrency": "Concurrency",
+    "progress": "Progress",
+    "completedRuns": "Completed Runs",
+    "latestResults": "Latest Results",
+    "startRun": "Start Run",
+    "cancelRun": "Cancel Run",
+    "status": {
+      "idle": "Ready",
+      "running": "Running",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "failed": "Failed"
+    }
   },
   "batch": {
     "runner": {

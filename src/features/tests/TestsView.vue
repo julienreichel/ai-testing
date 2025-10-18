@@ -24,6 +24,7 @@
       v-if="selectedTestCase"
       :test-case="selectedTestCase"
       @back="selectedTestCase = null"
+      @quick-run="handleQuickRun"
       @open-in-editor="openTestCaseInEditor"
       @delete="confirmDeleteTestCase"
     />
@@ -63,6 +64,14 @@
       :test-case="testCaseToDelete"
       @delete="handleDeleteTestCase"
     />
+
+    <!-- Quick Run Dialog -->
+    <quick-run-dialog
+      :is-open="showRunQuick"
+      :test-case="testCaseForQuickRun"
+      @close="showRunQuick = false"
+      @completed="handleQuickRunCompleted"
+    />
   </div>
 </template>
 
@@ -79,6 +88,7 @@ import {
   DeleteTestCaseDialog,
   TestCaseDetailView,
   ProjectsTestCasesList,
+  QuickRunDialog,
 } from "./components";
 import type { Project, TestCase } from "../../types/testManagement";
 
@@ -91,6 +101,8 @@ const selectedTestCase = ref<TestCase | null>(null);
 const showCreateProject = ref(false);
 const showDeleteProjectDialog = ref(false);
 const showDeleteTestCaseDialog = ref(false);
+const showRunQuick = ref(false);
+const testCaseForQuickRun = ref<TestCase | null>(null);
 const projectToDelete = ref<Project | null>(null);
 const testCaseToDelete = ref<TestCase | null>(null);
 
@@ -130,6 +142,18 @@ const openTestCaseInEditor = (testCase?: TestCase): void => {
       testCaseId: targetTestCase.id,
     },
   });
+};
+
+const handleQuickRun = (testCase: TestCase): void => {
+  testCaseForQuickRun.value = testCase;
+  showRunQuick.value = true;
+};
+
+const handleQuickRunCompleted = (results: unknown): void => {
+  // TODO: Handle persistence of quick run results
+  console.log("Quick run completed with results:", results);
+  showRunQuick.value = false;
+  testCaseForQuickRun.value = null;
 };
 
 // Project management
