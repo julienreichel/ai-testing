@@ -71,9 +71,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useTestManagement } from "../../composables/useTestManagement";
 import { testDB } from "../../services/testManagementDatabase";
-import {
-  BaseButton,
-} from "../../components/ui";
+import { BaseButton } from "../../components/ui";
 import {
   TestExportImport,
   CreateProjectDialog,
@@ -99,7 +97,8 @@ const testCaseToDelete = ref<TestCase | null>(null);
 // Component refs for controlling dialog state
 const createProjectDialogRef = ref<InstanceType<typeof CreateProjectDialog>>();
 const deleteProjectDialogRef = ref<InstanceType<typeof DeleteProjectDialog>>();
-const deleteTestCaseDialogRef = ref<InstanceType<typeof DeleteTestCaseDialog>>();
+const deleteTestCaseDialogRef =
+  ref<InstanceType<typeof DeleteTestCaseDialog>>();
 
 // Test management state
 const { projects, isLoading, error } = testManager;
@@ -134,7 +133,10 @@ const openTestCaseInEditor = (testCase?: TestCase): void => {
 };
 
 // Project management
-const handleCreateProject = async (data: { name: string; description?: string }): Promise<void> => {
+const handleCreateProject = async (data: {
+  name: string;
+  description?: string;
+}): Promise<void> => {
   try {
     createProjectDialogRef.value?.setLoading(true);
     await testManager.createProject(data);
@@ -296,8 +298,4 @@ onMounted(async () => {
   gap: 1rem;
   flex-shrink: 0;
 }
-
-
-
-
 </style>

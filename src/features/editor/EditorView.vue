@@ -55,7 +55,10 @@
           <base-button
             variant="primary"
             :disabled="!canRunPrompt"
-            :loading="promptRunner.state.value.isRunning || promptRunner.state.value.isRunningRepeated"
+            :loading="
+              promptRunner.state.value.isRunning ||
+              promptRunner.state.value.isRunningRepeated
+            "
             @click="runPrompt"
           >
             {{ $t("promptEditor.runOnce") }}

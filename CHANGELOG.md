@@ -10,24 +10,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🚀 Major Features
 
 #### 📊 Batch Run History Management
+
 - **Column Sorting**: Interactive sorting for all batch run columns (Test Name, Provider, Pass Rate, Cost, Date)
 - **Visual Sort Indicators**: Clear up/down arrows showing current sort direction and active column
 - **Persistent Sort State**: Sort preferences maintained across interactions
 - **Comprehensive Test Coverage**: Full test suite ensuring reliable sorting functionality
 
 #### 💾 Enhanced CSV Export System
+
 - **RFC 4180 Compliance**: Proper CSV formatting with correct escaping for commas, quotes, and newlines
 - **Multi-line Response Support**: Handles AI responses with complex formatting and special characters
 - **DRY Implementation**: Centralized CSV export functionality in reusable `useCsvExport` composable
 - **UTF-8 BOM Support**: Ensures proper character encoding for international text
 
 #### ⚙️ User-Configurable Max Tokens
+
 - **Single Run Configuration**: Adjustable max tokens for individual AI requests
 - **Batch Run Support**: Same max token controls available for batch operations
 - **Model Configuration Section**: Clean UI organization with temperature and max tokens controls
 - **Provider Integration**: Seamless integration with all AI providers
 
 #### 🎯 Rule Editor UX Improvements
+
 - **Consistent Logic**: Both checkboxes follow positive logic pattern (checked = stricter rules)
 - **Case Sensitivity Control**: Toggle for case-sensitive text matching
 - **Punctuation & Spacing Control**: Option to make punctuation and spacing matter in comparisons
@@ -37,12 +41,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🐛 Bug Fixes
 
 #### 🔧 Development & Tooling
+
 - **Tooltip Positioning**: Fixed tooltip position and size calculations for better visual placement
 - **TypeScript Compliance**: Resolved linter type errors across the codebase
 - **i18n Configuration**: Fixed i18n-ally extension warnings and missing translation keys
 - **Input Field Validation**: Restored missing form inputs in edit dialogs
 
 #### 📱 UI/UX Improvements
+
 - **Component Consistency**: Enhanced CustomTooltip component with proper positioning
 - **Translation Coverage**: Added missing translation keys and improved i18n coverage
 - **Form Validation**: Improved input field validation and error handling
@@ -50,21 +56,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🔄 Breaking Changes
 
 #### Rule Editor Behavior
+
 - **Default Values**: Rule validation options now default to unchecked (more flexible matching)
 - **Property Rename**: `ignorePunctuation` renamed to `respectPunctuation` for clarity
 - **Validation Logic**: Inverted punctuation handling logic to match positive checkbox pattern
 
-*Note: Rules created before this update may behave differently due to changed defaults*
+_Note: Rules created before this update may behave differently due to changed defaults_
 
 ### 🛠️ Technical Improvements
 
 #### Testing & Quality
+
 - **Boston School Testing**: Comprehensive behavior-driven test suite focusing on user experience
 - **Test Coverage**: Added 6+ new test cases for sorting functionality and rule options
 - **Type Safety**: Enhanced TypeScript types throughout the rules system
 - **Build Optimization**: Improved build performance and reduced bundle size
 
 #### Code Quality
+
 - **DRY Principles**: Eliminated code duplication in CSV export functionality
 - **Clean Architecture**: Consistent component organization and separation of concerns
 - **Error Handling**: Improved error states and user feedback mechanisms

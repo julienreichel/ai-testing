@@ -455,10 +455,12 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
       };
 
       // Mock with delay to observe progress updates
-      mockProvider.call.mockImplementation(async (): Promise<ProviderResponse> => {
-        await new Promise(resolve => setTimeout(resolve, 10));
-        return mockResponse;
-      });
+      mockProvider.call.mockImplementation(
+        async (): Promise<ProviderResponse> => {
+          await new Promise((resolve) => setTimeout(resolve, 10));
+          return mockResponse;
+        },
+      );
 
       const { runRepeated, state } = usePromptRunner();
       const progressUpdates: number[] = [];
@@ -540,11 +542,13 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
       };
 
       // Mock with longer delay and tracking to allow cancellation
-      mockProvider.call.mockImplementation(async (): Promise<ProviderResponse> => {
-        callCount++;
-        await new Promise(resolve => setTimeout(resolve, 100)); // Longer delay
-        return mockResponse;
-      });
+      mockProvider.call.mockImplementation(
+        async (): Promise<ProviderResponse> => {
+          callCount++;
+          await new Promise((resolve) => setTimeout(resolve, 100)); // Longer delay
+          return mockResponse;
+        },
+      );
 
       const { runRepeated, cancelRun, state } = usePromptRunner();
 
@@ -568,7 +572,8 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
       // With cancellation, should have fewer completed runs than total requested
       expect(state.value.completedRuns).toBeLessThanOrEqual(8);
       // At least some runs should have been cancelled
-      const totalResults = state.value.repeatedResults.length + state.value.repeatedErrors.length;
+      const totalResults =
+        state.value.repeatedResults.length + state.value.repeatedErrors.length;
       expect(totalResults).toBeLessThanOrEqual(8);
     });
 
@@ -577,28 +582,30 @@ describe("usePromptRunner - User Prompt Execution Behavior", () => {
       let maxConcurrentCalls = 0;
       let currentCalls = 0;
 
-      mockProvider.call.mockImplementation(async (): Promise<ProviderResponse> => {
-        currentCalls++;
-        concurrentCalls.add(currentCalls);
-        maxConcurrentCalls = Math.max(maxConcurrentCalls, currentCalls);
+      mockProvider.call.mockImplementation(
+        async (): Promise<ProviderResponse> => {
+          currentCalls++;
+          concurrentCalls.add(currentCalls);
+          maxConcurrentCalls = Math.max(maxConcurrentCalls, currentCalls);
 
-        await new Promise(resolve => setTimeout(resolve, 20));
+          await new Promise((resolve) => setTimeout(resolve, 20));
 
-        currentCalls--;
+          currentCalls--;
 
-        return {
-          content: "Concurrency test",
-          model: "test-model",
-          usage: { inputTokens: 5, outputTokens: 10, totalTokens: 15 },
-          cost: { inputCost: 0.001, outputCost: 0.001, totalCost: 0.002 },
-          metadata: {
-            latency: 20,
-            requestId: "conc-456",
-            provider: "test-provider",
-            timestamp: new Date(),
-          },
-        };
-      });
+          return {
+            content: "Concurrency test",
+            model: "test-model",
+            usage: { inputTokens: 5, outputTokens: 10, totalTokens: 15 },
+            cost: { inputCost: 0.001, outputCost: 0.001, totalCost: 0.002 },
+            metadata: {
+              latency: 20,
+              requestId: "conc-456",
+              provider: "test-provider",
+              timestamp: new Date(),
+            },
+          };
+        },
+      );
 
       const { runRepeated, state } = usePromptRunner();
 

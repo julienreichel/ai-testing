@@ -6,7 +6,11 @@
   >
     <div>
       <p v-if="testCase">
-        {{ $t("testManagement.deleteTestCaseConfirmation", { testCaseName: testCase.name }) }}
+        {{
+          $t("testManagement.deleteTestCaseConfirmation", {
+            testCaseName: testCase.name,
+          })
+        }}
       </p>
 
       <div class="dialog-actions">

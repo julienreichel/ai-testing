@@ -45,9 +45,7 @@
           <div
             class="project-header"
             :class="{ clickable: projects.length > 1 }"
-            @click="
-              projects.length > 1 ? toggleProject(project.id) : undefined
-            "
+            @click="projects.length > 1 ? toggleProject(project.id) : undefined"
           >
             <div class="project-main">
               <div class="project-toggle" v-if="projects.length > 1">
@@ -63,11 +61,11 @@
                 <p v-if="project.description">{{ project.description }}</p>
                 <div class="project-stats">
                   <span class="stat">
-                    {{ getProjectTestCases(project.id).length }} 
+                    {{ getProjectTestCases(project.id).length }}
                     {{ $t("testManagement.testCases") }}
                   </span>
                   <span class="stat">
-                    {{ getProjectTotalRuns(project.id) }} 
+                    {{ getProjectTotalRuns(project.id) }}
                     {{ $t("testManagement.runs") }}
                   </span>
                 </div>
@@ -109,7 +107,7 @@
                 <div class="test-case-main-info">
                   <h4 class="test-case-name">{{ testCase.name }}</h4>
                   <span class="run-count">
-                    {{ testCaseBatchRuns.get(testCase.id) || 0 }} 
+                    {{ testCaseBatchRuns.get(testCase.id) || 0 }}
                     {{ $t("testManagement.runs") }}
                   </span>
                 </div>
@@ -121,14 +119,14 @@
                   truncateText(testCase.prompt, 120)
                 }}</span>
                 <span v-if="testCase.rules?.length" class="test-case-rules">
-                  {{ getTotalRulesCount(testCase.rules) }} 
+                  {{ getTotalRulesCount(testCase.rules) }}
                   {{ $t("testManagement.rules") }}
                 </span>
               </div>
             </div>
           </base-card>
         </div>
-        
+
         <!-- Empty Project State -->
         <base-empty-state
           v-if="
@@ -148,7 +146,12 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { BaseButton, BaseSpinner, BaseCard, BaseEmptyState } from "../../../components/ui";
+import {
+  BaseButton,
+  BaseSpinner,
+  BaseCard,
+  BaseEmptyState,
+} from "../../../components/ui";
 import type { Rule } from "../../../types/rules";
 import type { Project, TestCase } from "../../../types/testManagement";
 
@@ -223,9 +226,13 @@ const initializeProjectExpansion = (): void => {
 };
 
 // Watch for projects changes to reinitialize expansion
-watch(() => props.projects, () => {
-  initializeProjectExpansion();
-}, { immediate: true });
+watch(
+  () => props.projects,
+  () => {
+    initializeProjectExpansion();
+  },
+  { immediate: true },
+);
 
 // Event handlers
 const handleSelectTestCase = (testCase: TestCase): void => {

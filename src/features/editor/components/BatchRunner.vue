@@ -92,15 +92,22 @@
 
       <!-- Execution Mode Info Panel -->
       <div class="config-info">
-        <div v-if="config.allowParallel && config.runCount > 1" class="info-panel parallel">
+        <div
+          v-if="config.allowParallel && config.runCount > 1"
+          class="info-panel parallel"
+        >
           <span class="info-icon">⚡</span>
           <div class="info-content">
-            <div class="info-title">{{ $t("promptEditor.parallelExecution") }}</div>
+            <div class="info-title">
+              {{ $t("promptEditor.parallelExecution") }}
+            </div>
             <div class="info-text">
-              {{ $t("promptEditor.parallelInfo", {
-                runs: config.runCount,
-                concurrency: config.parallelConcurrency
-              }) }}
+              {{
+                $t("promptEditor.parallelInfo", {
+                  runs: config.runCount,
+                  concurrency: config.parallelConcurrency,
+                })
+              }}
             </div>
           </div>
         </div>
@@ -108,12 +115,16 @@
         <div v-else-if="config.runCount > 1" class="info-panel sequential">
           <span class="info-icon">📋</span>
           <div class="info-content">
-            <div class="info-title">{{ $t("promptEditor.sequentialExecution") }}</div>
+            <div class="info-title">
+              {{ $t("promptEditor.sequentialExecution") }}
+            </div>
             <div class="info-text">
-              {{ $t("promptEditor.sequentialInfo", {
-                runs: config.runCount,
-                delay: config.delayMs
-              }) }}
+              {{
+                $t("promptEditor.sequentialInfo", {
+                  runs: config.runCount,
+                  delay: config.delayMs,
+                })
+              }}
             </div>
           </div>
         </div>
@@ -264,10 +275,12 @@ const emit = defineEmits<Emits>();
 const batchRunner = useBatchRunner();
 
 // Configuration state
-const config = ref<Omit<BatchRunConfig, "testCase" | "providerId" | "model"> & {
-  allowParallel: boolean;
-  parallelConcurrency: number;
-}>({
+const config = ref<
+  Omit<BatchRunConfig, "testCase" | "providerId" | "model"> & {
+    allowParallel: boolean;
+    parallelConcurrency: number;
+  }
+>({
   runCount: 10,
   maxRetries: 2,
   delayMs: 100,
@@ -386,7 +399,7 @@ watch(
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  align-items: start;
+  align-items: end;
 }
 
 .config-field {

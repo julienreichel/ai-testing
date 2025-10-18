@@ -41,11 +41,20 @@
 
       <div class="result-content">
         <div class="loading-placeholder">
-          <p>{{ $t("promptEditor.pleaseWaitMultiple", { completed: completedRuns || 0, total: totalRuns || 0 }) }}</p>
+          <p>
+            {{
+              $t("promptEditor.pleaseWaitMultiple", {
+                completed: completedRuns || 0,
+                total: totalRuns || 0,
+              })
+            }}
+          </p>
           <div class="progress-bar">
             <div
               class="progress-fill"
-              :style="{ width: `${((completedRuns || 0) / (totalRuns || 1)) * 100}%` }"
+              :style="{
+                width: `${((completedRuns || 0) / (totalRuns || 1)) * 100}%`,
+              }"
             ></div>
           </div>
         </div>
@@ -176,12 +185,22 @@
     </div>
 
     <!-- Multiple Results Display -->
-    <div v-else-if="repeatedResults && repeatedResults.length > 0" class="result-state multi-results">
+    <div
+      v-else-if="repeatedResults && repeatedResults.length > 0"
+      class="result-state multi-results"
+    >
       <div class="result-header">
         <div class="header-left">
-          <span class="response-label">{{ $t("promptEditor.multipleResults") }}</span>
-          <span class="results-count">{{ repeatedResults.length }} results</span>
-          <span v-if="repeatedErrors && repeatedErrors.length > 0" class="error-count">
+          <span class="response-label">{{
+            $t("promptEditor.multipleResults")
+          }}</span>
+          <span class="results-count"
+            >{{ repeatedResults.length }} results</span
+          >
+          <span
+            v-if="repeatedErrors && repeatedErrors.length > 0"
+            class="error-count"
+          >
             ({{ repeatedErrors.length }} errors)
           </span>
         </div>
@@ -205,36 +224,67 @@
           <div class="summary-stats">
             <div class="stat">
               <span class="stat-label">Success Rate:</span>
-              <span class="stat-value">{{ Math.round((repeatedResults.length / ((repeatedResults.length || 0) + (repeatedErrors?.length || 0))) * 100) }}%</span>
+              <span class="stat-value"
+                >{{
+                  Math.round(
+                    (repeatedResults.length /
+                      ((repeatedResults.length || 0) +
+                        (repeatedErrors?.length || 0))) *
+                      100,
+                  )
+                }}%</span
+              >
             </div>
             <div class="stat">
               <span class="stat-label">Avg Latency:</span>
-              <span class="stat-value">{{ formatAverageLatency(repeatedResults) }}ms</span>
+              <span class="stat-value"
+                >{{ formatAverageLatency(repeatedResults) }}ms</span
+              >
             </div>
             <div class="stat">
               <span class="stat-label">Total Cost:</span>
-              <span class="stat-value">${{ formatTotalCost(repeatedResults) }}</span>
+              <span class="stat-value"
+                >${{ formatTotalCost(repeatedResults) }}</span
+              >
             </div>
           </div>
         </div>
 
         <!-- Individual Results -->
         <div class="individual-results">
-          <div v-for="(result, index) in repeatedResults" :key="`result-${index}`" class="result-item">
+          <div
+            v-for="(result, index) in repeatedResults"
+            :key="`result-${index}`"
+            class="result-item"
+          >
             <div class="result-item-header">
               <span class="result-index">Run {{ index + 1 }}</span>
-              <span class="result-latency">{{ formatLatency(result.metadata.latency) }}</span>
-              <span class="result-cost">${{ result.cost.totalCost.toFixed(4) }}</span>
+              <span class="result-latency">{{
+                formatLatency(result.metadata.latency)
+              }}</span>
+              <span class="result-cost"
+                >${{ result.cost.totalCost.toFixed(4) }}</span
+              >
             </div>
             <div class="result-item-content">
-              <pre>{{ result.content.substring(0, PREVIEW_LENGTH) }}{{ result.content.length > PREVIEW_LENGTH ? '...' : '' }}</pre>
+              <pre
+                >{{ result.content.substring(0, PREVIEW_LENGTH)
+                }}{{ result.content.length > PREVIEW_LENGTH ? "..." : "" }}</pre
+              >
             </div>
           </div>
 
           <!-- Error Results -->
-          <div v-if="repeatedErrors && repeatedErrors.length > 0" class="error-results">
+          <div
+            v-if="repeatedErrors && repeatedErrors.length > 0"
+            class="error-results"
+          >
             <h4>Errors ({{ repeatedErrors.length }})</h4>
-            <div v-for="(error, index) in repeatedErrors" :key="`error-${index}`" class="error-item">
+            <div
+              v-for="(error, index) in repeatedErrors"
+              :key="`error-${index}`"
+              class="error-item"
+            >
               <span class="error-text">{{ error }}</span>
             </div>
           </div>
@@ -297,13 +347,19 @@ const formatLatency = (latencyMs: number): string => {
 
 const formatAverageLatency = (results: ProviderResponse[]): string => {
   if (results.length === 0) return "0";
-  const totalLatency = results.reduce((sum, result) => sum + result.metadata.latency, 0);
+  const totalLatency = results.reduce(
+    (sum, result) => sum + result.metadata.latency,
+    0,
+  );
   const avgLatency = totalLatency / results.length;
   return Math.round(avgLatency).toString();
 };
 
 const formatTotalCost = (results: ProviderResponse[]): string => {
-  const totalCost = results.reduce((sum, result) => sum + result.cost.totalCost, 0);
+  const totalCost = results.reduce(
+    (sum, result) => sum + result.cost.totalCost,
+    0,
+  );
   return totalCost.toFixed(DECIMAL_PLACES);
 };
 </script>

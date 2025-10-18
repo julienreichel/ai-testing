@@ -1,12 +1,10 @@
 <template>
-  <base-dialog
-    v-model="isVisible"
-    title="Create New Project"
-    size="md"
-  >
+  <base-dialog v-model="isVisible" title="Create New Project" size="md">
     <div class="create-project-form">
       <div class="form-group">
-        <label for="projectName">{{ $t("testManagement.projectName") }} *</label>
+        <label for="projectName"
+          >{{ $t("testManagement.projectName") }} *</label
+        >
         <base-input-field
           id="projectName"
           v-model="projectName"
@@ -15,7 +13,9 @@
         />
       </div>
       <div class="form-group">
-        <label for="projectDescription">{{ $t("testManagement.projectDescription") }}</label>
+        <label for="projectDescription">{{
+          $t("testManagement.projectDescription")
+        }}</label>
         <base-input-field
           id="projectDescription"
           v-model="projectDescription"

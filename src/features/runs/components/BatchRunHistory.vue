@@ -86,7 +86,7 @@
                   :class="{ active: sortField === 'testName' }"
                 >
                   {{ $t("runs.table.testName") }}
-                  <span class="sort-icon">{{ getSortIcon('testName') }}</span>
+                  <span class="sort-icon">{{ getSortIcon("testName") }}</span>
                 </th>
                 <th
                   class="sortable-header"
@@ -94,7 +94,7 @@
                   :class="{ active: sortField === 'provider' }"
                 >
                   {{ $t("runs.table.provider") }}
-                  <span class="sort-icon">{{ getSortIcon('provider') }}</span>
+                  <span class="sort-icon">{{ getSortIcon("provider") }}</span>
                 </th>
                 <th
                   class="sortable-header"
@@ -102,7 +102,7 @@
                   :class="{ active: sortField === 'passRate' }"
                 >
                   {{ $t("runs.table.passRate") }}
-                  <span class="sort-icon">{{ getSortIcon('passRate') }}</span>
+                  <span class="sort-icon">{{ getSortIcon("passRate") }}</span>
                 </th>
                 <th
                   class="sortable-header"
@@ -110,7 +110,7 @@
                   :class="{ active: sortField === 'cost' }"
                 >
                   {{ $t("runs.table.cost") }}
-                  <span class="sort-icon">{{ getSortIcon('cost') }}</span>
+                  <span class="sort-icon">{{ getSortIcon("cost") }}</span>
                 </th>
                 <th
                   class="sortable-header"
@@ -118,7 +118,7 @@
                   :class="{ active: sortField === 'date' }"
                 >
                   {{ $t("runs.table.date") }}
-                  <span class="sort-icon">{{ getSortIcon('date') }}</span>
+                  <span class="sort-icon">{{ getSortIcon("date") }}</span>
                 </th>
                 <th>{{ $t("runs.table.actions") }}</th>
               </tr>
@@ -325,7 +325,9 @@ const sortBatchRuns = (runs: BatchRunSession[]): BatchRunSession[] => {
         comparison = getTestCaseName(a).localeCompare(getTestCaseName(b));
         break;
       case "provider":
-        comparison = getProviderName(a.providerId).localeCompare(getProviderName(b.providerId));
+        comparison = getProviderName(a.providerId).localeCompare(
+          getProviderName(b.providerId),
+        );
         break;
       case "passRate":
         comparison = a.statistics.passRate - b.statistics.passRate;
@@ -349,7 +351,8 @@ const handleSort = (field: SortField): void => {
   } else {
     // New field, default to desc for most fields, asc for testName/provider
     sortField.value = field;
-    sortDirection.value = (field === "testName" || field === "provider") ? "asc" : "desc";
+    sortDirection.value =
+      field === "testName" || field === "provider" ? "asc" : "desc";
   }
 };
 
@@ -694,7 +697,9 @@ onMounted(async () => {
 .sortable-header {
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
   position: relative;
 }
 

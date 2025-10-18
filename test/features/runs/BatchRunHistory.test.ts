@@ -11,8 +11,8 @@ describe("BatchRunHistory - Sorting Logic", () => {
       createdAt: new Date("2023-01-01"),
       statistics: {
         passRate: 0.8,
-        totalCost: 10.5
-      }
+        totalCost: 10.5,
+      },
     },
     {
       id: "run-2",
@@ -21,8 +21,8 @@ describe("BatchRunHistory - Sorting Logic", () => {
       createdAt: new Date("2023-01-02"),
       statistics: {
         passRate: 0.6,
-        totalCost: 8.2
-      }
+        totalCost: 8.2,
+      },
     },
     {
       id: "run-3",
@@ -31,13 +31,17 @@ describe("BatchRunHistory - Sorting Logic", () => {
       createdAt: new Date("2023-01-03"),
       statistics: {
         passRate: 0.9,
-        totalCost: 15.0
-      }
-    }
+        totalCost: 15.0,
+      },
+    },
   ];
 
   // Test sorting function implementation
-  function sortBatchRuns(runs: typeof mockBatchRuns, field: string, direction: "asc" | "desc") : typeof mockBatchRuns{
+  function sortBatchRuns(
+    runs: typeof mockBatchRuns,
+    field: string,
+    direction: "asc" | "desc",
+  ): typeof mockBatchRuns {
     return [...runs].sort((a, b) => {
       let aVal: string | number | Date;
       let bVal: string | number | Date;
@@ -116,12 +120,20 @@ describe("BatchRunHistory - Sorting Logic", () => {
 
   it("should sort by date chronologically", () => {
     const sortedAsc = sortBatchRuns(mockBatchRuns, "date", "asc");
-    expect(sortedAsc[0]!.createdAt.getTime()).toBe(new Date("2023-01-01").getTime());
-    expect(sortedAsc[2]!.createdAt.getTime()).toBe(new Date("2023-01-03").getTime());
+    expect(sortedAsc[0]!.createdAt.getTime()).toBe(
+      new Date("2023-01-01").getTime(),
+    );
+    expect(sortedAsc[2]!.createdAt.getTime()).toBe(
+      new Date("2023-01-03").getTime(),
+    );
 
     const sortedDesc = sortBatchRuns(mockBatchRuns, "date", "desc");
-    expect(sortedDesc[0]!.createdAt.getTime()).toBe(new Date("2023-01-03").getTime());
-    expect(sortedDesc[2]!.createdAt.getTime()).toBe(new Date("2023-01-01").getTime());
+    expect(sortedDesc[0]!.createdAt.getTime()).toBe(
+      new Date("2023-01-03").getTime(),
+    );
+    expect(sortedDesc[2]!.createdAt.getTime()).toBe(
+      new Date("2023-01-01").getTime(),
+    );
   });
 
   it("should handle unknown sort fields gracefully", () => {

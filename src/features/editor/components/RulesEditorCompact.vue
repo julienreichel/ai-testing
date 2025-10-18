@@ -106,17 +106,16 @@
           </div>
 
           <!-- Rule options for string and regex rules -->
-          <div
-            v-if="rule.type !== 'length'"
-            class="rule-options"
-          >
+          <div v-if="rule.type !== 'length'" class="rule-options">
             <label class="option-checkbox">
               <input
                 type="checkbox"
                 :checked="getRuleCaseSensitive(rule)"
                 @change="updateRuleCaseSensitive(index, $event)"
               />
-              <span class="option-label">{{ $t('rules.options.caseSensitive') }}</span>
+              <span class="option-label">{{
+                $t("rules.options.caseSensitive")
+              }}</span>
             </label>
 
             <label class="option-checkbox">
@@ -125,7 +124,9 @@
                 :checked="getRuleRespectPunctuation(rule)"
                 @change="updateRuleRespectPunctuation(index, $event)"
               />
-              <span class="option-label">{{ $t('rules.options.respectPunctuation') }}</span>
+              <span class="option-label">{{
+                $t("rules.options.respectPunctuation")
+              }}</span>
             </label>
           </div>
         </div>
@@ -279,8 +280,8 @@ function updateRuleMax(index: number, event: Event): void {
 }
 
 function getRuleCaseSensitive(rule: Rule): boolean {
-  if (rule.type === 'length') return false;
-  if ('caseSensitive' in rule) {
+  if (rule.type === "length") return false;
+  if ("caseSensitive" in rule) {
     return rule.caseSensitive ?? false;
   }
   return false;
@@ -289,14 +290,14 @@ function getRuleCaseSensitive(rule: Rule): boolean {
 function updateRuleCaseSensitive(index: number, event: Event): void {
   const target = event.target as HTMLInputElement;
   const rule = ruleSet.value.rules[index];
-  if (rule && rule.type !== 'length' && 'caseSensitive' in rule) {
+  if (rule && rule.type !== "length" && "caseSensitive" in rule) {
     rule.caseSensitive = target.checked;
   }
 }
 
 function getRuleRespectPunctuation(rule: Rule): boolean {
-  if (rule.type === 'length') return false;
-  if ('respectPunctuation' in rule) {
+  if (rule.type === "length") return false;
+  if ("respectPunctuation" in rule) {
     return rule.respectPunctuation ?? false;
   }
   return false;
@@ -305,7 +306,7 @@ function getRuleRespectPunctuation(rule: Rule): boolean {
 function updateRuleRespectPunctuation(index: number, event: Event): void {
   const target = event.target as HTMLInputElement;
   const rule = ruleSet.value.rules[index];
-  if (rule && rule.type !== 'length' && 'respectPunctuation' in rule) {
+  if (rule && rule.type !== "length" && "respectPunctuation" in rule) {
     rule.respectPunctuation = target.checked;
   }
 }

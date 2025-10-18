@@ -17,7 +17,7 @@ export interface TaskResult<T> {
   id: string;
   result?: T;
   error?: Error;
-  status: 'completed' | 'failed' | 'cancelled';
+  status: "completed" | "failed" | "cancelled";
 }
 
 /**
@@ -28,7 +28,7 @@ export interface TaskResult<T> {
  */
 export async function runPool<T>(
   tasks: Task<T>[],
-  options: TaskPoolOptions
+  options: TaskPoolOptions,
 ): Promise<TaskResult<T>[]> {
   const { concurrency, abortController } = options;
   const results: TaskResult<T>[] = [];
@@ -39,7 +39,7 @@ export async function runPool<T>(
     if (task) {
       results[i] = {
         id: task.id,
-        status: 'cancelled'
+        status: "cancelled",
       };
     }
   }
@@ -69,7 +69,7 @@ export async function runPool<T>(
         if (abortController?.signal.aborted) {
           results[currentIndex] = {
             id: task.id,
-            status: 'cancelled'
+            status: "cancelled",
           };
           return;
         }
@@ -79,7 +79,7 @@ export async function runPool<T>(
         if (abortController?.signal.aborted) {
           results[currentIndex] = {
             id: task.id,
-            status: 'cancelled'
+            status: "cancelled",
           };
           return;
         }
@@ -87,21 +87,25 @@ export async function runPool<T>(
         results[currentIndex] = {
           id: task.id,
           result,
-          status: 'completed'
+          status: "completed",
         };
       } catch (error) {
-        const taskError = error instanceof Error ? error : new Error(String(error));
+        const taskError =
+          error instanceof Error ? error : new Error(String(error));
 
-        if (taskError.name === 'AbortError' || abortController?.signal.aborted) {
+        if (
+          taskError.name === "AbortError" ||
+          abortController?.signal.aborted
+        ) {
           results[currentIndex] = {
             id: task.id,
-            status: 'cancelled'
+            status: "cancelled",
           };
         } else {
           results[currentIndex] = {
             id: task.id,
             error: taskError,
-            status: 'failed'
+            status: "failed",
           };
         }
       }
@@ -120,23 +124,26 @@ export async function runPool<T>(
  * @param abortController Optional abort controller for cancellation
  * @returns Promise that resolves after delay or rejects if cancelled
  */
-export function sleep(ms: number, abortController?: AbortController): Promise<void> {
+export function sleep(
+  ms: number,
+  abortController?: AbortController,
+): Promise<void> {
   return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(resolve, ms);
 
     if (abortController) {
       const onAbort = (): void => {
         clearTimeout(timeoutId);
-        reject(new Error('Sleep was aborted'));
+        reject(new Error("Sleep was aborted"));
       };
 
       if (abortController.signal.aborted) {
         clearTimeout(timeoutId);
-        reject(new Error('Sleep was aborted'));
+        reject(new Error("Sleep was aborted"));
         return;
       }
 
-      abortController.signal.addEventListener('abort', onAbort, { once: true });
+      abortController.signal.addEventListener("abort", onAbort, { once: true });
     }
   });
 }

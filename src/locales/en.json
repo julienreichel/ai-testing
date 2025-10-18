@@ -112,7 +112,7 @@
     "delayPlaceholder": "Delay in milliseconds",
     "parallelExecution": "Parallel Execution",
     "parallelInfo": "{runs} runs will execute {concurrency} at a time",
-    "sequentialExecution": "Sequential Execution", 
+    "sequentialExecution": "Sequential Execution",
     "sequentialInfo": "{runs} runs will execute one after another with {delay}ms delay",
     "runMultiple": "Run {count} times"
   },

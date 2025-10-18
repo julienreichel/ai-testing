@@ -348,7 +348,14 @@ export function useBatchRunner(): {
     providersStore: ReturnType<typeof useProvidersStore>;
     rulesEngine: ReturnType<typeof useRulesEngine>;
   }): Promise<void> => {
-    const { config, state, batchPersistence, batchSession, providersStore, rulesEngine } = params;
+    const {
+      config,
+      state,
+      batchPersistence,
+      batchSession,
+      providersStore,
+      rulesEngine,
+    } = params;
     // Create AbortController for cancellation
     const abortController = new AbortController();
 
@@ -361,11 +368,12 @@ export function useBatchRunner(): {
           return await executeSingleRun({
             config,
             runIndex: i,
-            isCancelled: () => state.isCancelled || abortController.signal.aborted,
+            isCancelled: () =>
+              state.isCancelled || abortController.signal.aborted,
             providersStore,
             rulesEngine,
           });
-        }
+        },
       });
     }
 
@@ -381,7 +389,7 @@ export function useBatchRunner(): {
       // Execute tasks in parallel with bounded concurrency
       const results = await runPool(tasks, {
         concurrency: config.parallelConcurrency || DEFAULT_PARALLEL_CONCURRENCY,
-        abortController
+        abortController,
       });
 
       // Process results in order
@@ -391,10 +399,13 @@ export function useBatchRunner(): {
           state.results.push(taskResult.result);
           state.completedRuns++;
 
-          if (taskResult.result.status === "failed" && taskResult.result.error) {
+          if (
+            taskResult.result.status === "failed" &&
+            taskResult.result.error
+          ) {
             state.errors.push(`Run ${i}: ${taskResult.result.error}`);
           }
-        } else if (taskResult?.status === 'cancelled') {
+        } else if (taskResult?.status === "cancelled") {
           // Handle cancelled task
           const cancelledResult: BatchRunResult = {
             id: crypto.randomUUID(),
@@ -419,7 +430,6 @@ export function useBatchRunner(): {
         batchSession,
         state.results,
       );
-
     } finally {
       clearInterval(cancelCheck);
     }
@@ -434,7 +444,14 @@ export function useBatchRunner(): {
     providersStore: ReturnType<typeof useProvidersStore>;
     rulesEngine: ReturnType<typeof useRulesEngine>;
   }): Promise<void> => {
-    const { config, state, batchPersistence, batchSession, providersStore, rulesEngine } = params;
+    const {
+      config,
+      state,
+      batchPersistence,
+      batchSession,
+      providersStore,
+      rulesEngine,
+    } = params;
     for (let i = 0; i < config.runCount; i++) {
       if (state.isCancelled) break;
 
@@ -502,7 +519,7 @@ export function useBatchRunner(): {
           batchPersistence,
           batchSession,
           providersStore,
-          rulesEngine
+          rulesEngine,
         });
       } else {
         await executeSequentialRuns({
@@ -511,7 +528,7 @@ export function useBatchRunner(): {
           batchPersistence,
           batchSession,
           providersStore,
-          rulesEngine
+          rulesEngine,
         });
       }
 

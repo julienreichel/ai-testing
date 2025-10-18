@@ -27,14 +27,18 @@ interface PromptRunnerReturn {
   state: Ref<PromptRunnerState>;
   canRun: Ref<boolean>;
   runPrompt: (providerId: string, request: ProviderRequest) => Promise<void>;
-  runRepeated: (providerId: string, request: ProviderRequest, config: RepeatedRunConfig) => Promise<void>;
+  runRepeated: (
+    providerId: string,
+    request: ProviderRequest,
+    config: RepeatedRunConfig,
+  ) => Promise<void>;
   cancelRun: () => void;
   clearResults: () => void;
 }
 
 // Helper function to execute a single provider call with timing
 const executeSingleCall = async (
-  provider: ReturnType<typeof useProvidersStore>['activeProviders'][0],
+  provider: ReturnType<typeof useProvidersStore>["activeProviders"][0],
   request: ProviderRequest,
   providerId: string,
 ): Promise<ProviderResponse> => {
@@ -55,7 +59,7 @@ const executeSingleCall = async (
 
 // Helper function for parallel execution
 const executeParallelRuns = async (params: {
-  provider: ReturnType<typeof useProvidersStore>['activeProviders'][0];
+  provider: ReturnType<typeof useProvidersStore>["activeProviders"][0];
   request: ProviderRequest;
   providerId: string;
   config: RepeatedRunConfig;
@@ -83,12 +87,12 @@ const executeParallelRuns = async (params: {
 
   // Process results
   for (const taskResult of taskResults) {
-    if (taskResult.status === 'completed' && taskResult.result) {
+    if (taskResult.status === "completed" && taskResult.result) {
       results.push(taskResult.result);
-    } else if (taskResult.status === 'failed' && taskResult.error) {
+    } else if (taskResult.status === "failed" && taskResult.error) {
       errors.push(taskResult.error.message);
-    } else if (taskResult.status === 'cancelled') {
-      errors.push('Request was cancelled by user');
+    } else if (taskResult.status === "cancelled") {
+      errors.push("Request was cancelled by user");
     }
   }
 
@@ -97,14 +101,21 @@ const executeParallelRuns = async (params: {
 
 // Helper function for sequential execution
 const executeSequentialRuns = async (params: {
-  provider: ReturnType<typeof useProvidersStore>['activeProviders'][0];
+  provider: ReturnType<typeof useProvidersStore>["activeProviders"][0];
   request: ProviderRequest;
   providerId: string;
   config: RepeatedRunConfig;
   abortController: AbortController;
   updateProgress: (completed: number) => void;
 }): Promise<{ results: ProviderResponse[]; errors: string[] }> => {
-  const { provider, request, providerId, config, abortController, updateProgress } = params;
+  const {
+    provider,
+    request,
+    providerId,
+    config,
+    abortController,
+    updateProgress,
+  } = params;
   const results: ProviderResponse[] = [];
   const errors: string[] = [];
 
@@ -121,7 +132,8 @@ const executeSequentialRuns = async (params: {
       const response = await executeSingleCall(provider, request, providerId);
       results.push(response);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
       errors.push(errorMessage);
     }
 
@@ -137,7 +149,11 @@ export function usePromptRunner(): PromptRunnerReturn {
   const state = createPromptRunnerState();
 
   const canRun = computed(() => {
-    return !state.value.isRunning && !state.value.isRunningRepeated && providersStore.validProviders.length > 0;
+    return (
+      !state.value.isRunning &&
+      !state.value.isRunningRepeated &&
+      providersStore.validProviders.length > 0
+    );
   });
 
   const runPrompt = createRunPromptFunction(state, providersStore);
@@ -174,9 +190,12 @@ function createPromptRunnerState(): Ref<PromptRunnerState> {
 // Helper function to create runPrompt method
 function createRunPromptFunction(
   state: Ref<PromptRunnerState>,
-  providersStore: ReturnType<typeof useProvidersStore>
+  providersStore: ReturnType<typeof useProvidersStore>,
 ) {
-  return async (providerId: string, request: ProviderRequest): Promise<void> => {
+  return async (
+    providerId: string,
+    request: ProviderRequest,
+  ): Promise<void> => {
     if (state.value.isRunning) {
       return;
     }
@@ -218,7 +237,7 @@ function createRunPromptFunction(
 // Helper function to create runRepeated method
 function createRunRepeatedFunction(
   state: Ref<PromptRunnerState>,
-  providersStore: ReturnType<typeof useProvidersStore>
+  providersStore: ReturnType<typeof useProvidersStore>,
 ) {
   return async (
     providerId: string,
@@ -307,7 +326,10 @@ function createRunRepeatedFunction(
 // Helper function to create cancelRun method
 function createCancelRunFunction(state: Ref<PromptRunnerState>) {
   return (): void => {
-    if (state.value.abortController && (state.value.isRunning || state.value.isRunningRepeated)) {
+    if (
+      state.value.abortController &&
+      (state.value.isRunning || state.value.isRunningRepeated)
+    ) {
       state.value.abortController.abort();
     }
   };

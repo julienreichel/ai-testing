@@ -59,15 +59,22 @@
 
       <!-- Info Panel -->
       <div class="config-info">
-        <div v-if="modelValue.allowParallel && modelValue.runCount > 1" class="info-panel parallel">
+        <div
+          v-if="modelValue.allowParallel && modelValue.runCount > 1"
+          class="info-panel parallel"
+        >
           <span class="info-icon">⚡</span>
           <div class="info-content">
-            <div class="info-title">{{ $t("promptEditor.parallelExecution") }}</div>
+            <div class="info-title">
+              {{ $t("promptEditor.parallelExecution") }}
+            </div>
             <div class="info-text">
-              {{ $t("promptEditor.parallelInfo", {
-                runs: modelValue.runCount,
-                concurrency: modelValue.parallelConcurrency
-              }) }}
+              {{
+                $t("promptEditor.parallelInfo", {
+                  runs: modelValue.runCount,
+                  concurrency: modelValue.parallelConcurrency,
+                })
+              }}
             </div>
           </div>
         </div>
@@ -75,12 +82,16 @@
         <div v-else-if="modelValue.runCount > 1" class="info-panel sequential">
           <span class="info-icon">📋</span>
           <div class="info-content">
-            <div class="info-title">{{ $t("promptEditor.sequentialExecution") }}</div>
+            <div class="info-title">
+              {{ $t("promptEditor.sequentialExecution") }}
+            </div>
             <div class="info-text">
-              {{ $t("promptEditor.sequentialInfo", {
-                runs: modelValue.runCount,
-                delay: modelValue.delayMs
-              }) }}
+              {{
+                $t("promptEditor.sequentialInfo", {
+                  runs: modelValue.runCount,
+                  delay: modelValue.delayMs,
+                })
+              }}
             </div>
           </div>
         </div>
@@ -279,7 +290,8 @@ const updateDelay = (value: string | number): void => {
   .provider-run-config {
     padding: 1rem;
   }
-}</style>
+}
+</style>
 
 <script lang="ts">
 import { defineComponent } from "vue";
