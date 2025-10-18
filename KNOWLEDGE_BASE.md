@@ -107,6 +107,11 @@ We have successfully built a **production-ready application** with complete core
 - Modes: **binary judgment**, **numeric grading**, or **rule evaluation**.
 - Enforces structured JSON output for safe parsing.
 
+### 🧮 Parallel Execution 📋 **PLANNED**
+
+- **📋 Parallel Runs per Provider (Single Test)**: Allow multiple runs for the same provider/model to execute concurrently.  
+- **📋 Quick-Run from Test View**: Run a test directly from the Test view without entering the editor. 
+- **📋 Multi-Select Batch Runs**: Run several tests from the same project in one operation.  
 ---
 
 ## ⚙️ Data & Storage ✅ **FULLY IMPLEMENTED**
@@ -131,7 +136,7 @@ We have successfully built a **production-ready application** with complete core
 
 ### ✅ **Implemented Architecture Highlights**
 
-- **Component-Based Design**: 10 reusable UI components (BaseButton, BaseDialog, BaseForm, etc.)
+- **Component-Based Design**: Reusable UI components (BaseButton, BaseDialog, BaseForm, etc.)
 - **Feature-Driven Structure**: Organized by domain (providers, dashboard) with dedicated components
 - **Clean Separation**: UI logic in reusable components, business logic in views, state in Pinia stores
 - **Type-Safe Routing**: Vue Router 4 with TypeScript integration
@@ -232,7 +237,8 @@ We have successfully built a **production-ready application** with complete core
 | **6. Production Ready**   |   ✅   | Complete core functionality integration           | Full-featured AI testing application       |
 | **7. Multi-Provider**     |   ✅   | Expand provider support (Mistral, Gemini)         | Enhanced provider registry                 |
 | **8. AI Evaluator**       |   📋   | Model-based judgment/grading                      | Structured JSON evaluation                 |
-| **9. Batch & Statistics** |   �    | Multiple runs and statistical analysis            | Pass rates, performance metrics, trending  |
+| **9. Batch & Statistics** |   🔄   | Multiple runs and statistical analysis            | Pass rates, performance metrics, trending  |
+| **10. Parallel Execution** |   🔄   | Parallelism, Quick-Run, Batch orchestration       | Concurrency management and UX improvements |   �    | Multiple runs and statistical analysis            | Pass rates, performance metrics, trending  |
 | **10. Enhancements**      |   📋   | PWA, reports, theming, advanced i18n              | Long-term improvements                     |
 
 **Legend**: ✅ Complete | 🔄 In Progress | 📋 Planned
