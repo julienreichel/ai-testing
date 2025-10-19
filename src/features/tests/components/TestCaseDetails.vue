@@ -1,84 +1,49 @@
 <template>
-  <div class="test-case-detail">
-    <div class="detail-header">
-      <div class="breadcrumb">
-        <base-button
-          variant="outline"
-          @click="handleBack"
-          class="breadcrumb-link"
-        >
-          ← {{ $t("common.backToTests") }}
-        </base-button>
-      </div>
-    </div>
 
-    <base-card variant="outlined" padding="lg" class="test-case-detail-card">
-      <template #header>
-        <div class="detail-title">
-          <h2>{{ testCase.name }}</h2>
-          <div class="detail-actions">
-            <base-button variant="primary" @click="handleQuickRun">
-              {{ $t("testManagement.quickRun") }}
-            </base-button>
-            <base-button variant="outline" @click="handleOpenInEditor">
-              {{ $t("testManagement.openInEditor") }}
-            </base-button>
-            <base-button variant="danger" @click="handleDelete">
-              {{ $t("common.delete") }}
-            </base-button>
-          </div>
-        </div>
-        <p v-if="testCase.description">
-          {{ testCase.description }}
-        </p>
-      </template>
+    <div class="test-case-content">
+      <base-card variant="default" padding="md" class="content-section">
+        <template #header>
+          <h3>{{ $t("testManagement.prompt") }}</h3>
+        </template>
+        <div class="prompt-display">{{ testCase.prompt }}</div>
+      </base-card>
 
-      <div class="test-case-content">
-        <base-card variant="default" padding="md" class="content-section">
-          <template #header>
-            <h3>{{ $t("testManagement.prompt") }}</h3>
-          </template>
-          <div class="prompt-display">{{ testCase.prompt }}</div>
-        </base-card>
-
-        <base-card
-          v-if="testCase.rules?.length"
-          variant="default"
-          padding="md"
-          class="content-section"
-        >
-          <template #header>
-            <h3>{{ $t("testManagement.validationRules") }}</h3>
-          </template>
-          <div class="rules-display">
-            <div
-              v-for="(ruleSet, index) in testCase.rules"
-              :key="index"
-              class="rule-set"
-            >
-              <h4>{{ $t("testManagement.ruleSet", { number: index + 1 }) }}</h4>
-              <div class="rules-list">
-                <div
-                  v-for="rule in ruleSet.rules"
-                  :key="rule.id"
-                  class="rule-item"
-                >
-                  <span class="rule-type">{{ rule.type }}</span>
-                  <span class="rule-details">
-                    {{ formatRuleDetails(rule) }}
-                  </span>
-                </div>
+      <base-card
+        v-if="testCase.rules?.length"
+        variant="default"
+        padding="md"
+        class="content-section"
+      >
+        <template #header>
+          <h3>{{ $t("testManagement.validationRules") }}</h3>
+        </template>
+        <div class="rules-display">
+          <div
+            v-for="(ruleSet, index) in testCase.rules"
+            :key="index"
+            class="rule-set"
+          >
+            <h4>{{ $t("testManagement.ruleSet", { number: index + 1 }) }}</h4>
+            <div class="rules-list">
+              <div
+                v-for="rule in ruleSet.rules"
+                :key="rule.id"
+                class="rule-item"
+              >
+                <span class="rule-type">{{ rule.type }}</span>
+                <span class="rule-details">
+                  {{ formatRuleDetails(rule) }}
+                </span>
               </div>
             </div>
           </div>
-        </base-card>
-      </div>
-    </base-card>
-  </div>
+        </div>
+      </base-card>
+    </div>
 </template>
 
 <script setup lang="ts">
-import { BaseButton, BaseCard } from "components/ui";
+import { BaseCard } from "components/ui";
 import type { Rule } from "types/rules";
 import type { TestCase } from "types/testManagement";
 
@@ -86,15 +51,7 @@ interface Props {
   testCase: TestCase;
 }
 
-interface Emits {
-  (e: "back"): void;
-  (e: "quickRun", testCase: TestCase): void;
-  (e: "openInEditor", testCase: TestCase): void;
-  (e: "delete", testCase: TestCase): void;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
+defineProps<Props>();
 
 // Helper function for formatting rule details
 const formatRuleDetails = (rule: Rule): string => {
@@ -116,22 +73,6 @@ const formatRuleDetails = (rule: Rule): string => {
   }
 };
 
-// Event handlers
-const handleBack = (): void => {
-  emit("back");
-};
-
-const handleQuickRun = (): void => {
-  emit("quickRun", props.testCase);
-};
-
-const handleOpenInEditor = (): void => {
-  emit("openInEditor", props.testCase);
-};
-
-const handleDelete = (): void => {
-  emit("delete", props.testCase);
-};
 </script>
 
 <style scoped>

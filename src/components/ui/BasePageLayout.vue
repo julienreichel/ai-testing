@@ -109,7 +109,7 @@ defineProps<PageLayoutProps>();
 }
 
 .main-content {
-  padding: 0 2rem 2rem;
+  padding: 1rem;
   background: white;
 }
 

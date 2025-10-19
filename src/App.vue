@@ -1,10 +1,8 @@
 <template>
-  <div id="app">
     <app-nav />
     <main class="main-content">
       <router-view />
     </main>
-  </div>
 </template>
 
 <script setup lang="ts">

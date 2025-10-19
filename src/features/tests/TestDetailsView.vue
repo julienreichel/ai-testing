@@ -1,34 +1,38 @@
 <template>
-  <div class="test-details-view">
-    <!-- Loading state -->
-    <div v-if="isLoading" class="loading-container">
-      <base-spinner />
-      <p>{{ $t("common.loading") }}</p>
-    </div>
-
-    <!-- Error state -->
-    <div v-else-if="error" class="error-container">
-      <base-notice variant="error">
-        {{ error }}
-      </base-notice>
-      <base-button @click="loadTestCase">
-        {{ $t("common.retry") }}
+  <base-page-layout
+    :title="testCase?.name || $t('tests.testDetails')"
+    :description="testCase?.description"
+    :breadcrumb-items="breadcrumbItems"
+    :is-loading="isLoading"
+    :error="error"
+    :not-found="!testCase && !isLoading && !error"
+    :not-found-message="$t('tests.testCaseNotFound')"
+    :on-retry="loadTestCase"
+    :on-back="goBackToList"
+  >
+    <template #headerActions>
+      <base-button
+          variant="outline"
+          @click="goBackToList"
+          class="breadcrumb-link"
+        >
+          {{ $t("common.backToTests") }}
       </base-button>
-    </div>
-
-    <!-- Test Case not found -->
-    <div v-else-if="!testCase" class="not-found-container">
-      <base-notice variant="warning">
-        {{ $t("tests.testCaseNotFound") }}
-      </base-notice>
-      <base-button @click="goBackToList">
-        {{ $t("common.back") }}
+      <base-button variant="primary" @click="handleQuickRunAction" v-if="testCase">
+        {{ $t("testManagement.quickRun") }}
       </base-button>
-    </div>
+      <base-button variant="outline" @click="openTestCaseInEditorAction" v-if="testCase">
+        {{ $t("testManagement.openInEditor") }}
+      </base-button>
+      <base-button variant="danger" @click="confirmDeleteTestCaseAction" v-if="testCase">
+        {{ $t("common.delete") }}
+      </base-button>
 
-    <!-- Test Case Detail View -->
+    </template>
+
+    <!-- Test Case Detail Content -->
     <test-case-details
-      v-else
+      v-if="testCase"
       :test-case="testCase"
       @back="goBackToList"
       @quick-run="handleQuickRun"
@@ -43,15 +47,16 @@
       :test-case="testCaseToDelete"
       @delete="handleDeleteTestCase"
     />
-  </div>
+  </base-page-layout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { useTestManagement } from "@/composables/useTestManagement";
 import { testDB } from "@/services/testManagementDatabase";
-import { BaseButton, BaseSpinner, BaseNotice } from "@/components/ui";
+import { BaseButton, BasePageLayout } from "@/components/ui";
 import {
   TestCaseDetails,
   DeleteTestCaseDialog,
@@ -61,6 +66,7 @@ import type { TestCase } from "@/types/testManagement";
 // Composables
 const router = useRouter();
 const route = useRoute();
+const { t } = useI18n();
 const testManager = useTestManagement();
 
 // State
@@ -76,6 +82,16 @@ const deleteTestCaseDialogRef =
 
 // Computed
 const testId = computed(() => route.params.testId as string);
+
+const breadcrumbItems = computed(() => [
+  {
+    label: t("tests.title"),
+    action: goBackToList,
+  },
+  {
+    label: testCase.value?.name || t("tests.testDetails"),
+  },
+]);
 
 // Navigation functions
 const goBackToList = (): void => {
@@ -98,6 +114,25 @@ const openTestCaseInEditor = (targetTestCase?: TestCase): void => {
 const handleQuickRun = (targetTestCase: TestCase): void => {
   // Navigate to the Quick Run page
   void router.push(`/tests/${targetTestCase.id}/run`);
+};
+
+// Wrapper functions for header actions
+const handleQuickRunAction = (): void => {
+  if (testCase.value) {
+    handleQuickRun(testCase.value);
+  }
+};
+
+const openTestCaseInEditorAction = (): void => {
+  if (testCase.value) {
+    openTestCaseInEditor(testCase.value);
+  }
+};
+
+const confirmDeleteTestCaseAction = (): void => {
+  if (testCase.value) {
+    confirmDeleteTestCase(testCase.value);
+  }
 };
 
 // Delete operations
@@ -175,35 +210,5 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Main layout */
-.test-details-view {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* Loading state */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 3rem;
-  text-align: center;
-}
-
-.loading-container p {
-  color: #6b7280;
-  font-size: 1rem;
-}
-
-/* Error and not found states */
-.error-container,
-.not-found-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 2rem;
-  text-align: center;
-}
+/* Any custom styles for TestDetailsView content */
 </style>
