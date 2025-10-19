@@ -51,16 +51,12 @@ import type {
   ProviderOptionsEmits
 } from "@/composables/useProviderOptions";
 
-interface Props extends ProviderOptionsProps {}
-
-interface Emits extends ProviderOptionsEmits {}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<ProviderOptionsProps>(), {
   isDisabled: false,
   options: () => ({}),
 });
 
-const emit = defineEmits<Emits>();
+const emit = defineEmits<ProviderOptionsEmits>();
 
 // Use the composable
 const {
