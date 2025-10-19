@@ -4,3 +4,4 @@ export { default as DeleteProjectDialog } from "./DeleteProjectDialog.vue";
 export { default as DeleteTestCaseDialog } from "./DeleteTestCaseDialog.vue";
 export { default as TestCaseDetails } from "./TestCaseDetails.vue";
 export { default as ProjectsTestCasesList } from "./ProjectsTestCasesList.vue";
+export { default as ProviderOptions } from "./ProviderOptions.vue";

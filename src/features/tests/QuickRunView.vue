@@ -78,43 +78,14 @@
             </div>
 
             <!-- Provider Options -->
-            <div class="provider-options">
-              <div class="options-row">
-                <base-input-field
-                  :model-value="config.maxTokens"
-                  :label="$t('promptEditor.maxTokens')"
-                  type="number"
-                  :min="1"
-                  :max="8192"
-                  :disabled="isRunning"
-                  @update:model-value="updateProviderConfig(config.id, 'maxTokens', $event)"
-                />
-                <div class="parallel-toggle">
-                  <input
-                    :id="`parallel-${config.id}`"
-                    :checked="config.allowParallel"
-                    type="checkbox"
-                    :disabled="isRunning"
-                    class="parallel-checkbox"
-                    @change="handleParallelToggle(config.id, $event)"
-                  />
-                  <label :for="`parallel-${config.id}`" class="parallel-label">
-                    {{ $t("quickRun.enableParallel") }}
-                  </label>
-                </div>
-                <base-input-field
-                  v-if="config.allowParallel"
-                  :model-value="config.parallelConcurrency"
-                  :label="$t('quickRun.concurrency')"
-                  type="number"
-                  :min="1"
-                  :max="10"
-                  :disabled="isRunning"
-                  class="concurrency-input"
-                  @update:model-value="updateProviderConfig(config.id, 'parallelConcurrency', $event)"
-                />
-              </div>
-            </div>
+            <provider-options
+              :config="config"
+              :is-disabled="isRunning"
+              :options="{ showParallelToggle: true }"
+              @update-max-tokens="(configId, value) => updateProviderConfig(configId, 'maxTokens', value)"
+              @update-parallel="(configId, value) => updateProviderConfig(configId, 'allowParallel', value)"
+              @update-concurrency="(configId, value) => updateProviderConfig(configId, 'parallelConcurrency', value)"
+            />
           </div>
         </div>
       </div>
@@ -214,6 +185,7 @@ import {
   BasePageLayout,
 } from "@/components/ui";
 import { ProviderSelector } from "@/features/editor/components";
+import { ProviderOptions } from "./components";
 import type { ProviderSelection } from "@/features/editor/components/ProviderSelector.vue";
 
 // Composables
@@ -327,10 +299,7 @@ const updateProviderConfig = (
   }
 };
 
-const handleParallelToggle = (configId: string, event: Event): void => {
-  const target = event.target as HTMLInputElement;
-  updateProviderConfig(configId, "allowParallel", target.checked);
-};
+
 
 // Quick Run Execution
 const runTests = async (): Promise<void> => {
@@ -557,38 +526,7 @@ onMounted(async () => {
   margin-bottom: 1rem;
 }
 
-.provider-options {
-  margin-top: 1rem;
-}
 
-.options-row {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 1rem;
-  align-items: end;
-}
-
-.parallel-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-}
-
-.parallel-checkbox {
-  width: 1rem;
-  height: 1rem;
-}
-
-.parallel-label {
-  font-size: 0.875rem;
-  color: #374151;
-  cursor: pointer;
-}
-
-.concurrency-input {
-  max-width: 120px;
-}
 
 /* Run section */
 .run-section {
