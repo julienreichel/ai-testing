@@ -325,6 +325,11 @@
     "latestResults": "Latest Results",
     "startRun": "Start Run",
     "cancelRun": "Cancel Run",
+    "runningTest": "Running Test: {testName}",
+    "noDescription": "No description provided",
+    "backToTest": "Back to Test",
+    "running": "Running...",
+    "runAllProviders": "Run All Providers",
     "status": {
       "idle": "Ready",
       "running": "Running",

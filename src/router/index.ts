@@ -47,6 +47,14 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/tests/:testId/run",
+    name: "QuickRun",
+    component: () => import("../features/tests/QuickRunView.vue"),
+    meta: {
+      title: "Quick Run",
+    },
+  },
+  {
     path: "/runs",
     name: "Runs",
     component: () => import("../features/runs/RunsView.vue"),

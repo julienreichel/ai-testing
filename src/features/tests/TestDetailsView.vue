@@ -43,13 +43,6 @@
       :test-case="testCaseToDelete"
       @delete="handleDeleteTestCase"
     />
-
-    <!-- Quick Run Dialog -->
-    <quick-run-dialog
-      :is-open="showRunQuick"
-      :test-case="testCaseForQuickRun"
-      @close="showRunQuick = false"
-    />
   </div>
 </template>
 
@@ -62,7 +55,6 @@ import { BaseButton, BaseSpinner, BaseNotice } from "@/components/ui";
 import {
   TestCaseDetailView,
   DeleteTestCaseDialog,
-  QuickRunDialog,
 } from "./components";
 import type { TestCase } from "@/types/testManagement";
 
@@ -76,8 +68,6 @@ const testCase = ref<TestCase | null>(null);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 const showDeleteTestCaseDialog = ref(false);
-const showRunQuick = ref(false);
-const testCaseForQuickRun = ref<TestCase | null>(null);
 const testCaseToDelete = ref<TestCase | null>(null);
 
 // Component refs
@@ -106,8 +96,8 @@ const openTestCaseInEditor = (targetTestCase?: TestCase): void => {
 };
 
 const handleQuickRun = (targetTestCase: TestCase): void => {
-  testCaseForQuickRun.value = targetTestCase;
-  showRunQuick.value = true;
+  // Navigate to the Quick Run page
+  void router.push(`/tests/${targetTestCase.id}/run`);
 };
 
 // Delete operations

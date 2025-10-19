@@ -1,0 +1,738 @@
+<template>
+  <div class="quick-run-view">
+    <!-- Loading state -->
+    <div v-if="isLoadingTestCase" class="loading-container">
+      <base-spinner />
+      <p>{{ $t("common.loading") }}</p>
+    </div>
+
+    <!-- Error state -->
+    <div v-else-if="testCaseError" class="error-container">
+      <base-notice variant="error">
+        {{ testCaseError }}
+      </base-notice>
+      <base-button @click="loadTestCase">
+        {{ $t("common.retry") }}
+      </base-button>
+    </div>
+
+    <!-- Test Case not found -->
+    <div v-else-if="!testCase" class="not-found-container">
+      <base-notice variant="warning">
+        {{ $t("tests.testCaseNotFound") }}
+      </base-notice>
+      <base-button @click="goBackToTestDetails">
+        {{ $t("common.back") }}
+      </base-button>
+    </div>
+
+    <!-- Quick Run Content -->
+    <div v-else class="quick-run-content">
+      <!-- Header with Test Case Info -->
+      <div class="quick-run-header">
+        <div class="header-content">
+          <div class="title-section">
+            <div class="breadcrumb">
+              <button @click="goBackToTestDetails" class="breadcrumb-link">
+                {{ $t("tests.title") }}
+              </button>
+              <span class="breadcrumb-separator">/</span>
+              <button @click="goBackToTestDetails" class="breadcrumb-link">
+                {{ testCase.name }}
+              </button>
+              <span class="breadcrumb-separator">/</span>
+              <span class="breadcrumb-current">{{ $t("quickRun.title") }}</span>
+            </div>
+            <h1>{{ $t("quickRun.runningTest", { testName: testCase.name }) }}</h1>
+            <p class="test-description">{{ testCase.description || $t("quickRun.noDescription") }}</p>
+          </div>
+          <div class="header-actions">
+            <base-button variant="outline" @click="goBackToTestDetails">
+              {{ $t("quickRun.backToTest") }}
+            </base-button>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-run-main">
+        <!-- Global Configuration Section -->
+        <div class="global-config-section">
+          <h3>{{ $t("quickRun.globalSettings") }}</h3>
+          <div class="global-config-row">
+            <base-input-field
+              v-model="runCount"
+              :label="$t('quickRun.numberOfRuns')"
+              type="number"
+              :min="1"
+              :max="20"
+              :disabled="isRunning"
+            />
+          </div>
+        </div>
+
+        <!-- Provider Configurations -->
+        <div class="providers-section">
+          <div class="providers-header">
+            <h3>{{ $t("quickRun.providers") }}</h3>
+            <base-button
+              variant="outline"
+              size="sm"
+              :disabled="isRunning"
+              @click="addProvider"
+            >
+              {{ $t("quickRun.addProvider") }}
+            </base-button>
+          </div>
+
+          <div v-if="providerConfigs.length === 0" class="empty-providers">
+            <p>{{ $t("quickRun.noProvidersConfigured") }}</p>
+          </div>
+
+          <div v-else class="providers-list">
+            <div
+              v-for="(config, index) in providerConfigs"
+              :key="config.id"
+              class="provider-config"
+            >
+              <div class="provider-header">
+                <h4>{{ $t("quickRun.provider") }} {{ index + 1 }}</h4>
+                <base-button
+                  variant="danger"
+                  size="sm"
+                  :disabled="isRunning"
+                  @click="removeProvider(config.id)"
+                >
+                  {{ $t("common.remove") }}
+                </base-button>
+              </div>
+
+              <!-- Provider Selection -->
+              <div class="provider-selection">
+                <provider-selector
+                  :model-value="{ providerId: config.providerId, model: config.model }"
+                  :is-running="isRunning"
+                  @update:model-value="updateProviderSelection(config.id, $event)"
+                />
+              </div>
+
+              <!-- Provider Options -->
+              <div class="provider-options">
+                <div class="options-row">
+                  <base-input-field
+                    :model-value="config.maxTokens"
+                    :label="$t('promptEditor.maxTokens')"
+                    type="number"
+                    :min="1"
+                    :max="8192"
+                    :disabled="isRunning"
+                    @update:model-value="updateProviderConfig(config.id, 'maxTokens', $event)"
+                  />
+                  <div class="parallel-toggle">
+                    <input
+                      :id="`parallel-${config.id}`"
+                      :checked="config.allowParallel"
+                      type="checkbox"
+                      :disabled="isRunning"
+                      class="parallel-checkbox"
+                      @change="handleParallelToggle(config.id, $event)"
+                    />
+                    <label :for="`parallel-${config.id}`" class="parallel-label">
+                      {{ $t("quickRun.enableParallel") }}
+                    </label>
+                  </div>
+                  <base-input-field
+                    v-if="config.allowParallel"
+                    :model-value="config.parallelConcurrency"
+                    :label="$t('quickRun.concurrency')"
+                    type="number"
+                    :min="1"
+                    :max="10"
+                    :disabled="isRunning"
+                    class="concurrency-input"
+                    @update:model-value="updateProviderConfig(config.id, 'parallelConcurrency', $event)"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Run Button -->
+        <div class="run-section">
+          <base-button
+            variant="primary"
+            size="lg"
+            :disabled="!canRun"
+            :loading="isRunning"
+            @click="runTests"
+          >
+            {{ isRunning ? $t("quickRun.running") : $t("quickRun.runAllProviders") }}
+          </base-button>
+        </div>
+
+        <!-- Multi-Provider Progress Section -->
+        <div v-if="isRunning || hasAnyResults" class="progress-wrapper">
+          <div class="progress-header">
+            <h3>{{ $t("quickRun.progress") }}</h3>
+            <base-badge variant="warning">
+              {{ $t("quickRun.status.running") }}
+            </base-badge>
+          </div>
+
+          <!-- Individual Provider Progress -->
+          <div class="providers-progress">
+            <div
+              v-for="runner in activeBatchRunners"
+              :key="runner.providerId"
+              class="provider-progress"
+            >
+              <div class="provider-progress-header">
+                <h4>{{ getProviderDisplayName(runner.providerId) }}</h4>
+                <base-badge
+                  :variant="getProviderStatusVariant(runner.runner.state.isRunning, runner.runner.state.results.length > 0)"
+                >
+                  {{ getProviderStatusText(runner.runner.state.isRunning, runner.runner.state.results.length > 0) }}
+                </base-badge>
+              </div>
+
+              <batch-progress-section
+                :completed-runs="runner.runner.state.completedRuns"
+                :total-runs="runner.runner.state.totalRuns"
+                :progress-percentage="getRunnerProgress(runner)"
+                :show-statistics="true"
+                :latest-results="getLatestResults(runner.runner)"
+                :is-running="runner.runner.state.isRunning"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+// Vue i18n translations available via $t in template
+import {
+  useBatchRunner,
+  type BatchRunConfig,
+} from "@/composables/useBatchRunner";
+import type { TestCase } from "@/types/testManagement";
+import type { QuickRunProviderConfig } from "@/types/quickRun";
+import { useProvidersStore } from "@/store/providers";
+import { testDB } from "@/services/testManagementDatabase";
+import {
+  BaseButton,
+  BaseInputField,
+  BaseBadge,
+  BaseSpinner,
+  BaseNotice,
+  BatchProgressSection,
+} from "@/components/ui";
+import { ProviderSelector } from "@/features/editor/components";
+import type { ProviderSelection } from "@/features/editor/components/ProviderSelector.vue";
+
+// Composables
+const router = useRouter();
+const route = useRoute();
+const providersStore = useProvidersStore();
+
+// State for test case loading
+const testCase = ref<TestCase | null>(null);
+const isLoadingTestCase = ref(false);
+const testCaseError = ref<string | null>(null);
+
+// Quick Run State
+const runCount = ref(3);
+const providerConfigs = ref<QuickRunProviderConfig[]>([]);
+const isRunning = ref(false);
+
+// Pre-create batch runners pool to avoid dynamic composable calls
+const batchRunnerPool = ref<Map<string, any>>(new Map());
+const BATCH_RUNNER_POOL_SIZE = 5;
+
+// Initialize batch runner pool
+for (let i = 0; i < BATCH_RUNNER_POOL_SIZE; i++) {
+  const runner = useBatchRunner();
+  batchRunnerPool.value.set(`pool-${i}`, runner);
+}
+
+// Track active batch runners for progress display
+const activeBatchRunners = ref<Array<{
+  providerId: string;
+  runner: any;
+}>>([]);
+
+// Computed
+const testId = computed(() => route.params.testId as string);
+
+const canRun = computed(() => {
+  return (
+    !isRunning.value &&
+    providerConfigs.value.length > 0 &&
+    providerConfigs.value.every(config => config.providerId && config.model) &&
+    runCount.value > 0
+  );
+});
+
+const hasAnyResults = computed(() => {
+  return activeBatchRunners.value.some(runner => 
+    runner.runner.state.results.length > 0
+  );
+});
+
+// Navigation
+const goBackToTestDetails = (): void => {
+  void router.push(`/tests/${testId.value}`);
+};
+
+// Provider Management
+const addProvider = (): void => {
+  const newConfig: QuickRunProviderConfig = {
+    id: `provider-${Date.now()}`,
+    providerId: "",
+    model: "",
+    maxTokens: 2048,
+    temperature: 0.7,
+    allowParallel: false,
+    parallelConcurrency: 2,
+  };
+  providerConfigs.value.push(newConfig);
+};
+
+const removeProvider = (configId: string): void => {
+  const index = providerConfigs.value.findIndex(config => config.id === configId);
+  if (index > -1) {
+    providerConfigs.value.splice(index, 1);
+  }
+};
+
+const updateProviderSelection = (
+  configId: string,
+  selection: ProviderSelection,
+): void => {
+  const config = providerConfigs.value.find(c => c.id === configId);
+  if (config) {
+    config.providerId = selection.providerId;
+    config.model = selection.model;
+  }
+};
+
+const updateProviderConfig = (
+  configId: string,
+  field: keyof QuickRunProviderConfig,
+  value: unknown,
+): void => {
+  const config = providerConfigs.value.find(c => c.id === configId);
+  if (config) {
+    (config as Record<string, unknown>)[field] = value;
+  }
+};
+
+const handleParallelToggle = (configId: string, event: Event): void => {
+  const target = event.target as HTMLInputElement;
+  updateProviderConfig(configId, "allowParallel", target.checked);
+};
+
+// Quick Run Execution
+const runTests = async (): Promise<void> => {
+  if (!testCase.value || !canRun.value) return;
+
+  isRunning.value = true;
+  activeBatchRunners.value = [];
+
+  try {
+    // Prepare batch runners for each provider
+    const runnerPromises: Promise<void>[] = [];
+    
+    for (const [index, config] of providerConfigs.value.entries()) {
+      const poolKey = `pool-${index % BATCH_RUNNER_POOL_SIZE}`;
+      const runner = batchRunnerPool.value.get(poolKey);
+      
+      if (!runner) {
+        console.error(`No batch runner available for pool key: ${poolKey}`);
+        continue;
+      }
+
+      // Track active runner for progress display
+      activeBatchRunners.value.push({
+        providerId: config.providerId,
+        runner,
+      });
+
+      // Configure and start the batch run
+      const batchConfig: BatchRunConfig = {
+        testCase: testCase.value,
+        providerId: config.providerId,
+        model: config.model,
+        runCount: runCount.value,
+        maxTokens: config.maxTokens,
+        allowParallel: config.allowParallel,
+        parallelConcurrency: config.parallelConcurrency,
+        maxRetries: 2,
+        delayMs: 1000,
+      };
+
+      // Start the batch run and add to promises array
+      const promise = runner.runBatch(batchConfig);
+      runnerPromises.push(promise);
+    }
+
+    // Wait for all provider runs to complete
+    await Promise.all(runnerPromises);
+
+    console.log("All Quick-Run batches completed successfully");
+  } catch (error) {
+    console.error("Quick-Run execution failed:", error);
+  } finally {
+    isRunning.value = false;
+  }
+};
+
+// Helper functions for progress display
+const getProviderDisplayName = (providerId: string): string => {
+  const provider = providersStore.providerConfigs.find((p: any) => p.id === providerId);
+  return provider?.name || providerId;
+};
+
+const getProviderStatusVariant = (isRunning: boolean, hasResults: boolean): "primary" | "danger" | "success" | "warning" | "info" | "light" | "dark" => {
+  if (isRunning) return "warning";
+  if (hasResults) return "success";
+  return "info";
+};
+
+const getProviderStatusText = (isRunning: boolean, hasResults: boolean): string => {
+  if (isRunning) return "Running";
+  if (hasResults) return "Completed";
+  return "Pending";
+};
+
+const getRunnerProgress = (runner: { runner: ReturnType<typeof useBatchRunner> }): number => {
+  const { completedRuns, totalRuns } = runner.runner.state;
+  return totalRuns > 0 ? Math.round((completedRuns / totalRuns) * 100) : 0;
+};
+
+const getLatestResults = (runner: ReturnType<typeof useBatchRunner>) => {
+  return runner.state.results.slice(-3); // Show last 3 results
+};
+
+// Data loading
+const loadTestCase = async (): Promise<void> => {
+  if (!testId.value) return;
+
+  isLoadingTestCase.value = true;
+  testCaseError.value = null;
+
+  try {
+    const loadedTestCase = await testDB.getTestCase(testId.value);
+    if (loadedTestCase) {
+      testCase.value = loadedTestCase;
+    } else {
+      testCase.value = null;
+      testCaseError.value = "Test case not found";
+    }
+  } catch (err) {
+    console.error("Failed to load test case:", err);
+    testCaseError.value = err instanceof Error ? err.message : "Failed to load test case";
+    testCase.value = null;
+  } finally {
+    isLoadingTestCase.value = false;
+  }
+};
+
+// Initialize default provider on load
+const initializeDefaultProvider = (): void => {
+  if (providerConfigs.value.length === 0) {
+    addProvider();
+  }
+};
+
+// Watch for route changes
+watch(
+  () => route.params.testId,
+  () => {
+    if (route.params.testId) {
+      loadTestCase();
+    }
+  },
+  { immediate: true }
+);
+
+// Initialize on mount
+onMounted(async () => {
+  await loadTestCase();
+  initializeDefaultProvider();
+});
+</script>
+
+<style scoped>
+/* Main layout */
+.quick-run-view {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+/* Loading and error states */
+.loading-container,
+.error-container,
+.not-found-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem;
+  text-align: center;
+}
+
+.loading-container p {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Quick Run Content */
+.quick-run-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.quick-run-header {
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.breadcrumb-link {
+  background: none;
+  border: none;
+  color: #6366f1;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  color: #9ca3af;
+}
+
+.breadcrumb-current {
+  color: #374151;
+  font-weight: 500;
+}
+
+.title-section h1 {
+  margin: 0 0 0.5rem 0;
+  color: #111827;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.test-description {
+  margin: 0;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.header-actions {
+  flex-shrink: 0;
+}
+
+/* Main content */
+.quick-run-main {
+  padding: 0 2rem 2rem;
+}
+
+/* Global configuration */
+.global-config-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.global-config-section h3 {
+  margin: 0 0 1rem 0;
+  color: #374151;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.global-config-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  max-width: 300px;
+}
+
+/* Providers section */
+.providers-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.providers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.providers-header h3 {
+  margin: 0;
+  color: #374151;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.empty-providers {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.providers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.provider-config {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+}
+
+.provider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.provider-header h4 {
+  margin: 0;
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.provider-selection {
+  margin-bottom: 1rem;
+}
+
+.provider-options {
+  margin-top: 1rem;
+}
+
+.options-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  align-items: end;
+}
+
+.parallel-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.parallel-checkbox {
+  width: 1rem;
+  height: 1rem;
+}
+
+.parallel-label {
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.concurrency-input {
+  max-width: 120px;
+}
+
+/* Run section */
+.run-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Progress section */
+.progress-wrapper {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.progress-header h3 {
+  margin: 0;
+  color: #374151;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.providers-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.provider-progress {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: #f9fafb;
+}
+
+.provider-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.provider-progress-header h4 {
+  margin: 0;
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 600;
+}
+</style>
