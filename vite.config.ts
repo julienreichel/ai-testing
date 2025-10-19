@@ -10,13 +10,13 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "src"),
-      "@/components": resolve(__dirname, "src/components"),
-      "@/features": resolve(__dirname, "src/features"),
-      "@/store": resolve(__dirname, "src/store"),
-      "@/router": resolve(__dirname, "src/router"),
-      "@/utils": resolve(__dirname, "src/utils"),
-      "@/types": resolve(__dirname, "src/types"),
-      "@/composables": resolve(__dirname, "src/composables"),
+      "components": resolve(__dirname, "src/components"),
+      "features": resolve(__dirname, "src/features"),
+      "store": resolve(__dirname, "src/store"),
+      "router": resolve(__dirname, "src/router"),
+      "utils": resolve(__dirname, "src/utils"),
+      "types": resolve(__dirname, "src/types"),
+      "composables": resolve(__dirname, "src/composables"),
     },
   },
   test: {
