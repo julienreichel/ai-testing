@@ -123,7 +123,8 @@
     "noProjectsYet": "No Projects Yet",
     "createFirstProject": "Create your first project to start organizing your test cases.",
     "noTestCasesYet": "No Test Cases Yet",
-    "createTestCasesFromEditor": "Create test cases by saving prompts from the Editor."
+    "createTestCasesFromEditor": "Create test cases by saving prompts from the Editor.",
+    "testCaseNotFound": "Test case not found"
   },
   "runs": {
     "title": "Test Runs",
@@ -176,6 +177,7 @@
     "close": "Close",
     "yes": "Yes",
     "no": "No",
+    "back": "Back",
     "backToTests": "Back to Tests",
     "tryAgain": "Try Again",
     "remove": "Remove"

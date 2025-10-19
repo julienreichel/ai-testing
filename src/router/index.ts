@@ -33,9 +33,17 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/tests",
     name: "Tests",
-    component: () => import("../features/tests/TestsView.vue"),
+    component: () => import("../features/tests/TestsListView.vue"),
     meta: {
       title: "Test Cases",
+    },
+  },
+  {
+    path: "/tests/:testId",
+    name: "TestDetails",
+    component: () => import("../features/tests/TestDetailsView.vue"),
+    meta: {
+      title: "Test Case Details",
     },
   },
   {
