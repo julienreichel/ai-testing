@@ -4,15 +4,15 @@
  */
 
 import { computed } from "vue";
-import { useTestManagementState } from "./useTestManagementState";
-import { testDB } from "../services/testManagementDatabase";
+import { useTestManagementState } from "composables/useTestManagementState";
+import { testDB } from "services/testManagementDatabase";
 import type {
   Project,
   TestCase,
   ExportProject,
   ImportResult,
-} from "../types/testManagement";
-import type { RuleSet } from "../types/rules";
+} from "types/testManagement";
+import type { RuleSet } from "types/rules";
 
 const JSON_INDENT_SPACES = 2;
 

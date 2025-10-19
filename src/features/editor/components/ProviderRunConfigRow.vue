@@ -102,7 +102,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { BaseInputField } from "../../../components/ui";
+import { BaseInputField } from "components/ui";
 
 export interface RunConfiguration {
   runCount: number;

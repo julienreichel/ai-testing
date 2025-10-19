@@ -1,11 +1,11 @@
-import { BaseProviderAdapter } from "../types/providers";
+import { BaseProviderAdapter } from "types/providers";
 import type {
   ProviderModel,
   ProviderPricing,
   ProviderRequest,
   ProviderResponse,
   ProviderConfig,
-} from "../types/providers";
+} from "types/providers";
 
 /**
  * Mock Provider Adapter for testing integration

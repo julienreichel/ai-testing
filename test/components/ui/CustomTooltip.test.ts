@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
-import CustomTooltip from "../../../src/components/ui/CustomTooltip.vue";
-import i18n from "../../../src/locales";
+import CustomTooltip from "components/ui/CustomTooltip.vue";
+import i18n from "@locales";
 
 const createWrapper = (options = {}): ReturnType<typeof mount> => {
   return mount(CustomTooltip, {

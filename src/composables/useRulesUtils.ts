@@ -6,7 +6,7 @@ import type {
   StringRule,
   RegexRule,
   LengthRule,
-} from "../types/rules";
+} from "types/rules";
 
 /**
  * Rule type option interface for UI components

@@ -70,7 +70,7 @@ import { useProvidersStore } from "../../store/providers";
 import { useTestManagement } from "../../composables/useTestManagement";
 import { useBatchRunPersistence } from "../../composables/useBatchRunPersistence";
 import { StatCard } from "./components";
-import { BaseButton } from "../../components/ui";
+import { BaseButton } from "components/ui";
 import { TestExportImport } from "../tests/components";
 
 const router = useRouter();

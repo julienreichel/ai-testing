@@ -304,13 +304,13 @@
 </template>
 
 <script setup lang="ts">
-import type { ProviderResponse } from "../../../types/providers";
-import type { RuleSetResult } from "../../../types/rules";
+import type { ProviderResponse } from "types/providers";
+import type { RuleSetResult } from "types/rules";
 import {
   BaseSpinner,
   BaseButton,
   BaseEmptyState,
-} from "../../../components/ui";
+} from "components/ui";
 
 interface ResultsDisplayProps {
   result: ProviderResponse | null;

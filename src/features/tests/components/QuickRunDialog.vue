@@ -178,19 +178,19 @@ import {
   useBatchRunner,
   type BatchRunConfig,
   type BatchRunResult,
-} from "../../../composables/useBatchRunner";
-import type { TestCase } from "../../../types/testManagement";
-import type { QuickRunProviderConfig } from "../../../types/quickRun";
-import { useProvidersStore } from "../../../store/providers";
+} from "composables/useBatchRunner";
+import type { TestCase } from "types/testManagement";
+import type { QuickRunProviderConfig } from "types/quickRun";
+import { useProvidersStore } from "store/providers";
 import {
   BaseDialog,
   BaseButton,
   BaseInputField,
   BaseBadge,
   BatchProgressSection,
-} from "../../../components/ui";
-import { ProviderSelector } from "../../editor/components";
-import type { ProviderSelection } from "../../editor/components/ProviderSelector.vue";
+} from "components/ui";
+import { ProviderSelector } from "features/editor/components";
+import type { ProviderSelection } from "features/editor/components/ProviderSelector.vue";
 
 interface Props {
   isOpen: boolean;
@@ -233,7 +233,7 @@ const DEFAULT_RUNS_COUNT = 5;
 const DEFAULT_TEMPERATURE = 0.7;
 const SMALL_DELAY = 100;
 const HISTORY_SIZE = 3;
-const MAX_PROVIDERS = 5; // Maximum number of providers we support
+const MAX_PROVIDERS = 10; // Maximum number of providers we support
 
 // Global configuration
 const runCount = ref(DEFAULT_RUNS_COUNT);

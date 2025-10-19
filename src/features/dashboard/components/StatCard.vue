@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { BaseCard } from "../../../components/ui";
+import { BaseCard } from "components/ui";
 
 interface StatCardProps {
   icon: string;

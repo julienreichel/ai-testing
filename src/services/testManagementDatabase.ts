@@ -10,12 +10,12 @@ import type {
   QueryOptions,
   ExportProject,
   ImportResult,
-} from "../types/testManagement";
+} from "types/testManagement";
 import type {
   BatchRunResult,
   BatchRunConfig,
   BatchStatistics,
-} from "../composables/useBatchRunner";
+} from "composables/useBatchRunner";
 
 // Clean batch run session - no data duplication, proper relational design
 export interface BatchRunSession {

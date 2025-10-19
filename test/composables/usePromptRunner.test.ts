@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { usePromptRunner } from "../../src/composables/usePromptRunner";
+import { usePromptRunner } from "composables/usePromptRunner";
 import type {
   ProviderRequest,
   ProviderResponse,

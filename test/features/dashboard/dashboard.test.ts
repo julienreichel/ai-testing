@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { createRouter, createWebHistory } from "vue-router";
 import { createPinia } from "pinia";
 import DashboardView from "../../../src/features/dashboard/DashboardView.vue";
-import i18n from "../../../src/locales";
+import i18n from "@locales";
 
 const router = createRouter({
   history: createWebHistory(),

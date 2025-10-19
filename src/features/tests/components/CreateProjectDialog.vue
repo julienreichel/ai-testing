@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { BaseButton, BaseInputField, BaseDialog } from "../../../components/ui";
+import { BaseButton, BaseInputField, BaseDialog } from "components/ui";
 
 interface Props {
   modelValue: boolean;

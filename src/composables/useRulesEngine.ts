@@ -12,7 +12,7 @@ import type {
   StringRule,
   RegexRule,
   LengthRule,
-} from "../types/rules";
+} from "types/rules";
 
 interface RulesEngineComposable {
   validateRule: (rule: Rule, input: string) => RuleResult;

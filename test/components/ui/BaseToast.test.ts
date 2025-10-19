@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
-import BaseToast from "../../../src/components/ui/BaseToast.vue";
-import i18n from "../../../src/locales";
+import BaseToast from "components/ui/BaseToast.vue";
+import i18n from "@locales";
 
 // Mock timers for auto-hide testing
 vi.useFakeTimers();

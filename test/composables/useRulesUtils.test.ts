@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { useRulesUtils } from "../../src/composables/useRulesUtils";
+import { useRulesUtils } from "composables/useRulesUtils";
 import type { RuleType } from "../../src/types/rules";
 
 // Mock i18n

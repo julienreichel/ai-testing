@@ -7,12 +7,12 @@ import { ref, type Ref } from "vue";
 import {
   testDB,
   type BatchRunSession,
-} from "../services/testManagementDatabase";
+} from "services/testManagementDatabase";
 import type {
   BatchRunConfig,
   BatchRunResult,
   BatchStatistics,
-} from "./useBatchRunner";
+} from "composables/useBatchRunner";
 
 export interface BatchRunPersistence {
   currentSession: Ref<BatchRunSession | null>;

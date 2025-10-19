@@ -125,10 +125,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { useTestManagement } from "../../../composables/useTestManagement";
-import { BaseButton, BaseDialog } from "../../../components/ui";
-import BaseToast from "../../../components/ui/BaseToast.vue";
-import type { ExportProject } from "../../../types/testManagement";
+import { useTestManagement } from "composables/useTestManagement";
+import { BaseButton, BaseDialog } from "components/ui";
+import BaseToast from "components/ui/BaseToast.vue";
+import type { ExportProject } from "types/testManagement";
 
 // Test Management composable
 const testManager = useTestManagement();

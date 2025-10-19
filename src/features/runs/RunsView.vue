@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import type { BatchRunSession } from "../../services/testManagementDatabase";
+import type { BatchRunSession } from "services/testManagementDatabase";
 import BatchRunHistory from "./components/BatchRunHistory.vue";
 
 // Methods

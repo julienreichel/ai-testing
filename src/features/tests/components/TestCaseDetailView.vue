@@ -78,9 +78,9 @@
 </template>
 
 <script setup lang="ts">
-import { BaseButton, BaseCard } from "../../../components/ui";
-import type { Rule } from "../../../types/rules";
-import type { TestCase } from "../../../types/testManagement";
+import { BaseButton, BaseCard } from "components/ui";
+import type { Rule } from "types/rules";
+import type { TestCase } from "types/testManagement";
 
 interface Props {
   testCase: TestCase;

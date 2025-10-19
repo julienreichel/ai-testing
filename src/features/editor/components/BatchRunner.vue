@@ -166,13 +166,13 @@ import {
   useBatchRunner,
   type BatchRunConfig,
   type BatchRunResult,
-} from "../../../composables/useBatchRunner";
-import type { TestCase } from "../../../types/testManagement";
-import BaseCard from "../../../components/ui/BaseCard.vue";
-import BaseInputField from "../../../components/ui/BaseInputField.vue";
-import BaseButton from "../../../components/ui/BaseButton.vue";
-import BaseBadge from "../../../components/ui/BaseBadge.vue";
-import BatchProgressSection from "../../../components/ui/BatchProgressSection.vue";
+} from "composables/useBatchRunner";
+import type { TestCase } from "types/testManagement";
+import BaseCard from "components/ui/BaseCard.vue";
+import BaseInputField from "components/ui/BaseInputField.vue";
+import BaseButton from "components/ui/BaseButton.vue";
+import BaseBadge from "components/ui/BaseBadge.vue";
+import BatchProgressSection from "components/ui/BatchProgressSection.vue";
 
 // Constants to avoid magic numbers
 const DEFAULT_TEMPERATURE = 0.7;

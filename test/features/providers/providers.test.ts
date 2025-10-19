@@ -4,7 +4,7 @@ import { createPinia } from "pinia";
 import ProvidersView from "../../../src/features/providers/ProvidersView.vue";
 import { useProvidersStore } from "../../../src/store/providers";
 import type { ProviderKeyStatus } from "../../../src/store/providers";
-import i18n from "../../../src/locales";
+import i18n from "@locales";
 
 // Mock the providers store
 vi.mock("../../../src/store/providers", () => ({

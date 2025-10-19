@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ref } from "vue";
-import { useCostEstimator } from "../../src/composables/useCostEstimator";
-import type { CostEstimatorParams } from "../../src/composables/useCostEstimator";
+import { useCostEstimator } from "composables/useCostEstimator";
+import type { CostEstimatorParams } from "composables/useCostEstimator";
 
 // Mock the providers store
 vi.mock("../../src/store/providers", () => ({

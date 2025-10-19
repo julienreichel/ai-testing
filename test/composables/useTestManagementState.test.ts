@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { useTestManagementState } from "../../src/composables/useTestManagementState";
+import { useTestManagementState } from "composables/useTestManagementState";
 import type {
   Project,
   TestCase,

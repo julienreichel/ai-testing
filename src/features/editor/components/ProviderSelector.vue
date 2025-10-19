@@ -32,7 +32,7 @@
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useProvidersStore } from "../../../store/providers";
-import { BaseForm, BaseInputField } from "../../../components/ui";
+import { BaseForm, BaseInputField } from "components/ui";
 
 export interface ProviderSelection {
   providerId: string;

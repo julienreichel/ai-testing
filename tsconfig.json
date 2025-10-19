@@ -9,6 +9,8 @@
       "router/*": ["./src/router/*"],
       "utils/*": ["./src/utils/*"],
       "types/*": ["./src/types/*"],
+      "@locales": ["./src/locales"],
+      "services/*": ["./src/services/*"],
       "composables/*": ["./src/composables/*"]
     },
   },

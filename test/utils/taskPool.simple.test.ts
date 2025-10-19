@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { runPool } from "../../src/utils/taskPool";
-import type { Task } from "../../src/utils/taskPool";
+import { runPool } from "utils/taskPool";
+import type { Task } from "utils/taskPool";
 
 const TINY_DELAY = 1; // ms
 

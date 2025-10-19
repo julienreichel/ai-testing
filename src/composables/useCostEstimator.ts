@@ -1,5 +1,5 @@
 import { computed, type Ref } from "vue";
-import type { ProviderPricing } from "../types/providers";
+import type { ProviderPricing } from "types/providers";
 import { useProvidersStore } from "../store/providers";
 
 // Constants for cost estimation

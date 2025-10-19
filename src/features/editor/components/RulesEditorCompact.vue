@@ -191,11 +191,11 @@ import type {
   StringRule,
   RegexRule,
   LengthRule,
-} from "../../../types/rules";
+} from "types/rules";
 // All utility functions now come from the composable
-import { useRulesEngine } from "../../../composables/useRulesEngine";
-import { useRulesUtils } from "../../../composables/useRulesUtils";
-import BaseButton from "../../../components/ui/BaseButton.vue";
+import { useRulesEngine } from "composables/useRulesEngine";
+import { useRulesUtils } from "composables/useRulesUtils";
+import BaseButton from "components/ui/BaseButton.vue";
 
 interface Props {
   testData?: string;

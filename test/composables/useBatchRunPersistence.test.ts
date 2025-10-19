@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { useBatchRunPersistence } from "../../src/composables/useBatchRunPersistence";
+import { useBatchRunPersistence } from "composables/useBatchRunPersistence";
 import type {
   BatchRunConfig,
   BatchRunResult,
   BatchStatistics,
-} from "../../src/composables/useBatchRunner";
+} from "composables/useBatchRunner";
 import type { BatchRunSession } from "../../src/services/testManagementDatabase";
 
 // Mock the testManagementDatabase service (external dependency)

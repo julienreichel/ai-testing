@@ -98,11 +98,11 @@ import {
   BaseDialog,
   BaseToast,
   DeleteConfirmationDialog,
-} from "../../components/ui";
+} from "components/ui";
 import ProviderCard from "./components/ProviderCard.vue";
 import ProviderForm from "./components/ProviderForm.vue";
 
-import type { ProviderConfig } from "../../types/providers";
+import type { ProviderConfig } from "types/providers";
 import type { ProviderType } from "../../providers";
 
 type ProviderDisplayData = {

@@ -221,15 +221,15 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
-import { useBatchRunPersistence } from "../../../composables/useBatchRunPersistence";
-import { useCsvExport } from "../../../composables/useCsvExport";
+import { useBatchRunPersistence } from "composables/useBatchRunPersistence";
+import { useCsvExport } from "composables/useCsvExport";
 import { useProvidersStore } from "../../../store/providers";
 import {
   testDB,
   type BatchRunSession,
-} from "../../../services/testManagementDatabase";
-import type { Project, TestCase } from "../../../types/testManagement";
-import BaseButton from "../../../components/ui/BaseButton.vue";
+} from "services/testManagementDatabase";
+import type { Project, TestCase } from "types/testManagement";
+import BaseButton from "components/ui/BaseButton.vue";
 import BatchRunDetailsModal from "./BatchRunDetailsModal.vue";
 
 interface Props {

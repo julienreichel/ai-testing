@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { useBatchRunner } from "../../src/composables/useBatchRunner";
+import { useBatchRunner } from "composables/useBatchRunner";
 import type { TestCase } from "../../src/types/testManagement";
 
 // Mock all dependencies to focus on composable behavior
@@ -10,7 +10,7 @@ vi.mock("../../src/store/providers", () => ({
   }),
 }));
 
-vi.mock("../../src/composables/useRulesEngine", () => ({
+vi.mock("composables/useRulesEngine", () => ({
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   useRulesEngine: () => ({
     validateRuleSet: vi.fn().mockReturnValue({
@@ -21,7 +21,7 @@ vi.mock("../../src/composables/useRulesEngine", () => ({
   }),
 }));
 
-vi.mock("../../src/composables/useBatchRunPersistence", () => ({
+vi.mock("composables/useBatchRunPersistence", () => ({
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   useBatchRunPersistence: () => ({
     saveBatchRunStart: vi.fn().mockResolvedValue({ id: "batch-session-1" }),

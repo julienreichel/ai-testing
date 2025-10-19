@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
-import BaseBadge from "../../../src/components/ui/BaseBadge.vue";
-import i18n from "../../../src/locales";
+import BaseBadge from "components/ui/BaseBadge.vue";
+import i18n from "@locales";
 
 const createWrapper = (options = {}): ReturnType<typeof mount> => {
   return mount(BaseBadge, {

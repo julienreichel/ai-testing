@@ -16,6 +16,8 @@ export default defineConfig({
       "router": resolve(__dirname, "src/router"),
       "utils": resolve(__dirname, "src/utils"),
       "types": resolve(__dirname, "src/types"),
+      "@locales": resolve(__dirname, "src/locales"),
+      "services": resolve(__dirname, "src/services"),
       "composables": resolve(__dirname, "src/composables"),
     },
   },

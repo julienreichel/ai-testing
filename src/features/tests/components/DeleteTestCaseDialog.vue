@@ -35,8 +35,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { BaseButton, BaseDialog } from "../../../components/ui";
-import type { TestCase } from "../../../types/testManagement";
+import { BaseButton, BaseDialog } from "components/ui";
+import type { TestCase } from "types/testManagement";
 
 interface Props {
   modelValue: boolean;

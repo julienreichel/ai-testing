@@ -151,9 +151,9 @@ import {
   BaseSpinner,
   BaseCard,
   BaseEmptyState,
-} from "../../../components/ui";
-import type { Rule } from "../../../types/rules";
-import type { Project, TestCase } from "../../../types/testManagement";
+} from "components/ui";
+import type { Rule } from "types/rules";
+import type { Project, TestCase } from "types/testManagement";
 
 interface Props {
   projects: Project[];

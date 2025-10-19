@@ -78,8 +78,8 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useTestManagement } from "../../composables/useTestManagement";
-import { testDB } from "../../services/testManagementDatabase";
-import { BaseButton } from "../../components/ui";
+import { testDB } from "services/testManagementDatabase";
+import { BaseButton } from "components/ui";
 import {
   TestExportImport,
   CreateProjectDialog,
@@ -89,7 +89,7 @@ import {
   ProjectsTestCasesList,
   QuickRunDialog,
 } from "./components";
-import type { Project, TestCase } from "../../types/testManagement";
+import type { Project, TestCase } from "types/testManagement";
 
 // Composables
 const router = useRouter();

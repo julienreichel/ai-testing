@@ -4,7 +4,7 @@
  */
 
 import { computed, type ComputedRef } from "vue";
-import type { BatchRunResult } from "./useBatchRunner";
+import type { BatchRunResult } from "composables/useBatchRunner";
 
 // Constants to avoid magic numbers
 const PERCENTAGE_MULTIPLIER = 100;

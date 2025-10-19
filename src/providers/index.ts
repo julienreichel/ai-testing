@@ -1,4 +1,4 @@
-import type { BaseProviderAdapter, ProviderConfig } from "../types/providers";
+import type { BaseProviderAdapter, ProviderConfig } from "types/providers";
 import { MockProviderAdapter } from "./MockProviderAdapter";
 import { OpenAIProviderAdapter } from "./OpenAIProviderAdapter";
 import { AnthropicProviderAdapter } from "./AnthropicProviderAdapter";

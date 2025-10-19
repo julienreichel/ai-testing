@@ -7,7 +7,7 @@ import type {
   ProviderRequest,
   ProviderModel,
   ProviderPricing,
-} from "../types/providers";
+} from "types/providers";
 import { storageUtils, validationUtils, providerUtils } from "./provider-utils";
 
 const ENCRYPTION_NOTICE_KEY = "ai-testing-encryption-notice-shown";

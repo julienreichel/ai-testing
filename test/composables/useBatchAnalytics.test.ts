@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { useBatchAnalytics } from "../../src/composables/useBatchAnalytics";
-import type { BatchRunResult } from "../../src/composables/useBatchRunner";
+import { useBatchAnalytics } from "composables/useBatchAnalytics";
+import type { BatchRunResult } from "composables/useBatchRunner";
 
 // Test data constants to avoid magic numbers
 const LOW_LATENCY = 500;

@@ -1,5 +1,5 @@
 // Provider store utilities
-import type { ProviderConfig } from "../types/providers";
+import type { ProviderConfig } from "types/providers";
 import type { ProviderType } from "../providers";
 import { ProviderFactory } from "../providers";
 

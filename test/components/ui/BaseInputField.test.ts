@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
-import BaseInputField from "../../../src/components/ui/BaseInputField.vue";
-import i18n from "../../../src/locales";
+import BaseInputField from "components/ui/BaseInputField.vue";
+import i18n from "@locales";
 
 const createWrapper = (options = {}): ReturnType<typeof mount> => {
   return mount(BaseInputField, {

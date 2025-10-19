@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
-import BaseDialog from "../../../src/components/ui/BaseDialog.vue";
-import i18n from "../../../src/locales";
+import BaseDialog from "components/ui/BaseDialog.vue";
+import i18n from "@locales";
 
 const createWrapper = (options = {}): ReturnType<typeof mount> => {
   return mount(BaseDialog, {

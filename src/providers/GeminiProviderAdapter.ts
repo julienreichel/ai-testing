@@ -1,4 +1,4 @@
-import { BaseProviderAdapter } from "../types/providers";
+import { BaseProviderAdapter } from "types/providers";
 import type {
   ProviderModel,
   ProviderPricing,
@@ -6,7 +6,7 @@ import type {
   ProviderResponse,
   ProviderConfig,
   ProviderError,
-} from "../types/providers";
+} from "types/providers";
 
 const DEFAULT_MAX_TOKENS = 1000;
 const TOKENS_PER_1K = 1000;

@@ -4,11 +4,11 @@
  */
 
 import { reactive, computed, type ComputedRef } from "vue";
-import type { TestCase } from "../types/testManagement";
-import type { ProviderRequest } from "../types/providers";
+import type { TestCase } from "types/testManagement";
+import type { ProviderRequest } from "types/providers";
 import { useProvidersStore } from "../store/providers";
-import { useRulesEngine } from "./useRulesEngine";
-import { useBatchRunPersistence } from "./useBatchRunPersistence";
+import { useRulesEngine } from "composables/useRulesEngine";
+import { useBatchRunPersistence } from "composables/useBatchRunPersistence";
 import { runPool, type Task } from "../utils/taskPool";
 
 // Constants to avoid magic numbers

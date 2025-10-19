@@ -130,7 +130,7 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useProvidersStore } from "../../store/providers";
 import { usePromptRunner } from "../../composables/usePromptRunner";
-import { BaseButton, BaseInputField } from "../../components/ui";
+import { BaseButton, BaseInputField } from "components/ui";
 import { ProviderSelector, ResultsDisplay } from "./components";
 import RulesEditorCompact from "./components/RulesEditorCompact.vue";
 import SaveTestCaseDialog from "./components/SaveTestCaseDialog.vue";
@@ -138,10 +138,10 @@ import BatchRunner from "./components/BatchRunner.vue";
 import { useRulesUtils } from "../../composables/useRulesUtils";
 import { useRulesEngine } from "../../composables/useRulesEngine";
 import { useCsvExport } from "../../composables/useCsvExport";
-import { testDB } from "../../services/testManagementDatabase";
+import { testDB } from "services/testManagementDatabase";
 import type { ProviderSelection } from "./components/ProviderSelector.vue";
-import type { RuleSet, RuleSetResult } from "../../types/rules";
-import type { TestCase } from "../../types/testManagement";
+import type { RuleSet, RuleSetResult } from "types/rules";
+import type { TestCase } from "types/testManagement";
 import type { BatchRunResult } from "../../composables/useBatchRunner";
 
 interface PromptData {

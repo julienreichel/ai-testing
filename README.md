@@ -167,7 +167,7 @@ npm run test:coverage       # Coverage report
 
 ```typescript
 // src/providers/YourProviderAdapter.ts
-import { BaseProviderAdapter } from "../types/providers";
+import { BaseProviderAdapter } from "types/providers";
 
 export class YourProviderAdapter extends BaseProviderAdapter {
   async call(request: ProviderRequest): Promise<ProviderResponse> {

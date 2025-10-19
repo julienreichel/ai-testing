@@ -69,8 +69,8 @@ import type { ChartConfiguration } from "chart.js";
 import type {
   BatchRunResult,
   BatchStatistics,
-} from "../../../composables/useBatchRunner";
-import BaseCard from "../../../components/ui/BaseCard.vue";
+} from "composables/useBatchRunner";
+import BaseCard from "components/ui/BaseCard.vue";
 
 // Register Chart.js components
 Chart.register(

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
-import BaseSpinner from "../../../src/components/ui/BaseSpinner.vue";
-import i18n from "../../../src/locales";
+import BaseSpinner from "components/ui/BaseSpinner.vue";
+import i18n from "@locales";
 
 const createWrapper = (options = {}): ReturnType<typeof mount> => {
   return mount(BaseSpinner, {

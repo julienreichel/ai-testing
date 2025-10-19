@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { useRulesEngine } from "../../src/composables/useRulesEngine";
-import { useRulesUtils } from "../../src/composables/useRulesUtils";
+import { useRulesEngine } from "composables/useRulesEngine";
+import { useRulesUtils } from "composables/useRulesUtils";
 import type { StringRule, RegexRule, LengthRule } from "../../src/types/rules";
 
 // Mock i18n

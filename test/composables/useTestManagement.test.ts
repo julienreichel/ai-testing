@@ -30,7 +30,7 @@ vi.mock("../../src/services/testManagementDatabase", () => ({
   },
 }));
 
-import { useTestManagement } from "../../src/composables/useTestManagement";
+import { useTestManagement } from "composables/useTestManagement";
 
 // Get reference to mocked testDB
 const { testDB: mockTestDB } = (await vi.importMock(

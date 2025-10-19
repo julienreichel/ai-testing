@@ -79,9 +79,9 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import BaseCard from "../../../components/ui/BaseCard.vue";
-import BaseBadge from "../../../components/ui/BaseBadge.vue";
-import BaseButton from "../../../components/ui/BaseButton.vue";
+import BaseCard from "components/ui/BaseCard.vue";
+import BaseBadge from "components/ui/BaseBadge.vue";
+import BaseButton from "components/ui/BaseButton.vue";
 
 interface ProviderCardProps {
   provider: {

@@ -4,7 +4,7 @@
  * with proper escaping for multi-line content and special characters
  */
 
-import type { BatchRunResult } from "./useBatchRunner";
+import type { BatchRunResult } from "composables/useBatchRunner";
 
 // Constants to avoid magic numbers
 const COST_DECIMAL_PLACES = 6;

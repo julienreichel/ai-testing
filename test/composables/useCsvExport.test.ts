@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { useCsvExport } from "../../src/composables/useCsvExport";
-import type { BatchRunResult } from "../../src/composables/useBatchRunner";
+import { useCsvExport } from "composables/useCsvExport";
+import type { BatchRunResult } from "composables/useBatchRunner";
 
 describe("useCsvExport - CSV Export Functionality", () => {
   describe("escapeCsvField", () => {

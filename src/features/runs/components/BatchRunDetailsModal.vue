@@ -97,13 +97,13 @@
 </template>
 
 <script setup lang="ts">
-import type { BatchRunSession } from "../../../services/testManagementDatabase";
-import type { TestCase } from "../../../types/testManagement";
-import type { BatchRunResult } from "../../../composables/useBatchRunner";
-import BaseButton from "../../../components/ui/BaseButton.vue";
-import BaseBadge from "../../../components/ui/BaseBadge.vue";
+import type { BatchRunSession } from "services/testManagementDatabase";
+import type { TestCase } from "types/testManagement";
+import type { BatchRunResult } from "composables/useBatchRunner";
+import BaseButton from "components/ui/BaseButton.vue";
+import BaseBadge from "components/ui/BaseBadge.vue";
 import BatchResultsVisualization from "./BatchResultsVisualization.vue";
-import CustomTooltip from "../../../components/ui/CustomTooltip.vue";
+import CustomTooltip from "components/ui/CustomTooltip.vue";
 
 interface Props {
   visible: boolean;

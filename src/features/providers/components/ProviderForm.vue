@@ -59,10 +59,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import BaseForm from "../../../components/ui/BaseForm.vue";
-import BaseInputField from "../../../components/ui/BaseInputField.vue";
-import BaseNotice from "../../../components/ui/BaseNotice.vue";
-import type { BaseInputFieldOption } from "../../../components/ui/BaseInputField.vue";
+import BaseForm from "components/ui/BaseForm.vue";
+import BaseInputField from "components/ui/BaseInputField.vue";
+import BaseNotice from "components/ui/BaseNotice.vue";
+import type { BaseInputFieldOption } from "components/ui/BaseInputField.vue";
 import { ProviderFactory, type ProviderType } from "../../../providers";
 
 interface Provider {
