@@ -168,6 +168,7 @@ const handleFocus = (event: Event): void => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  text-align: left;
 }
 
 .field-label {

@@ -73,7 +73,16 @@ export interface BatchStatistics {
   errorRate: number;
 }
 
-interface BatchRunState {
+export interface IBatchRunner {
+  state: BatchRunState;
+  progress: ComputedRef<number>;
+  statistics: ComputedRef<BatchStatistics>;
+  runBatch: (config: BatchRunConfig) => Promise<void>;
+  cancelBatch: () => void;
+  resetBatch: () => void;
+}
+
+export interface BatchRunState {
   isRunning: boolean;
   isCancelled: boolean;
   completedRuns: number;
@@ -306,14 +315,7 @@ const executeSingleRun = async (params: {
 };
 
 // eslint-disable-next-line max-lines-per-function
-export function useBatchRunner(): {
-  state: BatchRunState;
-  progress: ComputedRef<number>;
-  statistics: ComputedRef<BatchStatistics>;
-  runBatch: (config: BatchRunConfig) => Promise<void>;
-  cancelBatch: () => void;
-  resetBatch: () => void;
-} {
+export function useBatchRunner(): IBatchRunner {
   // Initialize dependencies
   const providersStore = useProvidersStore();
   const rulesEngine = useRulesEngine();

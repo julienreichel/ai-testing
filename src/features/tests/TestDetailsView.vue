@@ -27,7 +27,7 @@
     </div>
 
     <!-- Test Case Detail View -->
-    <test-case-detail-view
+    <test-case-details
       v-else
       :test-case="testCase"
       @back="goBackToList"
@@ -53,7 +53,7 @@ import { useTestManagement } from "@/composables/useTestManagement";
 import { testDB } from "@/services/testManagementDatabase";
 import { BaseButton, BaseSpinner, BaseNotice } from "@/components/ui";
 import {
-  TestCaseDetailView,
+  TestCaseDetails,
   DeleteTestCaseDialog,
 } from "./components";
 import type { TestCase } from "@/types/testManagement";
@@ -160,9 +160,9 @@ const loadTestCase = async (): Promise<void> => {
 // Watch for route changes
 watch(
   () => route.params.testId,
-  () => {
+  async () => {
     if (route.params.testId) {
-      loadTestCase();
+      await loadTestCase();
     }
   },
   { immediate: true },

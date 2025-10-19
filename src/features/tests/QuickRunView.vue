@@ -43,7 +43,7 @@
               <span class="breadcrumb-separator">/</span>
               <span class="breadcrumb-current">{{ $t("quickRun.title") }}</span>
             </div>
-            <h1>{{ $t("quickRun.runningTest", { testName: testCase.name }) }}</h1>
+            <h1>{{ testCase.name }}</h1>
             <p class="test-description">{{ testCase.description || $t("quickRun.noDescription") }}</p>
           </div>
           <div class="header-actions">
@@ -198,9 +198,10 @@
               <batch-progress-section
                 :completed-runs="runner.runner.state.completedRuns"
                 :total-runs="runner.runner.state.totalRuns"
-                :progress-percentage="getRunnerProgress(runner)"
+                :progress-percentage="getRunnerProgress(runner.runner.state)"
                 :show-statistics="true"
-                :latest-results="getLatestResults(runner.runner)"
+                :statistics="runner.runner.statistics"
+                :latest-results="getLatestResults(runner.runner.state.results)"
                 :is-running="runner.runner.state.isRunning"
               />
             </div>
@@ -218,7 +219,27 @@ import { useRouter, useRoute } from "vue-router";
 import {
   useBatchRunner,
   type BatchRunConfig,
+  type BatchRunState,
+  type BatchRunResult,
 } from "@/composables/useBatchRunner";
+
+// Type definitions for provider config
+interface ProviderConfig {
+  id: string;
+  name: string;
+  apiKey?: string;
+  baseUrl?: string;
+  isActive: boolean;
+}
+
+type BatchRunnerType = ReturnType<typeof useBatchRunner>
+
+interface BatchRunnerWithProvider {
+  providerId: string;
+  runner: BatchRunnerType;
+}
+
+
 import type { TestCase } from "@/types/testManagement";
 import type { QuickRunProviderConfig } from "@/types/quickRun";
 import { useProvidersStore } from "@/store/providers";
@@ -245,25 +266,24 @@ const isLoadingTestCase = ref(false);
 const testCaseError = ref<string | null>(null);
 
 // Quick Run State
-const runCount = ref(3);
+const DEFAULT_RUNS = 10;
+const runCount = ref(DEFAULT_RUNS);
 const providerConfigs = ref<QuickRunProviderConfig[]>([]);
 const isRunning = ref(false);
 
 // Pre-create batch runners pool to avoid dynamic composable calls
-const batchRunnerPool = ref<Map<string, any>>(new Map());
+const batchRunnerPool = ref<Map<string, BatchRunnerType>>(new Map<string, BatchRunnerType>());
 const BATCH_RUNNER_POOL_SIZE = 5;
 
 // Initialize batch runner pool
 for (let i = 0; i < BATCH_RUNNER_POOL_SIZE; i++) {
   const runner = useBatchRunner();
-  batchRunnerPool.value.set(`pool-${i}`, runner);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  batchRunnerPool.value.set(`pool-${i}`, runner as any);
 }
 
 // Track active batch runners for progress display
-const activeBatchRunners = ref<Array<{
-  providerId: string;
-  runner: any;
-}>>([]);
+const activeBatchRunners = ref<Array<BatchRunnerWithProvider>>([]);
 
 // Computed
 const testId = computed(() => route.params.testId as string);
@@ -278,7 +298,7 @@ const canRun = computed(() => {
 });
 
 const hasAnyResults = computed(() => {
-  return activeBatchRunners.value.some(runner => 
+  return activeBatchRunners.value.some(runner =>
     runner.runner.state.results.length > 0
   );
 });
@@ -346,11 +366,11 @@ const runTests = async (): Promise<void> => {
   try {
     // Prepare batch runners for each provider
     const runnerPromises: Promise<void>[] = [];
-    
+
     for (const [index, config] of providerConfigs.value.entries()) {
       const poolKey = `pool-${index % BATCH_RUNNER_POOL_SIZE}`;
       const runner = batchRunnerPool.value.get(poolKey);
-      
+
       if (!runner) {
         console.error(`No batch runner available for pool key: ${poolKey}`);
         continue;
@@ -393,7 +413,7 @@ const runTests = async (): Promise<void> => {
 
 // Helper functions for progress display
 const getProviderDisplayName = (providerId: string): string => {
-  const provider = providersStore.providerConfigs.find((p: any) => p.id === providerId);
+  const provider = providersStore.providerConfigs.find((p: ProviderConfig) => p.id === providerId);
   return provider?.name || providerId;
 };
 
@@ -409,13 +429,17 @@ const getProviderStatusText = (isRunning: boolean, hasResults: boolean): string 
   return "Pending";
 };
 
-const getRunnerProgress = (runner: { runner: ReturnType<typeof useBatchRunner> }): number => {
-  const { completedRuns, totalRuns } = runner.runner.state;
-  return totalRuns > 0 ? Math.round((completedRuns / totalRuns) * 100) : 0;
+const PERCENTAGE_MULTIPLIER = 100;
+
+const getRunnerProgress = (state: BatchRunState): number => {
+  const { completedRuns, totalRuns } = state;
+  return totalRuns > 0 ? Math.round((completedRuns / totalRuns) * PERCENTAGE_MULTIPLIER) : 0;
 };
 
-const getLatestResults = (runner: ReturnType<typeof useBatchRunner>) => {
-  return runner.state.results.slice(-3); // Show last 3 results
+
+const getLatestResults = (results: BatchRunResult[]): Array<BatchRunResult> => {
+  const LAST_RESULTS = 3;
+  return results.slice(-LAST_RESULTS); // Show last 3 results
 };
 
 // Data loading
@@ -444,6 +468,7 @@ const loadTestCase = async (): Promise<void> => {
 
 // Initialize default provider on load
 const initializeDefaultProvider = (): void => {
+  providersStore.initialize();
   if (providerConfigs.value.length === 0) {
     addProvider();
   }
@@ -454,7 +479,7 @@ watch(
   () => route.params.testId,
   () => {
     if (route.params.testId) {
-      loadTestCase();
+      void loadTestCase();
     }
   },
   { immediate: true }
@@ -463,6 +488,7 @@ watch(
 // Initialize on mount
 onMounted(async () => {
   await loadTestCase();
+
   initializeDefaultProvider();
 });
 </script>
@@ -541,6 +567,10 @@ onMounted(async () => {
 .breadcrumb-current {
   color: #374151;
   font-weight: 500;
+}
+
+.title-section {
+  text-align: left;
 }
 
 .title-section h1 {
