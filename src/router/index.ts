@@ -49,7 +49,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/tests/:testId/run",
     name: "QuickRun",
-    component: () => import("../features/tests/QuickRunView.vue"),
+    component: () => import("../features/tests/TestQuickRunView.vue"),
     meta: {
       title: "Quick Run",
     },
