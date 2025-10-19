@@ -81,10 +81,8 @@
             <provider-options
               :config="config"
               :is-disabled="isRunning"
-              :options="{ showParallelToggle: true }"
-              @update-max-tokens="(configId, value) => updateProviderConfig(configId, 'maxTokens', value)"
-              @update-parallel="(configId, value) => updateProviderConfig(configId, 'allowParallel', value)"
-              @update-concurrency="(configId, value) => updateProviderConfig(configId, 'parallelConcurrency', value)"
+              :show-parallel="true"
+              @update:config="(field, value) => updateProviderConfig(config.id, field, value)"
             />
           </div>
         </div>
