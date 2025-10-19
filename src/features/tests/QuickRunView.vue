@@ -1,220 +1,182 @@
 <template>
-  <div class="quick-run-view">
-    <!-- Loading state -->
-    <div v-if="isLoadingTestCase" class="loading-container">
-      <base-spinner />
-      <p>{{ $t("common.loading") }}</p>
-    </div>
-
-    <!-- Error state -->
-    <div v-else-if="testCaseError" class="error-container">
-      <base-notice variant="error">
-        {{ testCaseError }}
-      </base-notice>
-      <base-button @click="loadTestCase">
-        {{ $t("common.retry") }}
+  <base-page-layout
+    :title="testCase?.name || $t('quickRun.title')"
+    :description="testCase?.description || $t('quickRun.noDescription')"
+    :breadcrumb-items="breadcrumbItems"
+    :is-loading="isLoadingTestCase"
+    :error="testCaseError"
+    :not-found="!testCase && !isLoadingTestCase && !testCaseError"
+    :not-found-message="$t('tests.testCaseNotFound')"
+    :on-retry="loadTestCase"
+    :on-back="goBackToTestDetails"
+  >
+    <template #headerActions>
+      <base-button variant="outline" @click="goBackToTestDetails">
+        {{ $t("quickRun.backToTest") }}
       </base-button>
-    </div>
+    </template>
 
-    <!-- Test Case not found -->
-    <div v-else-if="!testCase" class="not-found-container">
-      <base-notice variant="warning">
-        {{ $t("tests.testCaseNotFound") }}
-      </base-notice>
-      <base-button @click="goBackToTestDetails">
-        {{ $t("common.back") }}
-      </base-button>
-    </div>
-
-    <!-- Quick Run Content -->
-    <div v-else class="quick-run-content">
-      <!-- Header with Test Case Info -->
-      <div class="quick-run-header">
-        <div class="header-content">
-          <div class="title-section">
-            <div class="breadcrumb">
-              <button @click="goBackToTestDetails" class="breadcrumb-link">
-                {{ $t("tests.title") }}
-              </button>
-              <span class="breadcrumb-separator">/</span>
-              <button @click="goBackToTestDetails" class="breadcrumb-link">
-                {{ testCase.name }}
-              </button>
-              <span class="breadcrumb-separator">/</span>
-              <span class="breadcrumb-current">{{ $t("quickRun.title") }}</span>
-            </div>
-            <h1>{{ testCase.name }}</h1>
-            <p class="test-description">{{ testCase.description || $t("quickRun.noDescription") }}</p>
-          </div>
-          <div class="header-actions">
-            <base-button variant="outline" @click="goBackToTestDetails">
-              {{ $t("quickRun.backToTest") }}
-            </base-button>
-          </div>
+    <div class="quick-run-main">
+      <!-- Global Configuration Section -->
+      <div class="global-config-section">
+        <h3>{{ $t("quickRun.globalSettings") }}</h3>
+        <div class="global-config-row">
+          <base-input-field
+            v-model="runCount"
+            :label="$t('quickRun.numberOfRuns')"
+            type="number"
+            :min="1"
+            :max="20"
+            :disabled="isRunning"
+          />
         </div>
       </div>
 
-      <div class="quick-run-main">
-        <!-- Global Configuration Section -->
-        <div class="global-config-section">
-          <h3>{{ $t("quickRun.globalSettings") }}</h3>
-          <div class="global-config-row">
-            <base-input-field
-              v-model="runCount"
-              :label="$t('quickRun.numberOfRuns')"
-              type="number"
-              :min="1"
-              :max="20"
-              :disabled="isRunning"
-            />
-          </div>
-        </div>
-
-        <!-- Provider Configurations -->
-        <div class="providers-section">
-          <div class="providers-header">
-            <h3>{{ $t("quickRun.providers") }}</h3>
-            <base-button
-              variant="outline"
-              size="sm"
-              :disabled="isRunning"
-              @click="addProvider"
-            >
-              {{ $t("quickRun.addProvider") }}
-            </base-button>
-          </div>
-
-          <div v-if="providerConfigs.length === 0" class="empty-providers">
-            <p>{{ $t("quickRun.noProvidersConfigured") }}</p>
-          </div>
-
-          <div v-else class="providers-list">
-            <div
-              v-for="(config, index) in providerConfigs"
-              :key="config.id"
-              class="provider-config"
-            >
-              <div class="provider-header">
-                <h4>{{ $t("quickRun.provider") }} {{ index + 1 }}</h4>
-                <base-button
-                  variant="danger"
-                  size="sm"
-                  :disabled="isRunning"
-                  @click="removeProvider(config.id)"
-                >
-                  {{ $t("common.remove") }}
-                </base-button>
-              </div>
-
-              <!-- Provider Selection -->
-              <div class="provider-selection">
-                <provider-selector
-                  :model-value="{ providerId: config.providerId, model: config.model }"
-                  :is-running="isRunning"
-                  @update:model-value="updateProviderSelection(config.id, $event)"
-                />
-              </div>
-
-              <!-- Provider Options -->
-              <div class="provider-options">
-                <div class="options-row">
-                  <base-input-field
-                    :model-value="config.maxTokens"
-                    :label="$t('promptEditor.maxTokens')"
-                    type="number"
-                    :min="1"
-                    :max="8192"
-                    :disabled="isRunning"
-                    @update:model-value="updateProviderConfig(config.id, 'maxTokens', $event)"
-                  />
-                  <div class="parallel-toggle">
-                    <input
-                      :id="`parallel-${config.id}`"
-                      :checked="config.allowParallel"
-                      type="checkbox"
-                      :disabled="isRunning"
-                      class="parallel-checkbox"
-                      @change="handleParallelToggle(config.id, $event)"
-                    />
-                    <label :for="`parallel-${config.id}`" class="parallel-label">
-                      {{ $t("quickRun.enableParallel") }}
-                    </label>
-                  </div>
-                  <base-input-field
-                    v-if="config.allowParallel"
-                    :model-value="config.parallelConcurrency"
-                    :label="$t('quickRun.concurrency')"
-                    type="number"
-                    :min="1"
-                    :max="10"
-                    :disabled="isRunning"
-                    class="concurrency-input"
-                    @update:model-value="updateProviderConfig(config.id, 'parallelConcurrency', $event)"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Run Button -->
-        <div class="run-section">
+      <!-- Provider Configurations -->
+      <div class="providers-section">
+        <div class="providers-header">
+          <h3>{{ $t("quickRun.providers") }}</h3>
           <base-button
-            variant="primary"
-            size="lg"
-            :disabled="!canRun"
-            :loading="isRunning"
-            @click="runTests"
+            variant="outline"
+            size="sm"
+            :disabled="isRunning"
+            @click="addProvider"
           >
-            {{ isRunning ? $t("quickRun.running") : $t("quickRun.runAllProviders") }}
+            {{ $t("quickRun.addProvider") }}
           </base-button>
         </div>
 
-        <!-- Multi-Provider Progress Section -->
-        <div v-if="isRunning || hasAnyResults" class="progress-wrapper">
-          <div class="progress-header">
-            <h3>{{ $t("quickRun.progress") }}</h3>
-            <base-badge variant="warning">
-              {{ $t("quickRun.status.running") }}
-            </base-badge>
-          </div>
+        <div v-if="providerConfigs.length === 0" class="empty-providers">
+          <p>{{ $t("quickRun.noProvidersConfigured") }}</p>
+        </div>
 
-          <!-- Individual Provider Progress -->
-          <div class="providers-progress">
-            <div
-              v-for="runner in activeBatchRunners"
-              :key="runner.providerId"
-              class="provider-progress"
-            >
-              <div class="provider-progress-header">
-                <h4>{{ getProviderDisplayName(runner.providerId) }}</h4>
-                <base-badge
-                  :variant="getProviderStatusVariant(runner.runner.state.isRunning, runner.runner.state.results.length > 0)"
-                >
-                  {{ getProviderStatusText(runner.runner.state.isRunning, runner.runner.state.results.length > 0) }}
-                </base-badge>
-              </div>
+        <div v-else class="providers-list">
+          <div
+            v-for="(config, index) in providerConfigs"
+            :key="config.id"
+            class="provider-config"
+          >
+            <div class="provider-header">
+              <h4>{{ $t("quickRun.provider") }} {{ index + 1 }}</h4>
+              <base-button
+                variant="danger"
+                size="sm"
+                :disabled="isRunning"
+                @click="removeProvider(config.id)"
+              >
+                {{ $t("common.remove") }}
+              </base-button>
+            </div>
 
-              <batch-progress-section
-                :completed-runs="runner.runner.state.completedRuns"
-                :total-runs="runner.runner.state.totalRuns"
-                :progress-percentage="getRunnerProgress(runner.runner.state)"
-                :show-statistics="true"
-                :statistics="runner.runner.statistics"
-                :latest-results="getLatestResults(runner.runner.state.results)"
-                :is-running="runner.runner.state.isRunning"
+            <!-- Provider Selection -->
+            <div class="provider-selection">
+              <provider-selector
+                :model-value="{ providerId: config.providerId, model: config.model }"
+                :is-running="isRunning"
+                @update:model-value="updateProviderSelection(config.id, $event)"
               />
+            </div>
+
+            <!-- Provider Options -->
+            <div class="provider-options">
+              <div class="options-row">
+                <base-input-field
+                  :model-value="config.maxTokens"
+                  :label="$t('promptEditor.maxTokens')"
+                  type="number"
+                  :min="1"
+                  :max="8192"
+                  :disabled="isRunning"
+                  @update:model-value="updateProviderConfig(config.id, 'maxTokens', $event)"
+                />
+                <div class="parallel-toggle">
+                  <input
+                    :id="`parallel-${config.id}`"
+                    :checked="config.allowParallel"
+                    type="checkbox"
+                    :disabled="isRunning"
+                    class="parallel-checkbox"
+                    @change="handleParallelToggle(config.id, $event)"
+                  />
+                  <label :for="`parallel-${config.id}`" class="parallel-label">
+                    {{ $t("quickRun.enableParallel") }}
+                  </label>
+                </div>
+                <base-input-field
+                  v-if="config.allowParallel"
+                  :model-value="config.parallelConcurrency"
+                  :label="$t('quickRun.concurrency')"
+                  type="number"
+                  :min="1"
+                  :max="10"
+                  :disabled="isRunning"
+                  class="concurrency-input"
+                  @update:model-value="updateProviderConfig(config.id, 'parallelConcurrency', $event)"
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Run Button -->
+      <div class="run-section">
+        <base-button
+          v-if="!isRunning"
+          variant="primary"
+          size="lg"
+          :disabled="!canRun"
+          @click="runTests"
+        >
+          {{ $t("quickRun.runAllProviders") }}
+        </base-button>
+      </div>
+
+      <!-- Multi-Provider Progress Section -->
+      <div v-if="isRunning || hasAnyResults" class="progress-wrapper">
+        <div class="progress-header">
+          <h3>{{ $t("quickRun.progress") }}</h3>
+          <base-badge variant="warning">
+            {{ $t("quickRun.status.running") }}
+          </base-badge>
+        </div>
+
+        <!-- Individual Provider Progress -->
+        <div class="providers-progress">
+          <div
+            v-for="runner in activeBatchRunners"
+            :key="runner.providerId"
+            class="provider-progress"
+          >
+            <div class="provider-progress-header">
+              <h4>{{ getProviderDisplayName(runner.providerId) }}</h4>
+              <base-badge
+                :variant="getProviderStatusVariant(runner.runner.state.isRunning, runner.runner.state.results.length > 0)"
+              >
+                {{ getProviderStatusText(runner.runner.state.isRunning, runner.runner.state.results.length > 0) }}
+              </base-badge>
+            </div>
+
+            <batch-progress-section
+              :completed-runs="runner.runner.state.completedRuns"
+              :total-runs="runner.runner.state.totalRuns"
+              :progress-percentage="getRunnerProgress(runner.runner.state)"
+              :show-statistics="true"
+              :statistics="runner.runner.statistics"
+              :latest-results="getLatestResults(runner.runner.state.results)"
+              :is-running="runner.runner.state.isRunning"
+            />
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </base-page-layout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 // Vue i18n translations available via $t in template
 import {
   useBatchRunner,
@@ -248,9 +210,8 @@ import {
   BaseButton,
   BaseInputField,
   BaseBadge,
-  BaseSpinner,
-  BaseNotice,
   BatchProgressSection,
+  BasePageLayout,
 } from "@/components/ui";
 import { ProviderSelector } from "@/features/editor/components";
 import type { ProviderSelection } from "@/features/editor/components/ProviderSelector.vue";
@@ -258,6 +219,7 @@ import type { ProviderSelection } from "@/features/editor/components/ProviderSel
 // Composables
 const router = useRouter();
 const route = useRoute();
+const { t } = useI18n();
 const providersStore = useProvidersStore();
 
 // State for test case loading
@@ -287,6 +249,20 @@ const activeBatchRunners = ref<Array<BatchRunnerWithProvider>>([]);
 
 // Computed
 const testId = computed(() => route.params.testId as string);
+
+const breadcrumbItems = computed(() => [
+  {
+    label: t("tests.title"),
+    action: goBackToTestDetails,
+  },
+  {
+    label: testCase.value?.name || "",
+    action: goBackToTestDetails,
+  },
+  {
+    label: t("quickRun.title"),
+  },
+]);
 
 const canRun = computed(() => {
   return (
@@ -494,105 +470,9 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Main layout */
-.quick-run-view {
-  min-height: 100vh;
-  background-color: #f9fafb;
-}
-
-/* Loading and error states */
-.loading-container,
-.error-container,
-.not-found-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 3rem;
-  text-align: center;
-}
-
-.loading-container p {
-  color: #6b7280;
-  font-size: 1rem;
-}
-
-/* Quick Run Content */
-.quick-run-content {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* Header */
-.quick-run-header {
-  background-color: white;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-}
-
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-}
-
-.breadcrumb-link {
-  background: none;
-  border: none;
-  color: #6366f1;
-  cursor: pointer;
-  text-decoration: none;
-  padding: 0;
-  font-size: 0.875rem;
-}
-
-.breadcrumb-link:hover {
-  text-decoration: underline;
-}
-
-.breadcrumb-separator {
-  color: #9ca3af;
-}
-
-.breadcrumb-current {
-  color: #374151;
-  font-weight: 500;
-}
-
-.title-section {
-  text-align: left;
-}
-
-.title-section h1 {
-  margin: 0 0 0.5rem 0;
-  color: #111827;
-  font-size: 2rem;
-  font-weight: 600;
-}
-
-.test-description {
-  margin: 0;
-  color: #6b7280;
-  font-size: 1rem;
-}
-
-.header-actions {
-  flex-shrink: 0;
-}
-
 /* Main content */
 .quick-run-main {
-  padding: 0 2rem 2rem;
+  padding: 0;
 }
 
 /* Global configuration */

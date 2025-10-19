@@ -11,6 +11,9 @@ import BaseInputField from "./BaseInputField.vue";
 import BaseEmptyState from "./BaseEmptyState.vue";
 import DeleteConfirmationDialog from "./DeleteConfirmationDialog.vue";
 import BatchProgressSection from "./BatchProgressSection.vue";
+import BaseBreadcrumb from "./BaseBreadcrumb.vue";
+import BasePageHeader from "./BasePageHeader.vue";
+import BasePageLayout from "./BasePageLayout.vue";
 
 export {
   BaseButton,
@@ -25,6 +28,9 @@ export {
   BaseEmptyState,
   DeleteConfirmationDialog,
   BatchProgressSection,
+  BaseBreadcrumb,
+  BasePageHeader,
+  BasePageLayout,
 };
 
 // Type exports
