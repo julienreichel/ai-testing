@@ -1,23 +1,20 @@
 <template>
-  <div class="tests-list-view">
-    <!-- Header with Actions -->
-    <div class="tests-header">
-      <div class="header-content">
-        <div class="title-section">
-          <h1>{{ $t("tests.title") }}</h1>
-          <p>{{ $t("tests.description") }}</p>
-        </div>
-        <div class="header-actions">
-          <test-export-import />
-          <base-button variant="outline" @click="openEditor">
-            + {{ $t("testManagement.addTestCase") }}
-          </base-button>
-          <base-button variant="primary" @click="showCreateProject = true">
-            + {{ $t("testManagement.createProject") }}
-          </base-button>
-        </div>
-      </div>
-    </div>
+  <base-page-layout
+    :title="$t('tests.title')"
+    :description="$t('tests.description')"
+    :is-loading="isLoading"
+    :error="error"
+    :on-retry="loadData"
+  >
+    <template #headerActions>
+      <test-export-import />
+      <base-button variant="outline" @click="openEditor">
+        + {{ $t("testManagement.addTestCase") }}
+      </base-button>
+      <base-button variant="primary" @click="showCreateProject = true">
+        + {{ $t("testManagement.createProject") }}
+      </base-button>
+    </template>
 
     <!-- Projects and Test Cases List -->
     <projects-test-cases-list
@@ -46,7 +43,7 @@
       :project="projectToDelete"
       @delete="handleDeleteProject"
     />
-  </div>
+  </base-page-layout>
 </template>
 
 <script setup lang="ts">
@@ -54,7 +51,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useTestManagement } from "@/composables/useTestManagement";
 import { testDB } from "@/services/testManagementDatabase";
-import { BaseButton } from "@/components/ui";
+import { BaseButton, BasePageLayout } from "@/components/ui";
 import {
   TestExportImport,
   CreateProjectDialog,
@@ -197,41 +194,5 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Main layout */
-.tests-list-view {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* Header */
-.tests-header {
-  margin-bottom: 2rem;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-}
-
-.title-section h1 {
-  margin: 0 0 0.5rem 0;
-  color: #111827;
-  font-size: 2rem;
-  font-weight: 600;
-}
-
-.title-section p {
-  margin: 0;
-  color: #6b7280;
-  font-size: 1.125rem;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-  flex-shrink: 0;
-}
+/* Any custom styles for TestsListView content */
 </style>

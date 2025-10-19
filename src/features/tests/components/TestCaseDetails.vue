@@ -76,61 +76,9 @@ const formatRuleDetails = (rule: Rule): string => {
 </script>
 
 <style scoped>
-/* Test case detail view */
-.test-case-detail {
-  margin-bottom: 2rem;
-}
 
-.detail-header {
-  margin-bottom: 1.5rem;
-}
-
-.breadcrumb-link {
-  margin-bottom: 1rem;
-}
-
-.detail-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-}
-
-.detail-title h2 {
-  margin: 0;
-  color: #111827;
-  font-size: 1.75rem;
-  font-weight: 600;
-}
-
-.detail-actions {
-  display: flex;
-  gap: 1rem;
-  flex-shrink: 0;
-}
-
-.test-case-content {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-/* Test case detail content */
-.content-section {
-  margin-bottom: 1.5rem;
-}
-
-.content-section h3 {
-  margin: 0 0 1rem 0;
-  color: #111827;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
 
 .prompt-display {
-  width: 100%;
-  text-align: left;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 6px;

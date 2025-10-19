@@ -111,6 +111,8 @@ defineProps<PageLayoutProps>();
 .main-content {
   padding: 1rem;
   background: white;
+  color: #111827;
+  text-align: left;
 }
 
 /* Responsive design */
