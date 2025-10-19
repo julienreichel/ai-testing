@@ -1,12 +1,12 @@
 <template>
-  <div class="providers">
-    <!-- Header -->
-    <div class="providers-header">
-      <h1>{{ $t("providers.title") }}</h1>
+  <base-page-layout
+    :title="$t('providers.title')"
+  >
+    <template #headerActions>
       <base-button variant="primary" @click="showAddDialog = true">
         {{ $t("providers.addProvider") }}
       </base-button>
-    </div>
+    </template>
 
     <!-- Security Notice -->
     <base-notice
@@ -84,7 +84,7 @@
       :title="toastTitle"
       :message="toastMessage"
     />
-  </div>
+  </base-page-layout>
 </template>
 
 <script setup lang="ts">
@@ -97,6 +97,7 @@ import {
   BaseEmptyState,
   BaseDialog,
   BaseToast,
+  BasePageLayout,
   DeleteConfirmationDialog,
 } from "components/ui";
 import ProviderCard from "./components/ProviderCard.vue";
@@ -313,53 +314,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.providers {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.providers-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-shrink: 0;
-}
-
-.providers-header h1 {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--text-primary, #1a1a1a);
-}
-
 .providers-list {
   display: grid;
   gap: 1.5rem;
   grid-template-columns: repeat(auto-fill, minmax(800px, 1fr));
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 0.5rem;
-  margin-right: -0.5rem;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .providers {
-    padding: 1rem;
-  }
-
-  .providers-header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-
   .providers-list {
     grid-template-columns: 1fr;
   }

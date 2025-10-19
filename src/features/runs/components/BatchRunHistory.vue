@@ -224,8 +224,11 @@ import { ref, onMounted, computed } from "vue";
 import { useBatchRunPersistence } from "composables/useBatchRunPersistence";
 import { useCsvExport } from "composables/useCsvExport";
 import { useProvidersStore } from "../../../store/providers";
-import { testDB, type BatchRunSession } from "services/testManagementDatabase";
-import type { Project, TestCase } from "types/testManagement";
+import {
+  testDB,
+  type BatchRunSession,
+} from "services/testManagementDatabase";
+import type { Project, TestCase } from "@types/testManagement";
 import BaseButton from "components/ui/BaseButton.vue";
 import BatchRunDetailsModal from "./BatchRunDetailsModal.vue";
 
@@ -380,10 +383,8 @@ const refreshHistory = async (): Promise<void> => {
       props.limit,
     );
 
-    // Auto-expand single project, minimize multiple projects by default
-    if (hasMultipleProjects.value) {
-      expandedProjects.value.clear();
-    } else if (groupedBatchRuns.value.length === 1) {
+    // Auto-expand single project
+    if (groupedBatchRuns.value.length === 1) {
       expandedProjects.value.clear();
       const firstProject = groupedBatchRuns.value[0];
       if (firstProject) {

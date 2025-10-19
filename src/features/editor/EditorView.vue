@@ -1,9 +1,7 @@
 <template>
-  <div class="prompt-editor">
-    <div class="editor-header">
-      <h1>{{ $t("promptEditor.title") }}</h1>
-    </div>
-
+  <base-page-layout
+    :title="$t('promptEditor.title')"
+  >
     <div class="editor-content">
       <!-- User Prompt Section -->
       <div class="prompt-section">
@@ -113,7 +111,6 @@
         />
       </div>
     </div>
-
     <save-test-case-dialog
       v-model="showSaveDialog"
       :prompt="promptData.userPrompt"
@@ -122,7 +119,7 @@
       :is-update-mode="isUpdateMode"
       @saved="onTestCaseSaved"
     />
-  </div>
+  </base-page-layout>
 </template>
 
 <script setup lang="ts">
@@ -130,7 +127,7 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useProvidersStore } from "../../store/providers";
 import { usePromptRunner } from "../../composables/usePromptRunner";
-import { BaseButton, BaseInputField } from "components/ui";
+import { BaseButton, BaseInputField, BasePageLayout } from "components/ui";
 import { ProviderSelector, ResultsDisplay } from "./components";
 import RulesEditorCompact from "./components/RulesEditorCompact.vue";
 import SaveTestCaseDialog from "./components/SaveTestCaseDialog.vue";
@@ -138,7 +135,7 @@ import BatchRunner from "./components/BatchRunner.vue";
 import { useRulesUtils } from "../../composables/useRulesUtils";
 import { useRulesEngine } from "../../composables/useRulesEngine";
 import { useCsvExport } from "../../composables/useCsvExport";
-import { testDB } from "services/testManagementDatabase";
+import { testDB } from "@/services/testManagementDatabase";
 import type { ProviderSelection } from "./components/ProviderSelector.vue";
 import type { RuleSet, RuleSetResult } from "types/rules";
 import type { TestCase } from "types/testManagement";
@@ -347,27 +344,11 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.prompt-editor {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.editor-header {
-  margin-bottom: 2rem;
-}
-
-.editor-header h1 {
-  margin: 0;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #111827;
-}
-
+/* Editor content sections */
 .editor-content {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 .prompt-section {
@@ -421,14 +402,6 @@ onMounted(async () => {
 }
 
 @media (max-width: 768px) {
-  .prompt-editor {
-    padding: 1rem;
-  }
-
-  .editor-header h1 {
-    font-size: 2rem;
-  }
-
   .provider-run-section {
     flex-direction: column;
     align-items: stretch;
