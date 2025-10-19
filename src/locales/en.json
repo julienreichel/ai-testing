@@ -124,7 +124,9 @@
     "createFirstProject": "Create your first project to start organizing your test cases.",
     "noTestCasesYet": "No Test Cases Yet",
     "createTestCasesFromEditor": "Create test cases by saving prompts from the Editor.",
-    "testCaseNotFound": "Test case not found"
+    "testCaseNotFound": "Test case not found",
+    "projectNotFound": "Project not found",
+    "failedToLoadProject": "Failed to load project"
   },
   "runs": {
     "title": "Test Runs",
@@ -311,6 +313,7 @@
   },
   "quickRun": {
     "title": "Quick Run",
+    "quickRun": "Quick Run",
     "configuration": "Configuration",
     "globalSettings": "Global Settings",
     "providers": "Providers",
@@ -321,21 +324,42 @@
     "enableParallel": "Enable Parallel Execution",
     "concurrency": "Concurrency",
     "progress": "Progress",
-    "completedRuns": "Completed Runs",
+    "completedRuns": "Completed Runs | {count} run completed | {count} runs completed",
     "latestResults": "Latest Results",
     "startRun": "Start Run",
     "cancelRun": "Cancel Run",
+    "cancel": "Cancel",
     "runningTest": "Running Test: {testName}",
     "noDescription": "No description provided",
     "backToTest": "Back to Test",
+    "backToTests": "Back to Tests",
     "running": "Running...",
     "runAllProviders": "Run All Providers",
+    "projectTitle": "Quick Run: {name}",
+    "projectMultiSelect": "Multi-Select Quick Run",
+    "multiSelect": "Multi-Select Batch Run",
+    "selectTestCasesToRun": "Select test cases to run with a single provider configuration",
+    "selectTestCases": "Select Test Cases",
+    "selectAll": "Select All",
+    "clearAll": "Clear All",
+    "selectedCount": "No test cases selected | {count} test case selected | {count} test cases selected",
+    "totalExecutions": "No executions | {count} total execution | {count} total executions",
+    "providerConfiguration": "Provider Configuration",
+    "runConfiguration": "Run Configuration",
+    "runSelected": "Run Selected Tests | Run {count} Test | Run {count} Tests",
+    "progressAndResults": "Progress & Results",
+    "testsCompleted": "{completed} of {total} tests completed",
+    "rulesCount": "No rules | {count} rule | {count} rules",
+    "updated": "Updated",
+    "success": "Success",
+    "failure": "Failure",
     "status": {
       "idle": "Ready",
       "running": "Running",
       "completed": "Completed",
       "cancelled": "Cancelled",
-      "failed": "Failed"
+      "failed": "Failed",
+      "pending": "Pending"
     }
   },
   "batch": {

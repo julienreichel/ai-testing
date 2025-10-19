@@ -25,6 +25,7 @@
       :error="error"
       @select-test-case="selectTestCase"
       @delete-project="confirmDeleteProject"
+      @quick-run-project="navigateToProjectQuickRun"
       @create-project="showCreateProject = true"
       @retry="loadData"
     />
@@ -86,6 +87,11 @@ const testCaseBatchRuns = ref<Map<string, number>>(new Map());
 const selectTestCase = (testCase: TestCase): void => {
   // Navigate to the test details view
   void router.push(`/tests/${testCase.id}`);
+};
+
+const navigateToProjectQuickRun = (project: Project): void => {
+  // Navigate to the project quick run view
+  void router.push(`/tests/project/${project.id}/run`);
 };
 
 const openEditor = (): void => {

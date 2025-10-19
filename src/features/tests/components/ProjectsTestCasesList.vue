@@ -73,6 +73,14 @@
             </div>
             <div class="project-actions" @click.stop>
               <base-button
+                variant="primary"
+                size="sm"
+                @click="handleQuickRunProject(project)"
+                class="quick-run-button"
+              >
+                {{ $t("quickRun.quickRun") }}
+              </base-button>
+              <base-button
                 variant="danger"
                 size="sm"
                 @click="handleDeleteProject(project)"
@@ -166,6 +174,7 @@ interface Props {
 interface Emits {
   (e: "selectTestCase", testCase: TestCase): void;
   (e: "deleteProject", project: Project): void;
+  (e: "quickRunProject", project: Project): void;
   (e: "createProject"): void;
   (e: "retry"): void;
 }
@@ -241,6 +250,10 @@ const handleSelectTestCase = (testCase: TestCase): void => {
 
 const handleDeleteProject = (project: Project): void => {
   emit("deleteProject", project);
+};
+
+const handleQuickRunProject = (project: Project): void => {
+  emit("quickRunProject", project);
 };
 
 const handleCreateProject = (): void => {
@@ -352,6 +365,12 @@ import { watch } from "vue";
 
 .project-actions {
   flex-shrink: 0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.quick-run-button {
+  margin-right: 0.5rem;
 }
 
 /* Test cases grid */
