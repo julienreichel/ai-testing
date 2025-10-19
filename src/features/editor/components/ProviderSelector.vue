@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
-import { useProvidersStore } from "../../../store/providers";
+import { useProvidersStore } from "@/store/providers";
 import { BaseForm, BaseInputField } from "components/ui";
 
 export interface ProviderSelection {

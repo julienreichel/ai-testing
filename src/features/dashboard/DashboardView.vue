@@ -66,7 +66,7 @@
 import { onMounted, computed, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
-import { useProvidersStore } from "../../store/providers";
+import { useProvidersStore } from "@/store/providers";
 import { useTestManagement } from "../../composables/useTestManagement";
 import { useBatchRunPersistence } from "../../composables/useBatchRunPersistence";
 import { StatCard } from "./components";

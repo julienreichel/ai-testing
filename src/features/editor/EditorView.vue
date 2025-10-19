@@ -125,7 +125,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useProvidersStore } from "../../store/providers";
+import { useProvidersStore } from "@/store/providers";
 import { usePromptRunner } from "../../composables/usePromptRunner";
 import { BaseButton, BaseInputField, BasePageLayout } from "components/ui";
 import { ProviderSelector, ResultsDisplay } from "./components";

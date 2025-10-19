@@ -1,7 +1,7 @@
 import { ref, computed, type Ref } from "vue";
 import type { ProviderRequest, ProviderResponse } from "types/providers";
-import { useProvidersStore } from "../store/providers";
-import { runPool, sleep, type Task } from "../utils/taskPool";
+import { useProvidersStore } from "@/store/providers";
+import { runPool, sleep, type Task } from "@/utils/taskPool";
 
 export interface PromptRunnerState {
   isRunning: boolean;

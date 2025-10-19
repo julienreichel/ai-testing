@@ -1,6 +1,6 @@
 import { computed, type Ref } from "vue";
 import type { ProviderPricing } from "types/providers";
-import { useProvidersStore } from "../store/providers";
+import { useProvidersStore } from "@/store/providers";
 
 // Constants for cost estimation
 const CHARS_PER_TOKEN = 4;
