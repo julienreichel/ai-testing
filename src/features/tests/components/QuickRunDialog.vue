@@ -8,7 +8,7 @@
     <div class="quick-run-dialog">
       <!-- Global Configuration Section -->
       <div class="global-config-section">
-        <h3>{{ $t('quickRun.globalSettings') }}</h3>
+        <h3>{{ $t("quickRun.globalSettings") }}</h3>
         <div class="global-config-row">
           <base-input-field
             v-model="runCount"
@@ -24,19 +24,19 @@
       <!-- Provider Configurations -->
       <div class="providers-section">
         <div class="providers-header">
-          <h3>{{ $t('quickRun.providers') }}</h3>
+          <h3>{{ $t("quickRun.providers") }}</h3>
           <base-button
             variant="outline"
             size="sm"
             :disabled="isRunning"
             @click="addProvider"
           >
-            {{ $t('quickRun.addProvider') }}
+            {{ $t("quickRun.addProvider") }}
           </base-button>
         </div>
 
         <div v-if="providerConfigs.length === 0" class="empty-providers">
-          <p>{{ $t('quickRun.noProvidersConfigured') }}</p>
+          <p>{{ $t("quickRun.noProvidersConfigured") }}</p>
         </div>
 
         <div v-else class="providers-list">
@@ -46,21 +46,24 @@
             class="provider-config"
           >
             <div class="provider-header">
-              <h4>{{ $t('quickRun.provider') }} {{ index + 1 }}</h4>
+              <h4>{{ $t("quickRun.provider") }} {{ index + 1 }}</h4>
               <base-button
                 variant="danger"
                 size="sm"
                 :disabled="isRunning"
                 @click="removeProvider(config.id)"
               >
-                {{ $t('common.remove') }}
+                {{ $t("common.remove") }}
               </base-button>
             </div>
 
             <!-- Provider Selection -->
             <div class="provider-selection">
               <provider-selector
-                :model-value="{ providerId: config.providerId, model: config.model }"
+                :model-value="{
+                  providerId: config.providerId,
+                  model: config.model,
+                }"
                 :is-running="isRunning"
                 @update:model-value="updateProviderSelection(config.id, $event)"
               />
@@ -76,7 +79,9 @@
                   :min="1"
                   :max="8192"
                   :disabled="isRunning"
-                  @update:model-value="updateProviderConfig(config.id, 'maxTokens', $event)"
+                  @update:model-value="
+                    updateProviderConfig(config.id, 'maxTokens', $event)
+                  "
                 />
                 <div class="parallel-toggle">
                   <input
@@ -100,7 +105,13 @@
                   :max="10"
                   :disabled="isRunning"
                   class="concurrency-input"
-                  @update:model-value="updateProviderConfig(config.id, 'parallelConcurrency', $event)"
+                  @update:model-value="
+                    updateProviderConfig(
+                      config.id,
+                      'parallelConcurrency',
+                      $event,
+                    )
+                  "
                 />
               </div>
             </div>
@@ -127,9 +138,19 @@
             <div class="provider-progress-header">
               <h4>{{ getProviderDisplayName(runner.providerId) }}</h4>
               <base-badge
-                :variant="getProviderStatusVariant(runner.runner.state.isRunning, runner.runner.state.results.length > 0)"
+                :variant="
+                  getProviderStatusVariant(
+                    runner.runner.state.isRunning,
+                    runner.runner.state.results.length > 0,
+                  )
+                "
               >
-                {{ getProviderStatusText(runner.runner.state.isRunning, runner.runner.state.results.length > 0) }}
+                {{
+                  getProviderStatusText(
+                    runner.runner.state.isRunning,
+                    runner.runner.state.results.length > 0,
+                  )
+                }}
               </base-badge>
             </div>
 
@@ -151,11 +172,7 @@
         <base-button variant="outline" @click="handleClose">
           {{ $t("common.cancel") }}
         </base-button>
-        <base-button
-          v-if="isRunning"
-          variant="danger"
-          @click="cancelRun"
-        >
+        <base-button v-if="isRunning" variant="danger" @click="cancelRun">
           {{ $t("quickRun.cancelRun") }}
         </base-button>
         <base-button
@@ -245,7 +262,9 @@ const providerConfigs = ref<QuickRunProviderConfig[]>([]);
 const dialogOpen = ref(false);
 
 // Pre-create a pool of batch runners at setup level (required for Vue composables)
-const batchRunnerPool = Array.from({ length: MAX_PROVIDERS }, () => useBatchRunner());
+const batchRunnerPool = Array.from({ length: MAX_PROVIDERS }, () =>
+  useBatchRunner(),
+);
 
 // Active batch runners mapped to provider configs
 const activeBatchRunners = ref<BatchRunnerWithProvider[]>([]);
@@ -255,16 +274,19 @@ const providersStore = useProvidersStore();
 
 // Computed properties
 const isRunning = computed(() =>
-  activeBatchRunners.value.some(runner => runner.runner.state.isRunning)
+  activeBatchRunners.value.some((runner) => runner.runner.state.isRunning),
 );
 
 const hasAnyResults = computed(() =>
-  activeBatchRunners.value.some(runner => runner.runner.state.results.length > 0)
-);const canRun = computed(() => {
+  activeBatchRunners.value.some(
+    (runner) => runner.runner.state.results.length > 0,
+  ),
+);
+const canRun = computed(() => {
   return (
     providerConfigs.value.length > 0 &&
-    providerConfigs.value.every(config =>
-      config.providerId && config.model
+    providerConfigs.value.every(
+      (config) => config.providerId && config.model,
     ) &&
     runCount.value > 0 &&
     props.testCase &&
@@ -273,20 +295,42 @@ const hasAnyResults = computed(() =>
 });
 
 // Helper functions to safely extract computed values
-const getRunnerProgress = (runner: { runner: { progress: unknown } }): number => {
+const getRunnerProgress = (runner: {
+  runner: { progress: unknown };
+}): number => {
   const progress = runner.runner.progress;
-  return typeof progress === 'object' && progress !== null && 'value' in progress ? (progress as { value: number }).value : progress as number;
+  return typeof progress === "object" &&
+    progress !== null &&
+    "value" in progress
+    ? (progress as { value: number }).value
+    : (progress as number);
 };
 
-const getRunnerStatistics = (runner: { runner: { statistics: unknown } }): { passedRuns: number; failedRuns: number; avgDuration: number; totalCost: number } => {
+const getRunnerStatistics = (runner: {
+  runner: { statistics: unknown };
+}): {
+  passedRuns: number;
+  failedRuns: number;
+  avgDuration: number;
+  totalCost: number;
+} => {
   const statistics = runner.runner.statistics;
-  const defaultStats = { passedRuns: 0, failedRuns: 0, avgDuration: 0, totalCost: 0 };
+  const defaultStats = {
+    passedRuns: 0,
+    failedRuns: 0,
+    avgDuration: 0,
+    totalCost: 0,
+  };
 
-  if (typeof statistics === 'object' && statistics !== null && 'value' in statistics) {
+  if (
+    typeof statistics === "object" &&
+    statistics !== null &&
+    "value" in statistics
+  ) {
     return (statistics as { value: typeof defaultStats }).value;
   }
 
-  return statistics as typeof defaultStats || defaultStats;
+  return (statistics as typeof defaultStats) || defaultStats;
 };
 
 // Provider configuration methods
@@ -319,15 +363,18 @@ const addProvider = (): void => {
 
   activeBatchRunners.value.push({
     providerId: newId,
-    runner: batchRunner as unknown as BatchRunnerWithProvider['runner'],
+    runner: batchRunner as unknown as BatchRunnerWithProvider["runner"],
   });
-};const removeProvider = (configId: string): void => {
-  const configIndex = providerConfigs.value.findIndex(c => c.id === configId);
+};
+const removeProvider = (configId: string): void => {
+  const configIndex = providerConfigs.value.findIndex((c) => c.id === configId);
   if (configIndex !== -1) {
     providerConfigs.value.splice(configIndex, 1);
   }
 
-  const runnerIndex = activeBatchRunners.value.findIndex(r => r.providerId === configId);
+  const runnerIndex = activeBatchRunners.value.findIndex(
+    (r) => r.providerId === configId,
+  );
   if (runnerIndex !== -1) {
     // Cancel any running batch for this provider
     const runner = activeBatchRunners.value[runnerIndex];
@@ -339,16 +386,23 @@ const addProvider = (): void => {
   }
 };
 
-const updateProviderSelection = (configId: string, selection: ProviderSelection): void => {
-  const config = providerConfigs.value.find(c => c.id === configId);
+const updateProviderSelection = (
+  configId: string,
+  selection: ProviderSelection,
+): void => {
+  const config = providerConfigs.value.find((c) => c.id === configId);
   if (config) {
     config.providerId = selection.providerId;
     config.model = selection.model;
   }
 };
 
-const updateProviderConfig = (configId: string, field: keyof QuickRunProviderConfig, value: unknown): void => {
-  const config = providerConfigs.value.find(c => c.id === configId);
+const updateProviderConfig = (
+  configId: string,
+  field: keyof QuickRunProviderConfig,
+  value: unknown,
+): void => {
+  const config = providerConfigs.value.find((c) => c.id === configId);
   if (config) {
     (config as Record<string, unknown>)[field] = value;
   }
@@ -356,51 +410,65 @@ const updateProviderConfig = (configId: string, field: keyof QuickRunProviderCon
 
 const handleParallelToggle = (configId: string, event: Event): void => {
   const target = event.target as HTMLInputElement;
-  updateProviderConfig(configId, 'allowParallel', target.checked);
+  updateProviderConfig(configId, "allowParallel", target.checked);
 };
 
 // Utility methods for template
 const getProviderDisplayName = (runnerId: string): string => {
-  const config = providerConfigs.value.find(c => c.id === runnerId);
+  const config = providerConfigs.value.find((c) => c.id === runnerId);
   if (!config || !config.providerId) return "Provider";
 
-  const provider = providersStore.providerConfigs.find(p => p.id === config.providerId);
+  const provider = providersStore.providerConfigs.find(
+    (p) => p.id === config.providerId,
+  );
   return provider ? `${provider.name} (${config.model})` : config.providerId;
 };
 
-const getProviderStatusVariant = (isRunning: boolean, hasResults: boolean): "warning" | "success" | "info" => {
+const getProviderStatusVariant = (
+  isRunning: boolean,
+  hasResults: boolean,
+): "warning" | "success" | "info" => {
   if (isRunning) return "warning";
   if (hasResults) return "success";
   return "info";
 };
 
-const getProviderStatusText = (isRunning: boolean, hasResults: boolean): string => {
+const getProviderStatusText = (
+  isRunning: boolean,
+  hasResults: boolean,
+): string => {
   if (isRunning) return "Running";
   if (hasResults) return "Completed";
   return "Pending";
 };
 
-const getProviderRecentResults = (runner: { runner: { state: { results: BatchRunResult[] } } }): Array<{ content: string }> => {
-  return runner.runner.state.results.slice(-HISTORY_SIZE).map((result: BatchRunResult) => ({
-    content: result.response || result.error || "No content"
-  }));
+const getProviderRecentResults = (runner: {
+  runner: { state: { results: BatchRunResult[] } };
+}): Array<{ content: string }> => {
+  return runner.runner.state.results
+    .slice(-HISTORY_SIZE)
+    .map((result: BatchRunResult) => ({
+      content: result.response || result.error || "No content",
+    }));
 };
 
 // Watch for completion across all providers
 watch(
-  () => activeBatchRunners.value.map(r => r.runner.state.isRunning),
+  () => activeBatchRunners.value.map((r) => r.runner.state.isRunning),
   (currentRunning, previousRunning) => {
     const wasAnyRunning = previousRunning?.some(Boolean) || false;
     const isAnyRunning = currentRunning.some(Boolean);
 
     if (wasAnyRunning && !isAnyRunning) {
       // All providers completed - collect all results
-      const allResults = activeBatchRunners.value.flatMap(runner => runner.runner.state.results);
+      const allResults = activeBatchRunners.value.flatMap(
+        (runner) => runner.runner.state.results,
+      );
       emit("completed", allResults);
     }
   },
-  { deep: true }
-);// Action handlers
+  { deep: true },
+); // Action handlers
 const startRun = async (): Promise<void> => {
   if (!canRun.value || !props.testCase) return;
 
@@ -425,7 +493,10 @@ const startRun = async (): Promise<void> => {
     try {
       await runner.runner.runBatch(batchConfig);
     } catch (error) {
-      console.error(`Failed to run batch for provider ${config.providerId}:`, error);
+      console.error(
+        `Failed to run batch for provider ${config.providerId}:`,
+        error,
+      );
     }
   });
 
@@ -434,7 +505,7 @@ const startRun = async (): Promise<void> => {
 };
 
 const cancelRun = (): void => {
-  activeBatchRunners.value.forEach(runner => {
+  activeBatchRunners.value.forEach((runner) => {
     runner.runner.cancelBatch();
   });
 };
@@ -458,14 +529,14 @@ watch(
       runCount.value = DEFAULT_RUNS_COUNT;
 
       // Reset all batch runners
-      batchRunnerPool.forEach(runner => runner.resetBatch());
+      batchRunnerPool.forEach((runner) => runner.resetBatch());
 
       // Add initial provider
       addProvider();
     }
   },
-  { immediate: true }
-);// Sync dialog close with parent
+  { immediate: true },
+); // Sync dialog close with parent
 watch(
   () => dialogOpen.value,
   (isOpen) => {
@@ -473,7 +544,7 @@ watch(
       // Dialog was closed, emit close event
       emit("close");
     }
-  }
+  },
 );
 
 // Initialize providers store on component mount

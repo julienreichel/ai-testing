@@ -81,7 +81,8 @@ const testCaseForQuickRun = ref<TestCase | null>(null);
 const testCaseToDelete = ref<TestCase | null>(null);
 
 // Component refs
-const deleteTestCaseDialogRef = ref<InstanceType<typeof DeleteTestCaseDialog>>();
+const deleteTestCaseDialogRef =
+  ref<InstanceType<typeof DeleteTestCaseDialog>>();
 
 // Computed
 const testId = computed(() => route.params.testId as string);
@@ -118,14 +119,16 @@ const confirmDeleteTestCase = (targetTestCase?: TestCase): void => {
   }
 };
 
-const handleDeleteTestCase = async (deletedTestCase: TestCase): Promise<void> => {
+const handleDeleteTestCase = async (
+  deletedTestCase: TestCase,
+): Promise<void> => {
   try {
     deleteTestCaseDialogRef.value?.setLoading(true);
     await testManager.deleteTestCase(deletedTestCase.id);
-    
+
     deleteTestCaseDialogRef.value?.closeDialog();
     testCaseToDelete.value = null;
-    
+
     // Navigate back to list after successful deletion
     goBackToList();
   } catch (deleteError) {
@@ -145,7 +148,7 @@ const loadTestCase = async (): Promise<void> => {
   try {
     // Initialize test manager if needed
     await testManager.initialize();
-    
+
     // Load the specific test case
     const loadedTestCase = await testDB.getTestCase(testId.value);
     if (loadedTestCase) {
@@ -156,7 +159,8 @@ const loadTestCase = async (): Promise<void> => {
     }
   } catch (err) {
     console.error("Failed to load test case:", err);
-    error.value = err instanceof Error ? err.message : "Failed to load test case";
+    error.value =
+      err instanceof Error ? err.message : "Failed to load test case";
     testCase.value = null;
   } finally {
     isLoading.value = false;
@@ -171,7 +175,7 @@ watch(
       loadTestCase();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 // Initialize on mount

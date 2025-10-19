@@ -19,7 +19,7 @@
       "services/*": ["./src/services/*"],
       "composables/*": ["./src/composables/*"]
     },
-    
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

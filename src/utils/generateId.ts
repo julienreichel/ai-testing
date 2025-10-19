@@ -30,6 +30,8 @@ const RANDOM_SUBSTRING_START = 2;
  */
 export const generateTimestampId = (prefix?: string): string => {
   const timestamp = Date.now().toString();
-  const random = Math.random().toString(BASE_36).substring(RANDOM_SUBSTRING_START);
+  const random = Math.random()
+    .toString(BASE_36)
+    .substring(RANDOM_SUBSTRING_START);
   return prefix ? `${prefix}-${timestamp}-${random}` : `${timestamp}-${random}`;
 };

@@ -16,7 +16,7 @@
       "services/*": ["./src/services/*"],
       "composables/*": ["./src/composables/*"]
     },
-    
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

@@ -1,7 +1,7 @@
 {
   "files": [],
   "compilerOptions": {
-  "paths": {
+    "paths": {
       "@/*": ["./src/*"],
       "components/*": ["./src/components/*"],
       "features/*": ["./src/features/*"],
@@ -12,7 +12,7 @@
       "@locales": ["./src/locales"],
       "services/*": ["./src/services/*"],
       "composables/*": ["./src/composables/*"]
-    },
+    }
   },
   "references": [
     { "path": "./tsconfig.app.json" },

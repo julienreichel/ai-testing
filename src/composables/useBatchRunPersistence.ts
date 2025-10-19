@@ -4,10 +4,7 @@
  */
 
 import { ref, type Ref } from "vue";
-import {
-  testDB,
-  type BatchRunSession,
-} from "services/testManagementDatabase";
+import { testDB, type BatchRunSession } from "services/testManagementDatabase";
 import type {
   BatchRunConfig,
   BatchRunResult,

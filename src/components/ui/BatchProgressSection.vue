@@ -43,7 +43,10 @@
     </div>
 
     <!-- Results Preview (for QuickRun mode) -->
-    <div v-if="showResultsPreview && recentResults.length > 0" class="results-preview">
+    <div
+      v-if="showResultsPreview && recentResults.length > 0"
+      class="results-preview"
+    >
       <h4>{{ $t("quickRun.latestResults") }}</h4>
       <div class="results-list">
         <div
