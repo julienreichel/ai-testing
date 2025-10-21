@@ -83,6 +83,40 @@ function convertResultsToCsv(results: BatchRunResult[]): string {
 }
 
 /**
+ * Convert generic data array to CSV format
+ */
+function convertDataToCsv(
+  data: CsvDataRow[],
+  headers?: string[],
+): string {
+  if (data.length === 0) {
+    return headers ? headers.map(header => escapeCsvField(header)).join(",") : "";
+  }
+
+  // Auto-generate headers from first row if not provided
+  const firstRow = data[0];
+  if (!firstRow) {
+    return headers ? headers.map(header => escapeCsvField(header)).join(",") : "";
+  }
+
+  // Use object keys for data mapping, custom headers are just for display
+  const dataKeys = Object.keys(firstRow);
+  const displayHeaders = headers || dataKeys;
+
+  // Create CSV rows
+  const csvRows = [
+    // Header row (uses custom headers if provided, otherwise uses keys)
+    displayHeaders.map(header => escapeCsvField(header)).join(","),
+    // Data rows (always use object keys for data access)
+    ...data.map(row => {
+      return dataKeys.map(key => escapeCsvField(row[key])).join(",");
+    }),
+  ];
+
+  return csvRows.join("\n");
+}
+
+/**
  * Download CSV content as a file
  */
 function downloadCsv(csvContent: string, filename: string): void {
@@ -125,6 +159,11 @@ function generateBatchRunFilename(
 }
 
 /**
+ * Generic data row type for CSV export
+ */
+export type CsvDataRow = Record<string, string | number | boolean | null | undefined>;
+
+/**
  * CSV Export composable interface
  */
 export interface CsvExportComposable {
@@ -136,10 +175,20 @@ export interface CsvExportComposable {
       testCaseName?: string;
     },
   ) => void;
+  exportGenericCsv: (
+    data: CsvDataRow[],
+    filename: string,
+    headers?: string[],
+  ) => void;
   convertResultsToCsv: (results: BatchRunResult[]) => string;
+  convertDataToCsv: (
+    data: CsvDataRow[],
+    headers?: string[],
+  ) => string;
   escapeCsvField: (
     value: string | number | boolean | null | undefined,
   ) => string;
+  downloadCsv: (csvContent: string, filename: string) => void;
 }
 
 /**
@@ -184,9 +233,29 @@ export function useCsvExport(): CsvExportComposable {
     downloadCsv(csvContent, filename);
   };
 
+  /**
+   * Export generic data array to CSV file
+   */
+  const exportGenericCsv = (
+    data: CsvDataRow[],
+    filename: string,
+    headers?: string[],
+  ): void => {
+    if (!data || data.length === 0) {
+      console.warn("No data to export");
+      return;
+    }
+
+    const csvContent = convertDataToCsv(data, headers);
+    downloadCsv(csvContent, filename);
+  };
+
   return {
     exportBatchResults,
+    exportGenericCsv,
     convertResultsToCsv,
+    convertDataToCsv,
     escapeCsvField,
+    downloadCsv,
   };
 }

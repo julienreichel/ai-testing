@@ -58,9 +58,8 @@
         <div
           v-if="hasMultipleProjects"
           class="project-header"
-          @click="toggleProject(group.projectId)"
         >
-          <div class="project-info">
+          <div class="project-info" @click="toggleProject(group.projectId)">
             <span
               class="expand-icon"
               :class="{ expanded: isProjectExpanded(group.projectId) }"
@@ -69,6 +68,16 @@
             </span>
             <h4 class="project-name">{{ group.projectName }}</h4>
             <span class="project-count">({{ group.runs.length }} runs)</span>
+          </div>
+          <div class="project-actions">
+            <base-button
+              variant="outline"
+              size="sm"
+              @click="exportProjectRuns(group)"
+              :title="$t('tests.actions.exportProject')"
+            >
+              📥
+            </base-button>
           </div>
         </div>
 
@@ -436,6 +445,116 @@ const exportResults = (batchRun: BatchRunSession): void => {
   });
 };
 
+// Constants for project export
+const COST_DECIMAL_PLACES = 4;
+const LATENCY_DECIMAL_PLACES = 2;
+const HALF_DIVISOR = 2;
+
+interface StatsSummary {
+  min: number;
+  max: number;
+  avg: number;
+  median: number;
+}
+
+const calculateStatsSummary = (values: number[]): StatsSummary => {
+  if (values.length === 0) return { min: 0, max: 0, avg: 0, median: 0 };
+
+  const sorted = [...values].sort((a, b) => a - b);
+  const sum = values.reduce((a, b) => a + b, 0);
+  const avg = sum / values.length;
+  const median = sorted.length % HALF_DIVISOR === 0
+    ? ((sorted[sorted.length / HALF_DIVISOR - 1] || 0) + (sorted[sorted.length / HALF_DIVISOR] || 0)) / HALF_DIVISOR
+    : sorted[Math.floor(sorted.length / HALF_DIVISOR)] || 0;
+
+  return {
+    min: Math.min(...values),
+    max: Math.max(...values),
+    avg,
+    median
+  };
+};
+
+const loadTestCaseName = async (testCaseId: string): Promise<string> => {
+  // Check cache first
+  const cachedName = testCaseNames.value.get(testCaseId);
+  if (cachedName) {
+    return cachedName;
+  }
+
+  try {
+    const testCase = await testDB.getTestCase(testCaseId);
+    if (testCase) {
+      testCaseNames.value.set(testCaseId, testCase.name);
+      return testCase.name;
+    }
+  } catch (error) {
+    console.warn(`Failed to load test case name for ${testCaseId}:`, error);
+  }
+
+  // Return fallback if loading failed
+  const TEST_CASE_ID_SUFFIX_LENGTH = 8;
+  return `Test Case ${testCaseId.slice(-TEST_CASE_ID_SUFFIX_LENGTH)}`;
+};
+
+const exportProjectRuns = async (group: { projectId: string; projectName: string; runs: BatchRunSession[] }): Promise<void> => {
+  // First, load all test case names to ensure we have real names, not fallbacks
+  const testCaseNamesMap = new Map<string, string>();
+
+  for (const batchRun of group.runs) {
+    const testCaseName = await loadTestCaseName(batchRun.testCaseId);
+    testCaseNamesMap.set(batchRun.testCaseId, testCaseName);
+  }
+
+  // Prepare comprehensive data for all runs in the project
+  const exportData = group.runs.map((batchRun) => {
+    const stats = batchRun.statistics;
+    const results = batchRun.results;
+
+    // Calculate latency and token statistics
+    const durations = results
+      .map((r) => r.duration)
+      .filter((d): d is number => d !== undefined);
+    const tokens = results
+      .map((r) => r.tokenUsage?.totalTokens)
+      .filter((t): t is number => t !== undefined);
+
+    const latencyStats = calculateStatsSummary(durations);
+    const tokenStats = calculateStatsSummary(tokens);
+
+    return {
+      'Test Name': testCaseNamesMap.get(batchRun.testCaseId) || 'Unknown Test',
+      'Provider': getProviderName(batchRun.providerId),
+      'Model': batchRun.model,
+      'Number of Tests Run': stats.totalRuns,
+      'Number of Passed': stats.passedRuns,
+      'Number of Failed': stats.failedRuns,
+      'Number of Errors': stats.failedRuns,
+      'Pass Rate': `${Math.round(stats.passRate)}%`,
+      'Min Latency': `${latencyStats.min.toFixed(LATENCY_DECIMAL_PLACES)}ms`,
+      'Max Latency': `${latencyStats.max.toFixed(LATENCY_DECIMAL_PLACES)}ms`,
+      'Average Latency': `${latencyStats.avg.toFixed(LATENCY_DECIMAL_PLACES)}ms`,
+      'Median Latency': `${latencyStats.median.toFixed(LATENCY_DECIMAL_PLACES)}ms`,
+      'Min Tokens': Math.round(tokenStats.min),
+      'Max Tokens': Math.round(tokenStats.max),
+      'Average Tokens': Math.round(tokenStats.avg),
+      'Median Tokens': Math.round(tokenStats.median),
+      'Estimated Cost Per Run': `$${(stats.totalCost / stats.totalRuns).toFixed(COST_DECIMAL_PLACES)}`,
+      'Total Cost': `$${stats.totalCost.toFixed(COST_DECIMAL_PLACES)}`,
+      'Date': formatDate(batchRun.createdAt),
+      'Time': formatTime(batchRun.createdAt)
+    };
+  });
+
+  // Generate filename with project name and timestamp
+  const timestamp = new Date().toISOString().split('T')[0];
+  const sanitizedProjectName = group.projectName.replace(/[^a-zA-Z0-9]/g, '_');
+  const filename = `${sanitizedProjectName}_batch_runs_${timestamp}.csv`;
+
+  // Use centralized CSV export functionality
+  csvExport.exportGenericCsv(exportData, filename);
+};
+
 const deleteBatchRun = async (batchRun: BatchRunSession): Promise<void> => {
   if (
     !confirm(
@@ -637,11 +756,11 @@ onMounted(async () => {
 .project-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 1rem;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
-  cursor: pointer;
   transition: background-color 0.2s;
 }
 
@@ -653,6 +772,14 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+.project-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .expand-icon {

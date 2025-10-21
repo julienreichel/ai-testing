@@ -167,4 +167,94 @@ describe("useCsvExport - CSV Export Functionality", () => {
       expect(csvContent).toContain("completed");
     });
   });
+
+  describe("exportGenericCsv and convertDataToCsv", () => {
+    it("should convert generic data to CSV format with auto-generated headers", () => {
+      const csvExport = useCsvExport();
+
+      const data = [
+        { testName: "Test 1", provider: "OpenAI", model: "gpt-4", passRate: "85%" },
+        { testName: "Test 2", provider: "Anthropic", model: "claude-3", passRate: "92%" },
+      ];
+
+      const csv = csvExport.convertDataToCsv(data);
+      const lines = csv.split("\n");
+
+      // Should have header + 2 data rows
+      expect(lines).toHaveLength(3);
+
+      // Check header (auto-generated from keys)
+      expect(lines[0]).toBe("testName,provider,model,passRate");
+
+      // Check data rows
+      expect(lines[1]).toBe("Test 1,OpenAI,gpt-4,85%");
+      expect(lines[2]).toBe("Test 2,Anthropic,claude-3,92%");
+    });
+
+    it("should convert generic data to CSV format with custom headers", () => {
+      const csvExport = useCsvExport();
+
+      const data = [
+        { testName: "Test 1", provider: "OpenAI", model: "gpt-4" },
+        { testName: "Test 2", provider: "Anthropic", model: "claude-3" },
+      ];
+
+      const customHeaders = ["Test Name", "Provider", "Model"];
+      const csv = csvExport.convertDataToCsv(data, customHeaders);
+      const lines = csv.split("\n");
+
+      // Check custom header
+      expect(lines[0]).toBe("Test Name,Provider,Model");
+
+      // Data should use original keys but header displays custom names
+      expect(lines[1]).toBe("Test 1,OpenAI,gpt-4");
+    });
+
+    it("should handle empty data gracefully", () => {
+      const csvExport = useCsvExport();
+
+      const emptyData: Array<Record<string, string>> = [];
+      const csv = csvExport.convertDataToCsv(emptyData);
+
+      expect(csv).toBe("");
+    });
+
+    it("should handle empty data with custom headers", () => {
+      const csvExport = useCsvExport();
+
+      const emptyData: Array<Record<string, string>> = [];
+      const headers = ["Name", "Value"];
+      const csv = csvExport.convertDataToCsv(emptyData, headers);
+
+      expect(csv).toBe("Name,Value");
+    });
+
+    it("should properly escape CSV fields in generic data", () => {
+      const csvExport = useCsvExport();
+
+      const data = [
+        {
+          testName: 'Test with "quotes"',
+          description: "Line 1\nLine 2",
+          tags: "tag1, tag2, tag3",
+        },
+      ];
+
+      const csv = csvExport.convertDataToCsv(data);
+
+      // Should properly escape quotes, newlines, and commas
+      expect(csv).toContain('"Test with ""quotes"""');
+      expect(csv).toContain('"Line 1\nLine 2"');
+      expect(csv).toContain('"tag1, tag2, tag3"');
+    });
+
+    it("should handle exportGenericCsv with empty data", () => {
+      const csvExport = useCsvExport();
+
+      // Should not throw error (just console.warn for empty data)
+      expect(() => {
+        csvExport.exportGenericCsv([], "test.csv");
+      }).not.toThrow();
+    });
+  });
 });
