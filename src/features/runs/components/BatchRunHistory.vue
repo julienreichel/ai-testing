@@ -324,11 +324,19 @@ const sortBatchRuns = (runs: BatchRunSession[]): BatchRunSession[] => {
       case "testName":
         comparison = getTestCaseName(a).localeCompare(getTestCaseName(b));
         break;
-      case "provider":
-        comparison = getProviderName(a.providerId).localeCompare(
+      case "provider": {
+        // First sort by provider name, then by model name
+        const providerComparison = getProviderName(a.providerId).localeCompare(
           getProviderName(b.providerId),
         );
+        if (providerComparison !== 0) {
+          comparison = providerComparison;
+        } else {
+          // If providers are the same, sort by model name
+          comparison = a.model.localeCompare(b.model);
+        }
         break;
+      }
       case "passRate":
         comparison = a.statistics.passRate - b.statistics.passRate;
         break;
