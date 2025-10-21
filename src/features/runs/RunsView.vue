@@ -5,7 +5,7 @@
   >
     <!-- Batch Runs Content -->
     <batch-run-history
-      :limit="50"
+      :limit="1000"
       @batch-run-selected="onBatchRunSelected"
     />
   </base-page-layout>
