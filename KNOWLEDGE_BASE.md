@@ -22,19 +22,53 @@
 
 ## 🧩 Implemented Features
 
-**Providers**: Modular system with OpenAI, Anthropic Claude, Mistral AI, Google Gemini, Mock. Secure localStorage API keys, real-time connection testing, complete CRUD operations.
+### Providers
+- Modular system with OpenAI, Anthropic Claude, Mistral AI, Google Gemini, Mock
+- Secure localStorage API keys with real-time connection testing
+- Complete CRUD operations
 
-**Prompt Testing**: Editor interface with system/user prompts, model parameters, response display (latency, tokens, cost), IndexedDB persistence.
+### Prompt Testing
+- Editor interface with system/user prompts and model parameters
+- Response display showing latency, tokens, and cost estimation
+- IndexedDB persistence for test cases
 
-**Rules Engine**: Automated validation with exact match, contains/starts/ends with, regex patterns, length constraints, AND/OR logic. i18n feedback messages.
+### Rules Engine
+- Automated validation with multiple rule types:
+  - Exact match, contains, starts/ends with
+  - Regex patterns with flags
+  - Length constraints (min/max)
+  - AND/OR logic for rule sets
+- i18n feedback messages
 
-**Test Management**: Project system with CRUD operations, execution history, export/import (JSON with ID preservation), conflict resolution, Quick-Run from test list, multi-select batch execution.
+### Test Management
+- Project system with complete CRUD operations
+- Execution history and results tracking
+- Export/Import with JSON format and ID preservation
+- Conflict resolution for duplicate imports
+- Quick-Run launcher from test list
+- Multi-select batch execution
 
-**Batch Runs**: Relational architecture (BatchRunSession/BatchRunResults), parallel execution (bounded concurrency), real-time progress, CSV export (RFC 4180), history (1,000 runs), enhanced sorting. _Planned: Statistical analysis, performance trending, A/B testing._
+### Batch Runs
+- Relational architecture (BatchRunSession/BatchRunResults entities)
+- Parallel execution with bounded concurrency
+- Real-time progress tracking
+- CSV export (RFC 4180 compliant)
+- History supporting up to 1,000 runs
+- Enhanced sorting by provider and model
+- _Planned: Statistical analysis, performance trending, A/B testing_
 
-**Data & Storage**: IndexedDB for projects/tests/runs, localStorage for API keys/preferences, Pinia state management, export/import system, privacy-first (no backend).
+### Data & Storage
+- IndexedDB for projects, tests, and runs
+- localStorage for API keys and user preferences
+- Pinia state management
+- Export/Import system with data integrity
+- Privacy-first architecture (no backend)
 
-**UI/UX**: BasePageLayout system (13+ components), dedicated views (TestsListView, TestDetailsView, TestQuickRunView, ProjectQuickRunView), reusable dialogs, responsive design.
+### UI/UX
+- BasePageLayout system with 13+ reusable components
+- Dedicated views: TestsListView, TestDetailsView, TestQuickRunView, ProjectQuickRunView
+- Reusable dialog components
+- Responsive design
 
 ---
 
@@ -51,17 +85,32 @@
 
 ## 🔌 Supported AI Providers
 
-**OpenAI**: GPT-4o, GPT-4o Mini, GPT-4 Turbo, GPT-3.5 Turbo, GPT-5 (nano/mini/full). Chat Completions API.
+### OpenAI
+- **Models**: GPT-4o, GPT-4o Mini, GPT-4 Turbo, GPT-3.5 Turbo, GPT-5 (nano/mini/full)
+- **API**: Chat Completions API
 
-**Anthropic (Claude)**: Claude 3.5 (Haiku, Sonnet, Opus). Messages API.
+### Anthropic (Claude)
+- **Models**: Claude 3.5 (Haiku, Sonnet, Opus)
+- **API**: Messages API
 
-**Mistral AI**: Mistral family. OpenAI-compatible Chat Completions API.
+### Mistral AI
+- **Models**: Mistral family
+- **API**: OpenAI-compatible Chat Completions API
 
-**Google Gemini**: Gemini 2.5 Pro/Flash, 2.0 Flash (including lite variants). generateContent endpoint.
+### Google Gemini
+- **Models**: Gemini 2.5 Pro/Flash, 2.0 Flash (including lite variants)
+- **API**: generateContent endpoint
 
-**Mock Provider**: Development/testing without API costs. Simulated responses, configurable latency.
+### Mock Provider
+- Development and testing without API costs
+- Simulated responses with configurable latency
 
-**Provider Architecture**: Modular design with `BaseProviderAdapter` interface, full TypeScript support, standardized error handling, accurate cost estimation, unified response format.
+### Provider Architecture
+- Modular design with `BaseProviderAdapter` interface
+- Full TypeScript support
+- Standardized error handling
+- Accurate cost estimation
+- Unified response format
 
 ---
 
@@ -76,11 +125,20 @@
 
 ## 🧪 Testing
 
-**570/570 tests passing** - Boston School behavior-driven approach focusing on user experience
+**570/570 tests passing** - Boston School behavior-driven approach
 
-**Coverage**: UI components, views, database operations, import/export, composables (rules engine, cost estimation, prompt/batch runner, test management), parallel execution (task pool, bounded concurrency)
+### Coverage
+- UI components and views
+- Database operations and import/export
+- Composables: rules engine, cost estimation, prompt/batch runner, test management
+- Parallel execution: task pool and bounded concurrency
 
-**Infrastructure**: Real i18n integration (production translations), IndexedDB mocking, zero warnings, type-safe with full TypeScript, Vitest with HMR
+### Infrastructure
+- Real i18n integration using production translations
+- IndexedDB mocking with global test setup
+- Zero warnings and clean output
+- Type-safe with full TypeScript support
+- Vitest with HMR
 
 ---
 
@@ -108,26 +166,61 @@
 
 ## 🏗️ Technical Stack
 
-**Frontend**: Vue 3 Composition API, TypeScript (strict mode), Vite, Vue Router 4, Pinia, Vue I18n
+### Frontend
+- Vue 3 Composition API
+- TypeScript (strict mode)
+- Vite build tool
+- Vue Router 4
+- Pinia state management
+- Vue I18n
 
-**UI Components** (13+): BaseButton, BaseDialog, BaseForm, BaseCard, BaseBadge, BaseToast, BaseNotice, BaseSpinner, BaseInputField, BaseEmptyState, BasePageLayout, BasePageHeader, BaseBreadcrumb, BatchProgressSection. Feature: ProviderCard, ProviderForm, TestExportImport, ProviderOptions, TestCaseDetails, ProjectsTestCasesList. Dialogs: CreateProject, DeleteProject, DeleteTestCase.
+### UI Components (13+)
+**Base Components**: BaseButton, BaseDialog, BaseForm, BaseCard, BaseBadge, BaseToast, BaseNotice, BaseSpinner, BaseInputField, BaseEmptyState, BasePageLayout, BasePageHeader, BaseBreadcrumb, BatchProgressSection
 
-**Data Layer**: IndexedDB (projects/tests/runs CRUD, relationships, referential integrity), localStorage (API keys/preferences), Pinia (reactive state), export/import (JSON, ID preservation, conflict resolution).
+**Feature Components**: ProviderCard, ProviderForm, TestExportImport, ProviderOptions, TestCaseDetails, ProjectsTestCasesList
 
-**Code Quality**: SOLID principles, DRY compliance, ESLint enforcement, i18n-first, conventional commits.
+**Dialog Components**: CreateProject, DeleteProject, DeleteTestCase
 
-**Batch Runner**: Relational entities (BatchRunSession, BatchRunResults), `useBatchRunner` composable, parallel execution (task pool, bounded concurrency), real-time progress, CSV export (RFC 4180), 1,000 run capacity.
+### Data Layer
+- **IndexedDB**: Projects, tests, and runs with full CRUD operations
+- **localStorage**: API keys and user preferences
+- **Pinia**: Reactive state management
+- **Export/Import**: JSON format with ID preservation and conflict resolution
+
+### Code Quality
+- SOLID principles
+- DRY compliance
+- ESLint enforcement
+- i18n-first approach
+- Conventional commits
+
+### Batch Runner
+- Relational entities: BatchRunSession, BatchRunResults
+- `useBatchRunner` composable for clean API
+- Parallel execution with task pool and bounded concurrency
+- Real-time progress tracking
+- CSV export (RFC 4180 compliant)
+- Supports up to 1,000 batch runs
 
 ---
 
 ## 🧱 Design Principles
 
-Front-end only • Modular architecture • Transparency (costs, tokens, progress) • Local-first privacy • Learner mindset • Performance (parallel execution)
+- **Front-end only**: No server dependencies
+- **Modular architecture**: Extensible provider system
+- **Transparency**: Show costs, tokens, progress
+- **Local-first**: Privacy-respecting storage
+- **Learner mindset**: Experimentation-focused
+- **Performance**: Parallel execution with bounded concurrency
 
 ---
 
 ## 📦 Future Features
 
-Advanced analytics • AI-based evaluator • Advanced reporting dashboard • PWA capabilities • Team collaboration
+- **Advanced Analytics**: Statistical analysis, reliability metrics, performance trending, A/B testing
+- **AI-based Evaluator**: Qualitative scoring and automated assessment
+- **Advanced Reporting**: Detailed analytics dashboard
+- **PWA Capabilities**: Offline functionality
+- **Team Collaboration**: Sharing and version control integration
 
 ---
