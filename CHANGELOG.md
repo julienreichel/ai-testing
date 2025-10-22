@@ -5,6 +5,83 @@ All notable changes to the AI Tester platform will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-01-20
+
+### 🚀 Major Features
+
+#### 🚀 Quick-Run Feature
+
+- **Dedicated Quick-Run Page**: New standalone page for rapid AI testing without test case creation
+- **Multi-Provider Parallel Execution**: Run the same prompt across multiple providers simultaneously
+- **Real-time Progress Tracking**: Visual progress indicators for batch operations
+- **Quick-Run from Tests View**: Launch quick runs directly from the test list interface
+- **Unified Batch Runner**: Shared composable for consistent batch execution across features
+
+#### 📊 Project-Level Test Execution
+
+- **Multi-Select Batch Runs**: Select and execute multiple test cases in one batch operation
+- **Project-Level CSV Export**: Export entire project results with proper test name resolution
+- **Enhanced Provider Sorting**: Sort batch results by provider name with secondary model name sorting
+- **Batch Run History Management**: Comprehensive history tracking with up to 1000 batch runs
+
+#### 🎨 UI/UX Improvements
+
+- **BasePageLayout System**: Reusable page layout components for consistent UI across all views
+- **Dedicated View Routing**: Separate list and detail views for tests with proper navigation
+- **Enhanced Test Details View**: Improved test case details page with better organization
+- **Quick-Run Dialog**: Streamlined dialog for launching quick tests from any view
+
+### 🐛 Bug Fixes
+
+- **CSV Export Test Names**: Fixed async test case name loading in export functionality
+- **Provider Initialization**: Fixed provider store initialization for dropdown population
+- **Quick-Run Dialog Behavior**: Prevent auto-close after run completion for better UX
+- **Max Batch Runs Limit**: Increased maximum batch run history from 100 to 1000
+- **Import Path Resolution**: Fixed TypeScript import path resolution issues
+- **Linter Compliance**: Resolved multiple ESLint violations and warnings
+
+### 🔄 Refactoring & Code Quality
+
+#### Architecture Improvements
+
+- **DRY Principles for CSV Export**: Centralized all CSV export logic in `useCsvExport` composable
+- **Generic CSV Export**: Added reusable `exportGenericCsv()` for any data export needs
+- **Provider Options Simplification**: Drastically simplified overengineered ProviderOptions component
+- **Reusable ProviderOptions**: Extracted provider options into reusable composable and component
+- **Batch Progress Extraction**: Extracted shared BatchProgressSection from duplicate progress code
+- **Component Extraction**: Split monolithic views into focused, single-responsibility components
+
+#### Component Organization
+
+- **Test View Refactoring**: Separated TestsView into distinct TestsListView and TestDetailsView
+- **Dialog Components**: Extracted inline dialogs into dedicated reusable components
+- **Test Case Detail Extraction**: Moved Test Case Detail View and Projects List to dedicated components
+- **View Naming Clarity**: Renamed QuickRunView to TestQuickRunView for better clarity
+
+#### Path Management
+
+- **Modern Path Mapping**: Updated TypeScript configs with path aliases (@/ prefix)
+- **Consistent Path Aliases**: Migrated all imports to use modern path aliasing
+- **Deprecation Handling**: Updated configs to handle TypeScript deprecations
+
+### 🛠️ Technical Improvements
+
+#### Testing & Quality
+
+- **Parallel Execution Tests**: Added comprehensive test coverage for parallel batch execution
+- **Bounded Concurrency**: Implemented parallel execution with configurable concurrency limits
+- **Enhanced Test Coverage**: Added tests for CSV export, batch operations, and UI components
+
+#### Performance
+
+- **Parallel Processing**: Multi-provider requests now execute in parallel for faster results
+- **Batch Optimization**: Improved batch run performance with better resource management
+
+### 📚 Documentation
+
+- **Knowledge Base Updates**: Updated documentation with new Quick-Run and batch execution features
+- **Feature Documentation**: Added comprehensive docs for project-level testing capabilities
+
 ## [0.1.1] - 2025-10-17
 
 ### 🚀 Major Features
