@@ -7,12 +7,14 @@ A comprehensive Vue 3 + TypeScript platform for testing, comparing, and validati
 ## ✨ Key Features
 
 - **🔌 Multi-Provider Support**: OpenAI, Anthropic Claude, Mistral AI, Google Gemini
-- **🧪 Prompt Testing**: Compare responses across different models and providers
+- **⚡ Quick-Run Testing**: Test prompts instantly without creating test cases
+- **🧪 Prompt Comparison**: Compare responses across different models and providers
+- **🚀 Batch Execution**: Run multiple tests in parallel with project-level execution
 - **📊 Cost Analysis**: Real-time token usage and cost estimation
 - **🎯 Rules Engine**: Automated validation with custom pass/fail criteria
-- **💾 Data Management**: Local storage with export/import capabilities
+- **💾 Data Management**: Local storage with CSV export capabilities (RFC 4180 compliant)
 - **🔒 Privacy-First**: All data stays in your browser - no backend required
-- **📱 (no so good) Responsive Design**: Works best on desktop
+- **📱 Responsive Design**: Works best on desktop
 
 ## 🎮 How to Use the Platform
 
@@ -32,6 +34,16 @@ No installation required! The platform runs entirely in your browser.
 
 ### 3. **Create and Test Prompts**
 
+#### Option A: Quick-Run (No Test Case Needed)
+
+1. Go to **Quick-Run** section
+2. Enter your prompt
+3. Select multiple providers/models to compare
+4. Run in parallel and see results instantly
+5. No test case creation required!
+
+#### Option B: Traditional Editor Approach
+
 1. Go to **Editor** section
 2. Write your user message
 3. Select models from different providers
@@ -46,19 +58,21 @@ No installation required! The platform runs entirely in your browser.
    - Custom validation logic
 2. Run batch tests to ensure consistency
 
-### 5. **Manage Test and Project**
+### 5. **Manage Tests and Projects**
 
 1. Go to **Tests** section
-2. Select saved Test
-3. Open it directly in the Editor
-4. IMport/Export tests if needed
+2. Browse your saved test cases
+3. Select tests and run them individually or in batch
+4. Launch Quick-Run directly from test list
+5. Export/Import test projects for backup or sharing
 
 ### 6. **Analyze Results**
 
-1. Check **Runs** section for execution history
+1. Check **Runs** section for execution history (up to 1,000 runs)
 2. View cost breakdowns and token usage
-3. Export data for further analysis
-4. Track performance trends over time
+3. Export batch results to CSV with proper test names
+4. Sort results by provider and model
+5. Track performance trends over time
 
 ## 🔒 Privacy & Security
 
@@ -131,26 +145,28 @@ npm run preview          # Preview production build
 ```
 src/
 ├── components/
-│   └── ui/                     # 10+ reusable UI components
+│   └── ui/                     # 13+ reusable UI components
 ├── features/
 │   ├── providers/              # Provider management
 │   ├── editor/                 # Prompt testing interface
-│   ├── tests/                  # Test case management
-│   └── runs/                   # Execution history
+│   ├── tests/                  # Test case management & Quick-Run
+│   └── runs/                   # Execution history & batch results
 ├── store/                      # Pinia state stores
 ├── composables/                # Reusable Vue logic
 ├── types/                      # TypeScript definitions
+├── utils/                      # Utilities (taskPool, generateId, etc.)
 └── locales/                    # i18n translations
 ```
 
 ## 🧪 Testing
 
-**495+ Tests with 100% Pass Rate**
+**570+ Tests with 100% Pass Rate**
 
 - **Boston School Testing**: Behavior-driven, user-focused tests
-- **Large Coverage**: Components, composables, services, features
+- **Comprehensive Coverage**: Components, composables, services, features
 - **Real i18n Integration**: Tests use production translations
 - **IndexedDB Mocking**: Full database testing capabilities
+- **Parallel Execution Tests**: Task pool and bounded concurrency
 - **Type-Safe Testing**: Full TypeScript in test environment
 
 ```bash
@@ -228,9 +244,10 @@ describe("YourProviderAdapter - User Behavior", () => {
 ## 📊 Performance Metrics
 
 - **Bundle Size**: Optimized with tree-shaking
-- **Test Coverage**: 495+ tests, 100% pass rate
+- **Test Coverage**: 570+ tests, 100% pass rate
 - **Build Time**: ~900ms production build
 - **Performance**: <100ms component render times
+- **Parallel Execution**: Bounded concurrency for optimal resource usage
 - **Browser Support**: Modern browsers (ES2020+)
 
 ## 🎯 Code Quality Standards
