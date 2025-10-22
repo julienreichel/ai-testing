@@ -145,7 +145,7 @@
 ## 🚀 Implementation Roadmap
 
 | Phase                      | Status | Focus                                             | Key Deliverables                           |
-| :------------------------- | :----: | :------------------------------------------------ | :----------------------------------------- | --- | -------------------------------------- | ----------------------------------------- |
+| :------------------------- | :----: | :------------------------------------------------ | :----------------------------------------- |
 | **0. Scaffold**            |   ✅   | Base app setup (Vue, Vite, Pinia, Router, Vitest) | Project skeleton & local storage service   |
 | **1. Foundation**          |   ✅   | Provider management & UI component library        | 10+ reusable components, provider CRUD     |
 | **1.5. Architecture**      |   ✅   | Clean code refactoring & testing foundation       | 75% code reduction, clean architecture     |
@@ -157,7 +157,7 @@
 | **7. Multi-Provider**      |   ✅   | Expand provider support (Mistral, Gemini)         | Enhanced provider registry                 |
 | **8. Quick-Run & Batch**   |   ✅   | Quick testing and project-level batch execution   | Rapid testing workflow, parallel execution |
 | **9. AI Evaluator**        |   📋   | Model-based judgment/grading                      | Structured JSON evaluation                 |
-| **10. Advanced Analytics** |   �   | Statistical analysis and performance trending     | Pass rates, performance metrics, A/B tests |
+| **10. Advanced Analytics** |   📋   | Statistical analysis and performance trending     | Pass rates, performance metrics, A/B tests |
 | **11. Enhancements**       |   📋   | PWA, reports, theming, advanced i18n              | Long-term improvements                     |
 
 **Legend**: ✅ Complete | 🔄 In Progress | 📋 Planned
